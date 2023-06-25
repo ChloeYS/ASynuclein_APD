@@ -93,36 +93,11 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 #COMPARISONS OF DEMOGRAPHICS FOR DX:
 #################################### 
 
-
-
-#AGE AT LP
-	# shapiro.test(CBSdf$Age) #normal
-	# shapiro.test(PSPdf$Age) #normal
-	# var.test(Age ~ DX_APD, data = df) #homoscedasticity
-# t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-# df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-			# shapiro.test(ADposCBSdfRS$Age) #normal
-			# shapiro.test(ADnegCBSdfRS$Age) #normal
-			# var.test(Age ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-		# t.test(CBSdfRS$Age ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE)
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-		# CBSdfRS %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-
-#SEX
+#TXT: TOTAL NUMBER + SEX%
+# df %>% count(DX_APD)
 # df %>% group_by(DX_APD) %>% count(Sex)
-# table(df$Sex, df$DX_APD)
-# chisq.test(table(df$Sex, df$DX_APD), correct=F)
 
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(Sex)
-		# table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary)
-		# chisq.test(table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary), correct=F)
-
-
-#ONSET OF DISEASE
+#TXT: ONSET OF DISEASE
 	# shapiro.test(CBSdf$Onset) #normal
 	# shapiro.test(PSPdf$Onset) #normal
 	# var.test(Onset ~ DX_APD, data = df) #homoscedasticity
@@ -130,62 +105,202 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
 # df %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
 
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-			# shapiro.test(ADposCBSdfRS$Onset) #normal
-			# shapiro.test(ADnegCBSdfRS$Onset) #normal
-			# var.test(Onset ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-		# t.test(CBSdfRS$Onset ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
-		# CBSdfRS %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
-
-#ONSET OF PARKINSONISM
+#TXT: ONSET OF PARKINSONISM
 	# shapiro.test(CBSdf$Park_onset) #normal
 	# shapiro.test(PSPdf$Park_onset) #normal
 	# hist(CBSdf$Park_onset)
 	# hist(PSPdf$Park_onset)
 	# var.test(Park_onset ~ DX_APD, data = df) #homoscedasticity
-# # wilcox.test(df$Park_onset ~ df$DX_APD, paired=F) #Cannot be computed due to ties.
 # t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
 # df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
 # df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
 
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		# 	shapiro.test(ADposCBSdfRS$Park_onset) #normal
-		# 	shapiro.test(ADnegCBSdfRS$Park_onset) #normal
-		# 	var.test(Park_onset ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-		# t.test(CBSdfRS$Park_onset ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
-		# CBSdfRS %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
-
-			#NOT INCLUDED
-			# shapiro.test(ADposCBSdfRS$LP2_Park_duration) #nonnormal
-			# shapiro.test(ADnegCBSdfRS$LP2_Park_duration) #nonnormal
-			# var.test(LP2_Park_duration ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-			# wilcox.test(df$LP2_Park_duration ~ df$Lifetime_AD_binary, paired=F)
-			# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(LP2_Park_duration, na.rm=T),2),2), sd=sd(LP2_Park_duration, na.rm=T))
-			# CBSdfRS %>% summarize(count=n(), format(round(mean(LP2_Park_duration, na.rm=T),2),2), sd=sd(LP2_Park_duration, na.rm=T))
-
-#DURATION OF DISEASE BY LP
-	# shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
-	# shapiro.test(PSPdf$LP2_Disease_Duration) #not normal
-	# leveneTest(LP2_Disease_Duration ~ DX_APD, data = df) #homoscedasticity
-# wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
-	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(LP2_Disease_Duration, na.rm=T),2),2), sd=sd(LP2_Disease_Duration, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
-	# df %>% summarize(count=n(), format(round(mean(LP2_Disease_Duration, na.rm=T),2),2), sd=sd(LP2_Disease_Duration, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+#TXT: AGE AT LP
+	# shapiro.test(CBSdf$Age) #normal
+	# shapiro.test(PSPdf$Age) #normal
+	# var.test(Age ~ DX_APD, data = df) #homoscedasticity
+# t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
+# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+# df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 
 
-# #EDUCATION
-	# shapiro.test(CBSdf$Education) #not normal
-	# shapiro.test(PSPdf$Education) #not normal
-	# leveneTest(Education ~ DX_APD, data = df) #homoscedasticity
-# wilcox.test(df$Education ~ df$DX_APD, paired=F)
-	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
-	# df %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+	##### TABLE1 #####
+	# df %>% count(DX_APD)
 
+	#TABLE1: AGE AT LP
+	# t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+	# df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+
+	#TABLE1: SEX
+	# df %>% group_by(DX_APD) %>% count(Sex)
+	# table(df$Sex, df$DX_APD)
+	# chisq.test(table(df$Sex, df$DX_APD), correct=F)
+
+	#TABLE1: EDUCATION
+		# shapiro.test(CBSdf$Education) #not normal
+		# shapiro.test(PSPdf$Education) #not normal
+		# leveneTest(Education ~ DX_APD, data = df) #homoscedasticity
+	# wilcox.test(df$Education ~ df$DX_APD, paired=F)
+		# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+		# df %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
+	# df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+
+	#TABLE1: AGE AT ONSET
+	# t.test(df$Onset ~ df$DX_APD, var.equal=TRUE) 
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+	# df %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+		
+	#TABLE1: AGE AT PARKINSONISM ONSET
+	# t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+	# df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
+	#TABLE1: DURATION OF DISEASE BY LP
+		# shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
+		# shapiro.test(PSPdf$LP2_Disease_Duration) #not normal
+		# leveneTest(LP2_Disease_Duration ~ DX_APD, data = df) #homoscedasticity
+	# wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
+		# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(LP2_Disease_Duration, na.rm=T),2),2), sd=sd(LP2_Disease_Duration, na.rm=T))
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+		# df %>% summarize(count=n(), format(round(mean(LP2_Disease_Duration, na.rm=T),2),2), sd=sd(LP2_Disease_Duration, na.rm=T))
+	# df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+
+	#TABLE1: APOE
+	# df %>% group_by(DX_APD) %>% count(APOEe4)
+	# table(df$APOEe4, df$DX_APD)
+	# chisq.test(table(df$APOEe4, df$DX_APD), correct=F)
+
+	#TABLE1: AD
+	# df %>% group_by(DX_APD) %>% count(Lifetime_AD_binary)
+	# table(df$Lifetime_AD_binary, df$DX_APD)
+	# chisq.test(table(df$Lifetime_AD, df$DX_APD), correct=F)
+
+
+	#TABLE1: ABETA42
+		#Even if it is just a descriptive analysis, remove outlier to better represent the data
+	# 	vec1 <- boxplot(abeta ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	# 		stripchart(abeta ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	boxplot(abeta ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	# 		stripchart(abeta ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	dfabeta <- subset(df, abeta!=vec1[1]) #remove outlier
+
+	# 	###Then check normality and heterodasticity
+	# 	CBSdfabeta <- subset(dfabeta, DX_APD=="CBS")
+	# 	PSPdfabeta <- subset(dfabeta, DX_APD=="PSP")
+	# 	shapiro.test(CBSdfabeta$logabeta) #normal
+	# 	shapiro.test(PSPdfabeta$logabeta) #normal
+	# 	leveneTest(logabeta ~ DX_APD, data = dfabeta) #homoscedasticity
+
+	# 	# t.test(dfabeta$logabeta ~ dfabeta$DX_APD, var.equal=TRUE) 
+	# aov <- aov(logabeta ~ Age + DX_APD, dfabeta) 
+	# Anova(aov, type="II") #Compare with type III
+	# dfabeta %>% summarize(count=n(), format(round(mean(abeta, na.rm=T),2),2), sd=sd(abeta, na.rm=T)) #Rounds up the sd for some reason
+	# dfabeta %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta, na.rm=T),2),2), sd=sd(abeta, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdfabeta$abeta)
+	# sd(PSPdfabeta$abeta)
+
+
+	# #TABLE1: PTAU181
+	# 	#Even if it is just a descriptive analysis, remove outlier to better represent the data
+	# 	vec1 <- boxplot(ptau ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	# 		stripchart(ptau ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	boxplot(ptau ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	# 		stripchart(ptau ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	dfptau <- subset(df, ptau!=vec1[1] & ptau!=vec1[2]) #remove outlier
+
+	# 	###Then check normality and heterodasticity
+	# 	CBSdfptau <- subset(dfptau, DX_APD=="CBS")
+	# 	PSPdfptau <- subset(dfptau, DX_APD=="PSP")
+	# 	shapiro.test(CBSdfptau$logptau) #normal
+	# 	shapiro.test(PSPdfptau$logptau) #normal
+	# 	leveneTest(logptau ~ DX_APD, data = dfptau) #homoscedasticity
+
+	# 	t.test(dfptau$logptau ~ dfptau$DX_APD, var.equal=TRUE) 
+	# aov <- aov(logptau ~ Age + DX_APD, dfptau) 
+	# Anova(aov, type="II") #Compare with type III
+	# dfptau %>% summarize(count=n(), format(round(mean(ptau, na.rm=T),2),2), sd=sd(ptau, na.rm=T)) #Rounds up the sd for some reason
+	# dfptau %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau, na.rm=T),2),2), sd=sd(ptau, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdfptau$ptau)
+	# sd(PSPdfptau$ptau)
+
+	# #TABLE1: TOTAL TAU
+	# #	#Even if it is just a descriptive analysis, remove outlier to better represent the data
+	# 	vec1<- boxplot(ttau ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	# 		stripchart(ttau ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	vec2<- boxplot(ttau ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	# 		stripchart(ttau ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	dfttau <- subset(df, ttau!=vec1[1] & ttau!=vec2[1]) #remove outlier
+
+	# # 	#Then check normality and heterodasticity
+	# 	CBSdfttau <- subset(dfttau, DX_APD=="CBS")
+	# 	PSPdfttau <- subset(dfttau, DX_APD=="PSP")
+	# 	shapiro.test(CBSdfttau$logttau) #normal
+	# 	shapiro.test(PSPdfttau$logttau) #normal
+	# 	leveneTest(logttau ~ DX_APD, data = dfttau) #homoscedasticity
+
+	# 	t.test(dfttau$logttau ~ dfttau$DX_APD, var.equal=TRUE) 
+	# aov <- aov(logttau ~ Age + DX_APD, dfttau) 
+	# Anova(aov, type="II") #Compare with type III
+	# dfttau %>% summarize(count=n(), format(round(mean(ttau, na.rm=T),2),2), sd=sd(ttau, na.rm=T)) #Rounds up the sd for some reason
+	# dfttau %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ttau, na.rm=T),2),2), sd=sd(ttau, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdfttau$ttau)
+	# sd(PSPdfttau$ttau)
+
+	# #TABLE1: ATI
+	#	#Even if it is just a descriptive analysis, remove outlier to better represent the data
+	# 	boxplot(ATI ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	# 		stripchart(ATI ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# 	boxplot(ATI ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	# 		stripchart(ATI ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+	# # 	#Then check normality and heterodasticity
+	# 	shapiro.test(CBSdf$ATI) #nonnormal
+	# 	shapiro.test(PSPdf$ATI) #nonnormal
+	# 	shapiro.test(df$ATI) #normal
+	# 	hist(df$ATI)
+	# 	leveneTest(ATI ~ DX_APD, data = df) #homoscedasticity
+
+	# 	wilcox.test(df$ATI ~ df$DX_APD, paired=F)
+	# aov <- aov(ATI ~ Age + DX_APD, df) 
+	# Anova(aov, type="II") #Compare with type III
+	# 	check_normality(aov) #Check because the ATI was bimodal including within CBS
+	# df %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdf$ATI)
+	# sd(PSPdf$ATI)
+
+	# #TABLE1: NFL
+	#Even if it is just a descriptive analysis, remove outlier to better represent the data
+	boxplot <- boxplot(NFL ~ DX_APD, data= CBSdf, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+	threshold <- min(max(CBSdf$NFL,na.rm=T), as.numeric(quantile(CBSdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+	dfnfl <- subset(df, (NFL<threshold & DX_APD=="CBS") | (DX_APD=="PSP"))
+
+	boxplot <- boxplot(NFL ~ DX_APD, data= PSPdf, col = "white")
+		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+	threshold <- min(max(PSPdf$NFL,na.rm=T), as.numeric(quantile(PSPdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL)*3)))
+	dfnfl <- subset(dfnfl, (NFL<threshold & DX_APD=="PSP") | (DX_APD=="CBS")) 
+
+	summary(dfnfl$NFL)
+	nrow(dfnfl)
+	
+	# # 	#Then check normality and heterodasticity
+	# 	shapiro.test(CBSdf$ATI) #nonnormal
+	# 	shapiro.test(PSPdf$ATI) #nonnormal
+	# 	shapiro.test(df$ATI) #normal
+	# 	hist(df$ATI)
+	# 	leveneTest(ATI ~ DX_APD, data = df) #homoscedasticity
+
+	# 	wilcox.test(df$ATI ~ df$DX_APD, paired=F)
+	# aov <- aov(ATI ~ Age + DX_APD, df) 
+	# Anova(aov, type="II") #Compare with type III
+	# 	check_normality(aov) #Check because the ATI was bimodal including within CBS
+	# df %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdf$ATI)
+	# sd(PSPdf$ATI)
 
 
 #MoCA Z-SCORE
@@ -214,31 +329,6 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
 	# df %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
 # df %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
-		
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-			# shapiro.test(ADposCBSdfRS$Cognitive_Z) #normal
-			# shapiro.test(ADnegCBSdfRS$Cognitive_Z) #nonnormal
-			# leveneTest(Cognitive_Z ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-		# wilcox.test(CBSdfRS$Cognitive_Z ~ CBSdfRS$Lifetime_AD_binary, paired=F)
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
-		# CBSdfRS %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
-
-
-# #APOE
-# df %>% group_by(DX_APD) %>% count(APOEe4)
-# table(df$APOEe4, df$DX_APD)
-# chisq.test(table(df$APOEe4, df$DX_APD), correct=F)
-
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(APOEe4)
-		# table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)
-		# fisher.test(table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-
-
-# #AD
-# df %>% group_by(DX_APD) %>% count(Lifetime_AD_binary)
-# table(df$Lifetime_AD_binary, df$DX_APD)
-# chisq.test(table(df$Lifetime_AD, df$DX_APD), correct=F)
 
 
 
@@ -293,9 +383,9 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 #Here remove CBS-HIV as looking at DX: dfRS dataset. 
 # First, identify outliers. Looking at AD+ vs AD- as this is my IV of interest and the data are quite normal to begin with
 # boxplot(Onset ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-# 	stripchart(Onset ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# stripchart(Onset ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 # vec <- boxplot(Onset ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-# 	stripchart(Onset ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# stripchart(Onset ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 # dfRSonset <- subset(dfRSDW, Onset!=vec[1]) #remove outlier: not needed here. 
 
 # #Then check normality of my group for AD and DX groups, and homoscedasticity
@@ -786,6 +876,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # FISHER AND CHI-SQUARES, TABLES:
 
 # df %>% count(RTQUIC)
+# dfMVRS %>% count(RTQUIC)
 
 # table(dfMVRS$RTQUIC, dfMVRS$AD_binary)
 # sum(dfMVRS$AD_binary=="AD Positive" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="M")
@@ -839,503 +930,14 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH BIOMARKER DATA
 ##########################################################
 
-# P-TAU/T-TAU RATIO IN ASYN GROUPS:
+# vec1<- boxplot(abeta ~ Lifetime_AD_binary, data= ADposdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
+# 	stripchart(abeta ~ Lifetime_AD_binary, data = ADposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# vec2 <-boxplot(abeta ~ Lifetime_AD_binary, data= ADnegdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
+# 	stripchart(abeta ~ Lifetime_AD_binary, data = ADnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# dfMVRSabeta <- subset(dfMVRS, abeta!=vec1[1] & abeta!=vec2[1]) #remove outlier
 
-# # Identify and remove outliers in Ptau for ANCOVA
-# vec<- boxplot(tauratio ~ RTQUIC, data= RTposdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
-# 	stripchart(tauratio ~ RTQUIC, data = RTposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfMVRStauratio <- subset(dfMVRS, tauratio!=vec[1] & tauratio!=vec[2]) #remove outlier
-# vec <- boxplot(tauratio ~ RTQUIC, data= RTnegdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-# 	stripchart(tauratio ~ RTQUIC, data = RTnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfMVRStauratio <- subset(dfMVRStauratio, tauratio!=vec[1] & tauratio!=vec[2] & tauratio!=vec[3] & tauratio!=vec[4] & tauratio!=vec[5]) #remove outlier
-# nrow(dfMVRStauratio)
-
-	# boxplot(tauratio ~ RTQUIC, data= dfMVRStauratio, col = "white")$out #identify outliers: in AD positive df, none. 
-		#stripchart(tauratio ~ RTQUIC, data = dfMVRStauratio, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(tauratio ~ DX_APD, data= dfMVRStauratio, col = "white")$out #identify outliers: in AD positive df, none. 
-		#stripchart(tauratio ~ DX_APD, data = dfMVRStauratio, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-	# RTposdfMVRStauratio<- subset(dfMVRStauratio, RTQUIC=="SAA positive")
-	# RTnegdfMVRStauratio <- subset(dfMVRStauratio, RTQUIC=="SAA negative")
-	# CBSdfMVRStauratio <- subset(dfMVRStauratio, DX_APD=="CBS")
-	# PSPdfMVRStauratio <- subset(dfMVRStauratio, DX_APD=="PSP")
-	# ADposdfdfMVRStauratio <- subset(dfMVRStauratio, AD_binary=="AD Positive")
-	# ADnegdfdfMVRStauratio <- subset(dfMVRStauratio, AD_binary=="AD Negative")
-	# FdfMVRStauratio <- subset(dfMVRStauratio, Sex=="F")
-	# MdfMVRStauratio <- subset(dfMVRStauratio, Sex=="M")
-
-	#Check if data are normal and homogeneity of variance
-	#All normal & Levene's test is okay. Whereas logtau is normal but has high heterodasticity.  
-	#Therefore best is either to do test without outliers, or be very careful with teh qqplot of residuals.
-	# shapiro.test(RTposdfMVRStauratio$tauratio)
-	# shapiro.test(RTnegdfMVRStauratio$tauratio)
-	# shapiro.test(CBSdfMVRStauratio$tauratio)
-	# shapiro.test(PSPdfMVRStauratio$tauratio)
-	# leveneTest(tauratio ~ DX_APD*RTQUIC, dfMVRStauratio) 
-
-	# Compare models with Ftest
-	# test1 <- lm(tauratio ~ DX_APD, dfMVRStauratio)
-	# test2 <- lm(tauratio ~ DX_APD  + RTQUIC, dfMVRStauratio)
-	# test3 <- lm(tauratio ~ DX_APD  + AD_binary, dfMVRStauratio) #Add AD_binary
-	# anova(test1, test2)
-	# anova(test1, test3)
-
-	# Inclusion of Age as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRStauratio, x = "Age", y = "tauratio", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRStauratio, x = "Age", y = "tauratio", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRStauratio, x = "Age", y = "tauratio", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-  	# ggscatter(dfMVRStauratio, x = "Age", y = "tauratio", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = AD_binary))
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$Age, method="spearman")
-	# cor.test(RTposdfMVRStauratio$tauratio, RTposdfMVRStauratio$Age) #close to significance. In other words, over about the few RTpos subjects, Age and and tauratio may be correlated. This is not due to AD effect. 
-		# cor.test(RTposdfMVRS$tauratio, RTposdfMVRS$Age) #Disappears with outlier inclusions so not very robust. 
-	# cor.test(RTnegdfMVRStauratio$tauratio, RTnegdfMVRStauratio$Age)
-	# cor.test(CBSdfMVRStauratio$tauratio, CBSdfMVRStauratio$Age)
-	# cor.test(PSPdfMVRStauratio$tauratio, PSPdfMVRStauratio$Age)
-	# cor.test(ADposdfdfMVRStauratio$tauratio, ADposdfdfMVRStauratio$Age) 
-	# cor.test(ADnegdfdfMVRStauratio$tauratio, ADnegdfdfMVRStauratio$Age)
-	# summary(lm(dfMVRStauratio$tauratio ~ dfMVRStauratio$Age)) #no linear relationship
-
-	# #Inclusion of Disease duration as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRStauratio, x = "LP2_Disease_Duration", y = "tauratio", add = "reg.line")+ 
-	  # stat_regline_equation(aes()) 
-	# ggscatter(dfMVRStauratio, x = "LP2_Disease_Duration", y = "tauratio", color = "DX_APD", add = "reg.line")+ 
-	#   stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRStauratio, x = "LP2_Disease_Duration", y = "tauratio", color = "RTQUIC", add = "reg.line")+
-	#   stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$LP2_Disease_Duration, method="spearman")
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(dfMVRS$tauratio, dfMVRS$LP2_Disease_Duration)
-	# cor.test(RTposdfMVRStauratio$tauratio, RTposdfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(RTnegdfMVRStauratio$tauratio, RTnegdfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(CBSdfMVRStauratio$tauratio, CBSdfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(PSPdfMVRStauratio$tauratio, PSPdfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(ADposdfdfMVRStauratio$tauratio, ADposdfdfMVRStauratio$LP2_Disease_Duration)
-	# cor.test(ADnegdfdfMVRStauratio$tauratio, ADnegdfdfMVRStauratio$LP2_Disease_Duration)
-	# summary(lm(dfMVRStauratio$tauratio ~ dfMVRStauratio$LP2_Disease_Duration)) #no linear relationship
-
-
-	# # Inclusion of abeta as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRStauratio, x = "abeta", y = "tauratio", add = "reg.line")+ 
-	#   stat_regline_equation(aes()) 
-	# ggscatter(dfMVRStauratio, x = "abeta", y = "tauratio", color = "DX_APD", add = "reg.line")+ 
-	#   stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRStauratio, x = "abeta", y = "tauratio", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$abeta, method="spearman")
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$abeta)
-	# cor.test(RTposdfMVRStauratio$tauratio, RTposdfMVRStauratio$abeta)
-	# cor.test(RTnegdfMVRStauratio$tauratio, RTnegdfMVRStauratio$abeta)
-	# cor.test(CBSdfMVRStauratio$tauratio, CBSdfMVRStauratio$abeta)
-	# cor.test(PSPdfMVRStauratio$tauratio, PSPdfMVRStauratio$abeta) #close to sig
-	# 	cor.test(PSPdfMVRS$tauratio, PSPdfMVRS$abeta) #completely lost with outliers
-	# # cor.test(ADposdfdfMVRStauratio$tauratio, ADposdfdfMVRStauratio$abeta)
-	# # cor.test(ADnegdfdfMVRStauratio$tauratio, ADnegdfdfMVRStauratio$abeta)
-	# summary(lm(dfMVRStauratio$tauratio ~ dfMVRStauratio$abeta)) #no linear relationship
-
-	# # Inclusion of Onset as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRStauratio, x = "Onset", y = "tauratio", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRStauratio, x = "Onset", y = "tauratio", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRStauratio, x = "Onset", y = "tauratio", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$Onset, method="spearman")
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$Onset)
-	# cor.test(RTposdfMVRStauratio$tauratio, RTposdfMVRStauratio$Onset) #close to sig. Maybe a trend where RTpos subjects have increased ptau-tau as they age but too low sample size to tell. 
-	# cor.test(RTnegdfMVRStauratio$tauratio, RTnegdfMVRStauratio$Onset)
-	# cor.test(CBSdfMVRStauratio$tauratio, CBSdfMVRStauratio$Onset)
-	# cor.test(PSPdfMVRStauratio$tauratio, PSPdfMVRStauratio$Onset)
-	# cor.test(ADposdfdfMVRStauratio$tauratio, ADposdfdfMVRStauratio$Onset)
-	# cor.test(ADnegdfdfMVRStauratio$tauratio, ADnegdfdfMVRStauratio$Onset)
-	# summary(lm(dfMVRStauratio$tauratio ~ dfMVRStauratio$Onset)) #no linear relationship
-
-	# Inclusion of NFL as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRStauratio, x = "logNFL", y = "tauratio", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRStauratio, x = "logNFL", y = "tauratio", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRStauratio, x = "logNFL", y = "tauratio", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRStauratio$tauratio, dfMVRStauratio$logNFL) #close to sig
-	# cor.test(dfMVRS$tauratio, dfMVRS$logNFL) #disappears with outliers
-	# cor.test(RTposdfMVRStauratio$tauratio, RTposdfMVRStauratio$logNFL) #close to sig
-	# cor.test(RTnegdfMVRStauratio$tauratio, RTnegdfMVRStauratio$logNFL)
-	# cor.test(CBSdfMVRStauratio$tauratio, CBSdfMVRStauratio$logNFL) #significant
-	# cor.test(PSPdfMVRStauratio$tauratio, PSPdfMVRStauratio$logNFL)
-	# cor.test(ADposdfdfMVRStauratio$tauratio, ADposdfdfMVRStauratio$logNFL)
-	# cor.test(ADnegdfdfMVRStauratio$tauratio, ADnegdfdfMVRStauratio$logNFL)
-	# summary(lm(dfMVRStauratio$tauratio ~ dfMVRStauratio$logNFL)) #no linear relationship
-
-	#Compare RT-pos and RTneg on tau ratio. Unclear if relatinoship. 
-	# shapiro.test(RTposdfMVRStauratio$tauratio)
-	# shapiro.test(RTnegdfMVRStauratio$tauratio)
-	# leveneTest(tauratio ~ RTQUIC, data = dfMVRStauratio) #Almost hetero.
-	# t.test(dfMVRStauratio$tauratio ~ dfMVRStauratio$RTQUIC, var.equal=F) 
-	# dfMVRStauratio %>% group_by(RTQUIC) %>% summarize(count=n(), format(round(mean(tauratio, na.rm=T),2),2), sd=sd(tauratio, na.rm=T))
-
-	#Compare Sex on tau ratio. There seems to be relationship. 
-	# shapiro.test(FdfMVRStauratio$tauratio)
-	# shapiro.test(MdfMVRStauratio$tauratio)
-	# leveneTest(tauratio ~ Sex, data = dfMVRStauratio) #Homoscedasticity.
-	# t.test(dfMVRStauratio$tauratio ~ dfMVRStauratio$Sex, var.equal=T) 
-	# dfMVRStauratio %>% group_by(Sex) %>% summarize(count=n(), format(round(mean(tauratio, na.rm=T),2),2), sd=sd(tauratio, na.rm=T))
-
-# # Data are not normally distributed so be careful with residuals
-# mlr1 <- lm(tauratio ~ RTQUIC + Sex + logNFL, dfMVRStauratio) 
-# summary(mlr1) #type I with DX first. The model is not really signfiicant, so instead try a regular t-test. 
-
-# ##Means to report for model aov2: CHANGE TO MEANS PER COMBINATION OF GROUP + SD SINCE THIS IS AN ANOVA. 
-# emmeans(mlr1, ~ RTQUIC, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-# emmeans(mlr1, ~ Sex, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-
-	#Analysis of tauratio*RTQUIC association in the young cohort
-	# dfMVRStauratioyoung <- subset(dfMVRStauratio, 65>=Onset)
-	# nrow(dfMVRStauratioyoung) #33
-	# mlr1 <- lm(tauratio ~ RTQUIC, dfMVRStauratioyoung) #For some reason effect of anyPPA is the most notable
-	# summary(mlr1) #type I with DX first. The model is not really signfiicant, so instead try a regular t-test. 
-	# AIC(mlr1)
-		# RTposdfMVRStauratioyoung <- subset(dfMVRStauratioyoung, RTQUIC=="SAA positive")
-		# RTnegdfMVRStauratioyoung <- subset(dfMVRStauratioyoung, RTQUIC=="SAA negative")
-		# ADposdfMVRStauratioyoung <- subset(dfMVRStauratioyoung, AD_binary=="AD Positive")
-		# ADnegdfMVRStauratioyoung <- subset(dfMVRStauratioyoung, AD_binary=="AD Negative")
-		# shapiro.test(RTposdfMVRStauratioyoung$tauratio)
-		# shapiro.test(RTnegdfMVRStauratioyoung$tauratio)
-		# shapiro.test(ADposdfMVRStauratioyoung$tauratio)
-		# shapiro.test(ADnegdfMVRStauratioyoung$tauratio)
-		# leveneTest(tauratio ~ RTQUIC, data = dfMVRStauratioyoung) #Homoscedasticity.
-		# leveneTest(tauratio ~ AD_binary, data = dfMVRStauratioyoung) #Homoscedasticity.
-	# t.test(dfMVRStauratioyoung$tauratio ~ dfMVRStauratioyoung$RTQUIC, var.equal=T) 
-	# t.test(dfMVRStauratioyoung$tauratio ~ dfMVRStauratioyoung$AD_binary, var.equal=T) 
-	# dfMVRStauratioyoung %>% group_by(RTQUIC) %>% summarize(count=n(), format(round(mean(tauratio, na.rm=T),2),2), sd=sd(tauratio, na.rm=T))
-
-
-
-# P-TAU:
-# Identify and remove outliers in Ptau for ANCOVA
-# boxplot(ptau ~ RTQUIC, data= RTposdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
-# 	stripchart(ptau ~ RTQUIC, data = RTposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# vec <- boxplot(ptau ~ RTQUIC, data= RTnegdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-# 	stripchart(ptau ~ RTQUIC, data = RTnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfMVRSptau <- subset(dfMVRS, ptau!=vec[1] ) #remove outlier
-
-# 	RTposdfMVRSptau<- subset(dfMVRSptau, RTQUIC=="SAA positive")
-# 	RTnegdfMVRSptau <- subset(dfMVRSptau, RTQUIC=="SAA negative")
-# 	CBSdfMVRSptau <- subset(dfMVRSptau, DX_APD=="CBS")
-# 	PSPdfMVRSptau <- subset(dfMVRSptau, DX_APD=="PSP")
-
-
-	# Check if data are normal and homogeneity of variance
-	# All very non normal but Levene's test is okay. Whereas logtau is normal but has high heterodasticity.  
-	# Therefore best is either to do test without outliers, or be very careful with teh qqplot of residuals.
-	# shapiro.test(RTposdfMVRSptau$ptau) #all very non normal
-	# shapiro.test(RTnegdfMVRSptau$ptau)
-	# shapiro.test(CBSdfMVRSptau$ptau)
-	# shapiro.test(PSPdfMVRSptau$ptau)
-	# leveneTest(ptau ~ DX_APD*RTQUIC, dfMVRSptau) #hetero
-
-	# shapiro.test(RTposdfMVRSptau$logptau) #normal
-	# shapiro.test(RTnegdfMVRSptau$logptau) #normal
-	# shapiro.test(CBSdfMVRSptau$logptau) #normal
-	# shapiro.test(PSPdfMVRSptau$logptau) #normal
-	# leveneTest(logptau ~ DX_APD*RTQUIC, dfMVRSptau) #homoscedastity
-
-	# Compare models with Ftest
-	# test1 <- lm(logptau ~ RTQUIC, dfMVRSptau)
-	# test2 <- lm(logptau ~ RTQUIC  + DX_APD, dfMVRSptau)
-	# test3 <- lm(logptau ~ RTQUIC + Sex, dfMVRSptau) #not adding any value to the model
-	# anova(test1, test2)
-	# anova(test1, test3)
-
-	# Inclusion of Age as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSptau, x = "Age", y = "logptau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSptau, x = "Age", y = "logptau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSptau, x = "Age", y = "logptau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$Age, method="spearman")
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$Age)
-	# cor.test(RTposdfMVRSptau$logptau, RTposdfMVRSptau$Age)
-	# cor.test(RTnegdfMVRSptau$logptau, RTnegdfMVRSptau$Age)
-	# cor.test(CBSdfMVRSptau$logptau, CBSdfMVRSptau$Age)
-	# cor.test(PSPdfMVRSptau$logptau, PSPdfMVRSptau$Age)
-	# summary(lm(dfMVRSptau$logptau ~ dfMVRSptau$Age)) #no linear relationship
-
-	# #Inclusion of Disease duration as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSptau, x = "LP2_Disease_Duration", y = "logptau", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSptau, x = "LP2_Disease_Duration", y = "logptau", color = "DX_APD", add = "reg.line")+ 
-	#   stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSptau, x = "LP2_Disease_Duration", y = "logptau", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$LP2_Disease_Duration, method="spearman")
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$LP2_Disease_Duration)
-	# cor.test(RTposdfMVRSptau$logptau, RTposdfMVRSptau$LP2_Disease_Duration)
-	# cor.test(RTnegdfMVRSptau$logptau, RTnegdfMVRSptau$LP2_Disease_Duration)
-	# cor.test(CBSdfMVRSptau$logptau, CBSdfMVRSptau$LP2_Disease_Duration)
-	# cor.test(PSPdfMVRSptau$logptau, PSPdfMVRSptau$LP2_Disease_Duration)
-	# summary(lm(dfMVRSptau$logptau ~ dfMVRSptau$LP2_Disease_Duration)) #no linear relationship
-
-	# Inclusion of abeta as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSptau, x = "abeta", y = "logptau", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSptau, x = "abeta", y = "logptau", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSptau, x = "abeta", y = "logptau", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$abeta, method="spearman")
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$abeta)
-	# cor.test(RTposdfMVRSptau$logptau, RTposdfMVRSptau$abeta)
-	# cor.test(RTnegdfMVRSptau$logptau, RTnegdfMVRSptau$abeta)
-	# cor.test(CBSdfMVRSptau$logptau, CBSdfMVRSptau$abeta)
-	# cor.test(PSPdfMVRSptau$logptau, PSPdfMVRSptau$abeta) #correlated
-	# summary(lm(dfMVRSptau$logptau ~ dfMVRSptau$abeta)) #no linear relationship
-
-	# Inclusion of Onset as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSptau, x = "Onset", y = "logptau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSptau, x = "Onset", y = "logptau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSptau, x = "Onset", y = "logptau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$Onset, method="spearman")
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$Onset)
-	# cor.test(RTposdfMVRSptau$logptau, RTposdfMVRSptau$Onset)
-	# cor.test(RTnegdfMVRSptau$logptau, RTnegdfMVRSptau$Onset)
-	# cor.test(CBSdfMVRSptau$logptau, CBSdfMVRSptau$Onset)
-	# cor.test(PSPdfMVRSptau$logptau, PSPdfMVRSptau$Onset)
-	# summary(lm(dfMVRSptau$logptau ~ dfMVRSptau$Onset)) #no linear relationship
-
-	# # Inclusion of NFL as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSptau, x = "NFL", y = "logptau", add = "reg.line")+ 
-	#   stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSptau, x = "NFL", y = "logptau", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSptau, x = "NFL", y = "logptau", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$NFL, method="spearman")
-	# cor.test(dfMVRSptau$logptau, dfMVRSptau$NFL)
-	# cor.test(RTposdfMVRSptau$logptau, RTposdfMVRSptau$NFL)
-	# cor.test(RTnegdfMVRSptau$logptau, RTnegdfMVRSptau$NFL)
-	# cor.test(CBSdfMVRSptau$logptau, CBSdfMVRSptau$NFL)
-	# cor.test(PSPdfMVRSptau$logptau, PSPdfMVRSptau$NFL)
-	# summary(lm(dfMVRSptau$logptau ~ dfMVRSptau$NFL)) #no linear relationship
-
-	# shapiro.test(RTposdfMVRSptau$logptau)
-	# shapiro.test(RTnegdfMVRSptau$logptau)
-	# var.test(logptau ~ RTQUIC, data = dfMVRSptau) #Hetero
-	# t.test(dfMVRSptau$logptau ~ dfMVRSptau$RTQUIC, var.equal=F) #Student t-test as normal + var equal. Var equal assumption based both on data + expectation.
-
-
-	# shapiro.test(CBSdfMVRSptau$logptau)
-	# shapiro.test(PSPdfMVRSptau$logptau)
-	# var.test(logptau ~ DX_APD, data = dfMVRS) #homoscedasticity
-	# var.test(logptau ~ DX_APD, data = dfMVRSptau) #homoscedasticity
-	# t.test(dfMVRSptau$logptau ~ dfMVRSptau$DX_APD, var.equal=T) #Student t-test as normal + var equal. Var equal assumption based both on data + expectation.
-	# dfMVRSptau %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau, na.rm=T),2),2), sd=sd(ptau, na.rm=T))
-
-# Data are not normally distributed so be careful with residuals
-# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
-# mlr <- lm(logptau ~ DX_APD*RTQUIC, dfMVRSptau) 
-# summary(mlr) #type I with DX first. The model is not really signfiicant, so instead try a regular t-test. 
-
-	# #Diagnostics of the model run
-	# check_normality(mlr) #Very non normal: model not fittint too well the data
-	# durbinWatsonTest(mlr) #Check the residuals are independent (multiple regression assumption)
-	# AIC(mlr) 
-
-# emmeans(mlr, ~ DX_APD:RTQUIC) #adjusted means
-# pairs(emmeans(mlr,~ DX_APD:RTQUIC))
-# emmeans(mlr, ~ DX_APD) #adjusted means
-# emmeans(mlr, ~ RTQUIC) #adjusted means
-
-# 	sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$AD_binary=="AD Positive")
-# 	sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="SAA positive")
-# 	sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="SAA negative" & dfMVRS$AD_binary=="AD Positive")
-# 	sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="SAA negative")
-
-
-
-# T-TAU:
-
-# Identify and remove outliers in Ptau for ANCOVA
-# Before model testing i create df after removal of the outliers that will be an issue if I include the factor in final model. 
-# First identify and remove outlier from the RTpos+ group only. 
-# boxplot <- boxplot(ttau ~ RTQUIC, data= RTposdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# 	stripchart(ttau ~ RTQUIC, data = RTposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-# threshold <- min(max(RTposdfMVRS$ttau,na.rm=T), as.numeric(quantile(RTposdfMVRS$ttau, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdfMVRS$ttau)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-# dfMVRSttau <- subset(dfMVRS, (ttau<threshold & RTQUIC=="SAA positive") | (RTQUIC=="SAA negative"))
-
-# ##Then identify and remove outlier from the RTneg- group only
-# boxplot <- boxplot(ttau ~ RTQUIC, data= RTnegdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# 	stripchart(ttau ~ RTQUIC, data = RTnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-# threshold <- min(max(RTnegdfMVRS$ttau,na.rm=T), as.numeric(quantile(RTnegdfMVRS$ttau, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdfMVRS$ttau)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-# dfMVRSttau <- subset(dfMVRSttau, (ttau<threshold & RTQUIC=="SAA negative") | (RTQUIC=="SAA positive"))
-# sort(dfMVRSttau$ttau) #Double-check it only remved the outlier from AD+
-# nrow(dfMVRSttau)
-
-	# RTposdfMVRSttau<- subset(dfMVRSttau, RTQUIC=="SAA positive")
-	# RTnegdfMVRSttau <- subset(dfMVRSttau, RTQUIC=="SAA negative")
-	# CBSdfMVRSttau <- subset(dfMVRSttau, DX_APD=="CBS")
-	# PSPdfMVRSttau <- subset(dfMVRSttau, DX_APD=="PSP")
-
-	# Check if data are normal and homogeneity of variance
-	# shapiro.test(RTposdfMVRSttau$ttau) #non normal
-	# shapiro.test(RTnegdfMVRSttau$ttau)#non normal
-	# shapiro.test(CBSdfMVRSttau$ttau)#non normal
-	# shapiro.test(PSPdfMVRSttau$ttau)#non normal
-	# leveneTest(ttau ~ DX_APD*RTQUIC, dfMVRSttau) #homo
-
-	# shapiro.test(RTposdfMVRSttau$logttau) #normal
-	# shapiro.test(RTnegdfMVRSttau$logttau)#normal
-	# shapiro.test(CBSdfMVRSttau$logttau)#normal
-	# shapiro.test(PSPdfMVRSttau$logttau)#normal
-	# leveneTest(logttau ~ DX_APD*RTQUIC, dfMVRSttau) #homoscedastity
-
-	# Compare models with Ftest
-	# test1 <- lm(logttau ~ RTQUIC, dfMVRSttau)
-	# test2 <- lm(logttau ~ RTQUIC  + DX_APD, dfMVRSttau) #not adding any value to the model
-	# test3 <- lm(logttau ~ RTQUIC + Sex, dfMVRSttau) #not adding any value to the model
-	# anova(test1, test2)
-	# anova(test1, test3)
-
-	# Inclusion of Age as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSttau, x = "Age", y = "logttau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSttau, x = "Age", y = "logttau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSttau, x = "Age", y = "logttau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$Age, method="spearman")
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$Age)
-	# cor.test(RTposdfMVRSttau$logttau, RTposdfMVRSttau$Age)
-	# cor.test(RTnegdfMVRSttau$logttau, RTnegdfMVRSttau$Age) #correlated
-	# cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$Age)
-	# cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$Age) #super correlated
-	# summary(lm(dfMVRSttau$logttau ~ dfMVRSttau$Age)) #no linear relationship
-
-	#Inclusion of Disease duration as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSttau, x = "LP2_Disease_Duration", y = "logttau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSttau, x = "LP2_Disease_Duration", y = "logttau", color = "DX_APD", add = "reg.line")+ 
-	#  	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSttau, x = "LP2_Disease_Duration", y = "logttau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$LP2_Disease_Duration, method="spearman")
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$LP2_Disease_Duration)
-	# cor.test(RTposdfMVRSttau$logttau, RTposdfMVRSttau$LP2_Disease_Duration) 
-	# cor.test(RTnegdfMVRSttau$logttau, RTnegdfMVRSttau$LP2_Disease_Duration)#corr
-	# cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$LP2_Disease_Duration)
-	# cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$LP2_Disease_Duration) #corr
-	# summary(lm(dfMVRSttau$logttau ~ dfMVRSttau$LP2_Disease_Duration)) #no linear relationship
-
-	# Inclusion of abeta as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSttau, x = "abeta", y = "logttau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSttau, x = "abeta", y = "logttau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSttau, x = "abeta", y = "logttau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$abeta, method="spearman")
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$abeta)
-	# cor.test(RTposdfMVRSttau$logttau, RTposdfMVRSttau$abeta) #trend to corr
-	# cor.test(RTnegdfMVRSttau$logttau, RTnegdfMVRSttau$abeta)
-	# cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$abeta)
-	# cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$abeta)
-	# summary(lm(dfMVRSttau$logttau ~ dfMVRSttau$abeta)) #no linear relationship
-
-	# Inclusion of Onset as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSttau, x = "Onset", y = "logttau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSttau, x = "Onset", y = "logttau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSttau, x = "Onset", y = "logttau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$Onset, method="spearman")
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$Onset)
-	# cor.test(RTposdfMVRSttau$logttau, RTposdfMVRSttau$Onset)
-	# cor.test(RTnegdfMVRSttau$logttau, RTnegdfMVRSttau$Onset)
-	# cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$Onset)
-	# cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$Onset) #corr
-	# summary(lm(dfMVRSttau$logttau ~ dfMVRSttau$Onset)) #no linear relationship
-
-	# # Inclusion of NFL as a covariate:
-	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSttau, x = "NFL", y = "logttau", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSttau, x = "NFL", y = "logttau", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSttau, x = "NFL", y = "logttau", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$NFL, method="spearman")
-	# cor.test(dfMVRSttau$logttau, dfMVRSttau$NFL)
-	# cor.test(RTposdfMVRSttau$logttau, RTposdfMVRSttau$NFL) #trend to corr
-	# cor.test(RTnegdfMVRSttau$logttau, RTnegdfMVRSttau$NFL)
-	# cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$NFL)
-	# cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$NFL)
-	# summary(lm(dfMVRSttau$logttau ~ dfMVRSttau$NFL)) #no linear relationship
-
-# Data are not normally distributed so be careful with residuals
-# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
-# mlr1 <- lm(logttau ~ DX_APD*Age + RTQUIC, dfMVRSttau)
-# summary(mlr1) #type I with DX first. The model is not really signfiicant, so instead try a regular t-test. 
-
-	# # Diagnostics of the model run
-	# check_normality(mlr1) #Very non normal: model not fittint too well the data
-	# durbinWatsonTest(mlr1) #Check the residuals are independent (multiple regression assumption)
-	# AIC(mlr1) 
-
-# emmeans(mlr1, ~ DX_APD:Age) #adjusted means
-# emmeans(mlr1, ~ DX_APD) #adjusted means
-# emmeans(mlr1, ~ RTQUIC) #adjusted means
-# 	cor.test(CBSdfMVRSttau$logttau, CBSdfMVRSttau$Age) #corr
-# 	cor.test(PSPdfMVRSttau$logttau, PSPdfMVRSttau$Age) #not corr
-
-
-
-
-# Abeta:
-# Identify and remove outliers in Ptau for ANCOVA
-# Before model testing i create df after removal of the outliers that will be an issue if I include the factor in final model. 
-# First identify and remove outlier from the RTpos+ group only. 
-# boxplot <- boxplot(abeta ~ RTQUIC, data= RTposdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# 	stripchart(abeta ~ RTQUIC, data = RTposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-# threshold <- min(max(RTposdfMVRS$abeta,na.rm=T), as.numeric(quantile(RTposdfMVRS$abeta, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdfMVRS$abeta)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-# dfMVRSabeta <- subset(dfMVRS, (abeta<threshold & RTQUIC=="SAA positive") | (RTQUIC=="SAA negative"))
-# sort(dfMVRSabeta$abeta) #Double-check it only remved the outlier from AD+
-
-# # ##Then identify and remove outlier from the RTneg- group only
-# boxplot <- boxplot(abeta ~ RTQUIC, data= RTnegdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# 	stripchart(abeta ~ RTQUIC, data = RTnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-# threshold <- min(max(RTnegdfMVRS$abeta,na.rm=T), as.numeric(quantile(RTnegdfMVRS$abeta, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdfMVRS$abeta)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-# dfMVRSabeta <- subset(dfMVRSabeta, (abeta<threshold & RTQUIC=="SAA negative") | (RTQUIC=="SAA positive"))
-	# sort(dfMVRSabeta$abeta) #Double-check it only remved the outlier from AD+
-	# nrow(dfMVRSabeta)
-
-	# RTposdfMVRSabeta<- subset(dfMVRSabeta, RTQUIC=="SAA positive")
-	# RTnegdfMVRSabeta <- subset(dfMVRSabeta, RTQUIC=="SAA negative")
+# 	RTposdfMVRSabeta<- subset(dfMVRSabeta, RTQUIC=="SAA positive")
+# 	RTnegdfMVRSabeta <- subset(dfMVRSabeta, RTQUIC=="SAA negative")
 	# CBSdfMVRSabeta <- subset(dfMVRSabeta, DX_APD=="CBS")
 	# PSPdfMVRSabeta <- subset(dfMVRSabeta, DX_APD=="PSP")
 
@@ -1486,9 +1088,9 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 ##########################################################
 
 # # ASYN SAA POSITIVITY AND DEMOGRAPHICS
-dfMVRS %>% group_by(RTQUIC) %>% count(DX_APD)
-sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="αsyn positive" & dfMVRS$Sex=="M")
-sum(dfMVRS$DX_APD=="PSP" & dfMVRS$RTQUIC=="αsyn positive" & dfMVRS$Sex=="M")
+# df %>% group_by(RTQUIC) %>% count(DX_APD)
+# sum(df$DX_APD=="CBS" & df$RTQUIC=="SAA positive" & df$Sex=="M")
+# sum(df$DX_APD=="PSP" & df$RTQUIC=="SAA positive" & df$Sex=="M")
 
 # boxplot(dfMVRS$Age ~ dfMVRS$RTQUIC)$out
 # aovmodel <- aov(Age ~ DX_APD + RTQUIC, dfMVRS)
@@ -1510,31 +1112,31 @@ sum(dfMVRS$DX_APD=="PSP" & dfMVRS$RTQUIC=="αsyn positive" & dfMVRS$Sex=="M")
 # table(dfMVRS$Parkinsonian_onset, dfMVRS$RTQUIC)
 # fisher.test(table(dfMVRS$Sex, dfMVRS$RTQUIC)) # Expected count is <5 for one cell
 
-#####################################	PREVALENCE OF ASYN SAA POSITIVITY AND NFL ###########################################
+
+
+
+###############################################	ASYN SAA POSITIVITY AND NFL ##################################################
 ##############################################################################################################################
 
+
+#Visualize as we expect very positive skew
 # boxplot(NFL ~ RTQUIC, data= dfMVRS, col = "white")$out
-# stripchart(NFL ~ RTQUIC,
-#            data = df,
-#            method = "jitter",
-#            pch = 19,
-#            col = 2:4,
-#            vertical = TRUE,
-#            add = TRUE) #There's clearly a difference
+# stripchart(NFL ~ RTQUIC,data = df, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE) #There's clearly a difference
 
 # boxplot <- boxplot(NFL ~ RTQUIC, data= RTposdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+# # boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+# threshold <- min(max(RTposdfMVRS$NFL,na.rm=T), as.numeric(quantile(CBSdfMVRS$RTposdfMVRS, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdfMVRS$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
 # min(max(RTposdfMVRS$NFL,na.rm=T), as.numeric(quantile(RTposdfMVRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdfMVRS$NFL)*3))) 
 # dfnfl <- subset(df, (NFL<threshold & AD=="Positive") | (AD=="Negative")) #make sure you don't accidentally erase the AD negative here, or filter their values
 # # sort(dfnfl$NFL)
 
-# # # Remove outliers for DX
-# boxplot <- boxplot(NFL ~ DX_APD, data= CBSdfRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-# 	stripchart(NFL ~ DX_APD, data = CBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# # Remove outliers for DX
+# boxplot <- boxplot(NFL ~ DX_APD, data= CBSdfMVRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+# 	stripchart(NFL ~ DX_APD, data = CBSdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 # # boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-# threshold <- min(max(CBSdfRS$NFL,na.rm=T), as.numeric(quantile(CBSdfRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdfRS$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+# threshold <- min(max(CBSdfMVRS$NFL,na.rm=T), as.numeric(quantile(CBSdfMVRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdfMVRS$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
 # # dfRS[!((dfRS$NFL<threshold & dfRS$DX_APD=="CBS")| (dfRS$DX_APD=="PSP")), c("ID", "NFL")] 
-# dfRSnflDX <- subset(dfRS, (NFL<threshold & DX_APD=="CBS") | (DX_APD=="PSP"))
+# dfMVRSnflDX <- subset(dfMVRS, (NFL<threshold & DX_APD=="CBS") | (DX_APD=="PSP"))
 
 # boxplot <- boxplot(NFL ~ DX_APD, data= PSPdfRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
 # 	stripchart(NFL ~ DX_APD, data = PSPdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
@@ -1936,6 +1538,53 @@ sum(dfMVRS$DX_APD=="PSP" & dfMVRS$RTQUIC=="αsyn positive" & dfMVRS$Sex=="M")
 
 
 
+###############################################################################################################################
+										   #SUPPLEMENTARY MATERIAL
+###############################################################################################################################
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(Sex)
+		# table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary)
+		# chisq.test(table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary), correct=F)
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+			# shapiro.test(ADposCBSdfRS$Age) #normal
+			# shapiro.test(ADnegCBSdfRS$Age) #normal
+			# var.test(Age ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+		# t.test(CBSdfRS$Age ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE)
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+		# CBSdfRS %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+			# shapiro.test(ADposCBSdfRS$Onset) #normal
+			# shapiro.test(ADnegCBSdfRS$Onset) #normal
+			# var.test(Onset ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+		# t.test(CBSdfRS$Onset ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+		# CBSdfRS %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+		
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+		# 	shapiro.test(ADposCBSdfRS$Park_onset) #normal
+		# 	shapiro.test(ADnegCBSdfRS$Park_onset) #normal
+		# 	var.test(Park_onset ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+		# t.test(CBSdfRS$Park_onset ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+		# CBSdfRS %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+			# shapiro.test(ADposCBSdfRS$Cognitive_Z) #normal
+			# shapiro.test(ADnegCBSdfRS$Cognitive_Z) #nonnormal
+			# leveneTest(Cognitive_Z ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+		# wilcox.test(CBSdfRS$Cognitive_Z ~ CBSdfRS$Lifetime_AD_binary, paired=F)
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
+		# CBSdfRS %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
+
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(APOEe4)
+		# table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)
+		# fisher.test(table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
 #########################################################################################################
 										   #DOCUMENTATION AND REFERENCES
 ###############################################################################################################################
