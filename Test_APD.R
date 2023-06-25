@@ -124,18 +124,23 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 
 
+
+
 	##### TABLE1 #####
 	# df %>% count(DX_APD)
+
 
 	#TABLE1: AGE AT LP
 	# t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
 	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 	# df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 
+
 	#TABLE1: SEX
 	# df %>% group_by(DX_APD) %>% count(Sex)
 	# table(df$Sex, df$DX_APD)
 	# chisq.test(table(df$Sex, df$DX_APD), correct=F)
+
 
 	#TABLE1: EDUCATION
 		# shapiro.test(CBSdf$Education) #not normal
@@ -147,15 +152,18 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 		# df %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
 	# df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
 
+
 	#TABLE1: AGE AT ONSET
 	# t.test(df$Onset ~ df$DX_APD, var.equal=TRUE) 
 	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
 	# df %>% summarize(count=n(), format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
 		
+
 	#TABLE1: AGE AT PARKINSONISM ONSET
 	# t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
 	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
 	# df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
 
 	#TABLE1: DURATION OF DISEASE BY LP
 		# shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
@@ -167,10 +175,12 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 		# df %>% summarize(count=n(), format(round(mean(LP2_Disease_Duration, na.rm=T),2),2), sd=sd(LP2_Disease_Duration, na.rm=T))
 	# df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
 
+
 	#TABLE1: APOE
 	# df %>% group_by(DX_APD) %>% count(APOEe4)
 	# table(df$APOEe4, df$DX_APD)
 	# chisq.test(table(df$APOEe4, df$DX_APD), correct=F)
+
 
 	#TABLE1: AD
 	# df %>% group_by(DX_APD) %>% count(Lifetime_AD_binary)
@@ -179,6 +189,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
 
 	#TABLE1: ABETA42
+	##Even if just a descriptive table, for the biomarkers prefer to remove outliers. It only really makes a difference for the NFL though. 
 		#Even if it is just a descriptive analysis, remove outlier to better represent the data
 	# 	vec1 <- boxplot(abeta ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
 	# 		stripchart(abeta ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
@@ -200,6 +211,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# dfabeta %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta, na.rm=T),2),2), sd=sd(abeta, na.rm=T)) #Rounds up the sd for some reason
 	# sd(CBSdfabeta$abeta)
 	# sd(PSPdfabeta$abeta)
+
 
 
 	# #TABLE1: PTAU181
@@ -225,6 +237,8 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# sd(CBSdfptau$ptau)
 	# sd(PSPdfptau$ptau)
 
+
+
 	# #TABLE1: TOTAL TAU
 	# #	#Even if it is just a descriptive analysis, remove outlier to better represent the data
 	# 	vec1<- boxplot(ttau ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
@@ -233,7 +247,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# 		stripchart(ttau ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 	# 	dfttau <- subset(df, ttau!=vec1[1] & ttau!=vec2[1]) #remove outlier
 
-	# # 	#Then check normality and heterodasticity
+	#	#Then check normality and heterodasticity
 	# 	CBSdfttau <- subset(dfttau, DX_APD=="CBS")
 	# 	PSPdfttau <- subset(dfttau, DX_APD=="PSP")
 	# 	shapiro.test(CBSdfttau$logttau) #normal
@@ -248,6 +262,8 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# sd(CBSdfttau$ttau)
 	# sd(PSPdfttau$ttau)
 
+
+
 	# #TABLE1: ATI
 	#	#Even if it is just a descriptive analysis, remove outlier to better represent the data
 	# 	boxplot(ATI ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
@@ -255,7 +271,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# 	boxplot(ATI ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
 	# 		stripchart(ATI ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-	# # 	#Then check normality and heterodasticity
+	#  	#Then check normality and heterodasticity
 	# 	shapiro.test(CBSdf$ATI) #nonnormal
 	# 	shapiro.test(PSPdf$ATI) #nonnormal
 	# 	shapiro.test(df$ATI) #normal
@@ -271,50 +287,54 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# sd(CBSdf$ATI)
 	# sd(PSPdf$ATI)
 
-	# #TABLE1: NFL
-	#Even if it is just a descriptive analysis, remove outlier to better represent the data
-	boxplot <- boxplot(NFL ~ DX_APD, data= CBSdf, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-	threshold <- min(max(CBSdf$NFL,na.rm=T), as.numeric(quantile(CBSdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-	dfnfl <- subset(df, (NFL<threshold & DX_APD=="CBS") | (DX_APD=="PSP"))
 
-	boxplot <- boxplot(NFL ~ DX_APD, data= PSPdf, col = "white")
-		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-	threshold <- min(max(PSPdf$NFL,na.rm=T), as.numeric(quantile(PSPdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL)*3)))
-	dfnfl <- subset(dfnfl, (NFL<threshold & DX_APD=="PSP") | (DX_APD=="CBS")) 
 
-	summary(dfnfl$NFL)
-	nrow(dfnfl)
+	# TABLE1: NFL
+	# Even if it is just a descriptive analysis, remove outlier to better represent the data
+		# boxplot <- boxplot(NFL ~ DX_APD, data= CBSdf, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+		# # boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+		# threshold <- min(max(CBSdf$NFL,na.rm=T), as.numeric(quantile(CBSdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+		# dfnfl <- subset(df, (NFL<threshold & DX_APD=="CBS") | (DX_APD=="PSP"))
+
+		# boxplot <- boxplot(NFL ~ DX_APD, data= PSPdf, col = "white")
+		# # boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+		# threshold <- min(max(PSPdf$NFL,na.rm=T), as.numeric(quantile(PSPdf$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL)*3)))
+		# dfnfl <- subset(dfnfl, (NFL<threshold & DX_APD=="PSP") | (DX_APD=="CBS")) 
 	
-	# # 	#Then check normality and heterodasticity
-	# 	shapiro.test(CBSdf$ATI) #nonnormal
-	# 	shapiro.test(PSPdf$ATI) #nonnormal
-	# 	shapiro.test(df$ATI) #normal
-	# 	hist(df$ATI)
-	# 	leveneTest(ATI ~ DX_APD, data = df) #homoscedasticity
+		# Then check normality and heterodasticity
+		# CBSdfnfl <- subset(dfnfl, DX_APD=="CBS")
+		# PSPdfnfl <- subset(dfnfl, DX_APD=="PSP")
+		# shapiro.test(CBSdfnfl$logNFL) #normal
+		# shapiro.test(PSPdfnfl$logNFL) #normal
+		# shapiro.test(dfnfl$logNFL) #normal
+		# leveneTest(logNFL ~ DX_APD, data = dfnfl) #homoscedasticity
 
-	# 	wilcox.test(df$ATI ~ df$DX_APD, paired=F)
-	# aov <- aov(ATI ~ Age + DX_APD, df) 
-	# Anova(aov, type="II") #Compare with type III
-	# 	check_normality(aov) #Check because the ATI was bimodal including within CBS
-	# df %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
-	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI, na.rm=T),2),2), sd=sd(ATI, na.rm=T)) #Rounds up the sd for some reason
-	# sd(CBSdf$ATI)
-	# sd(PSPdf$ATI)
+		# t.test(dfnfl$logNFL ~ dfnfl$DX_APD, var.equal=TRUE) 
+	# aov <- aov(logNFL ~ Age + DX_APD, dfnfl) 
+	# Anova(aov, type="II")
+	# dfnfl %>% summarize(count=n(), format(round(mean(NFL, na.rm=T),2),2), sd=sd(NFL, na.rm=T)) #Rounds up the sd for some reason
+	# dfnfl %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(NFL, na.rm=T),2),2), sd=sd(NFL, na.rm=T)) #Rounds up the sd for some reason
+	# sd(CBSdfnfl$NFL)
+	# sd(PSPdfnfl$NFL)
 
 
-#MoCA Z-SCORE
-# 	shapiro.test(CBSdf$MOCA_Z) #not normal
-# 	shapiro.test(PSPdf$MOCA_Z) #not normal
-# 	hist(df$MOCA_Z)
-# 	hist(CBSdf$MOCA_Z)
-# 	hist(PSPdf$MOCA_Z)
-# 	leveneTest(MOCA_Z ~ DX_APD, data = df) #heterodasticity
-# wilcox.test(df$MOCA_Z ~ df$DX_APD, paired=F)
-# 	df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(MOCA_Z, na.rm=T),2),2), IQR=IQR(MOCA_Z, na.rm=T), min=min(MOCA_Z, na.rm=T), max=max(MOCA_Z, na.rm=T))
-# 	df %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(MOCA_Z, na.rm=T),2),2), IQR=IQR(MOCA_Z, na.rm=T), min=min(MOCA_Z, na.rm=T), max=max(MOCA_Z, na.rm=T))
+	#MoCA Z-SCORE
+		# boxplot(MOCA_Z ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+		# 	stripchart(ATI ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+		# boxplot(ATI ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+		# 	stripchart(ATI ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+		# shapiro.test(CBSdf$MOCA_Z) #normal
+		# shapiro.test(PSPdf$MOCA_Z) #not normal
+		# hist(df$MOCA_Z)
+		# hist(CBSdf$MOCA_Z)
+		# hist(PSPdf$MOCA_Z)
+		# leveneTest(MOCA_Z ~ DX_APD, data = df) #heterodasticity
+	# wilcox.test(df$MOCA_Z ~ df$DX_APD, paired=F) #Since looking at z-score, no need to correct by age for this comparison
+	# 	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
+	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(MOCA_Z, na.rm=T),2),2), IQR=IQR(MOCA_Z, na.rm=T), min=min(MOCA_Z, na.rm=T), max=max(MOCA_Z, na.rm=T))
+	# 	# df %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
+	# df %>% summarize(count=n(), format(round(median(MOCA_Z, na.rm=T),2),2), IQR=IQR(MOCA_Z, na.rm=T), min=min(MOCA_Z, na.rm=T), max=max(MOCA_Z, na.rm=T))
 
 
 #Z-SCORE
