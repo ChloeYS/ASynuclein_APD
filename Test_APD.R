@@ -337,18 +337,13 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# df %>% summarize(count=n(), format(round(median(MOCA_Z, na.rm=T),2),2), IQR=IQR(MOCA_Z, na.rm=T), min=min(MOCA_Z, na.rm=T), max=max(MOCA_Z, na.rm=T))
 
 
-#Z-SCORE
-	# shapiro.test(CBSdf$Cognitive_Z) #not normal
-	# shapiro.test(PSPdf$Cognitive_Z) #not normal
-	# hist(df$Cognitive_Z)
-	# hist(CBSdf$Cognitive_Z)
-	# hist(PSPdf$Cognitive_Z)
-	# leveneTest(Cognitive_Z ~ DX_APD, data = df) #heterodasticity
-# wilcox.test(df$Cognitive_Z ~ df$DX_APD, paired=F)
-	# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
-	# df %>% summarize(count=n(), format(round(mean(Cognitive_Z, na.rm=T),2),2), sd=sd(Cognitive_Z, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
+		#Z-SCORE for ALL COGNITIVE SCORES: NO NEED IN TABLE 1 (REDUNDANT)
+			# shapiro.test(CBSdf$Cognitive_Z) #not normal
+			# shapiro.test(PSPdf$Cognitive_Z) #not normal
+			# leveneTest(Cognitive_Z ~ DX_APD, data = df) #heterodasticity
+		# wilcox.test(df$Cognitive_Z ~ df$DX_APD, paired=F)
+		# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
+		# df %>% summarize(count=n(), format(round(median(Cognitive_Z, na.rm=T),2),2), IQR=IQR(Cognitive_Z, na.rm=T), min=min(Cognitive_Z, na.rm=T), max=max(Cognitive_Z, na.rm=T))
 
 
 
@@ -359,325 +354,156 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 # ###############################################################################################################################
 
 
+##################################		ASYN SAA POSITIVITY AND DEMOGRAPHICS		 ###########################################
+################################################################################################################################
 
-# #################################			CHARACTERIZATION OF THE AD+ GROUP		  #########################################
-# ###############################################################################################################################
 
+#COMPARISONS OF DEMOGRAPHICS FOR RTQUIC:
+######################################## 
+
+#TXT: TOTAL NUMBER RTQUIC + SEX% WITHIN DIAGNOSIS
+	# df %>% group_by(RTQUIC) %>% count(DX_APD)
+# dfMVRS %>% group_by(RTQUIC) %>% count(DX_APD)
+# sum(dfMVRS$DX_APD=="CBS" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="M")
+# sum(dfMVRS$DX_APD=="PSP" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="M")
+
+	#BONFERRONI CALCULATION FOR AGE/ONSET AGE/PARKINSONISM AGE COMPARISONS ATTRIBUTABLE TO RTQUIC
+	# 0.05/3 #0.01666667
+
+#TXT: AGE
+#No fundamental change by adding APOEe4 (which has interaction with diagnosis)
+	# shapiro.test(RTposdfMVRS$Age) #normal
+	# shapiro.test(RTnegdfMVRS$Age) #normal
+	# var.test(Age ~ RTQUIC, data = dfMVRS) #homoscedasticity
+	# t.test(dfMVRS$Age ~ dfMVRS$RTQUIC, var.equal=TRUE)
+	# aov2 <- aov(Age ~ DX_APD*RTQUIC, dfMVRS)  
+	# Anova(aov2, type="III")
+# aov <- aov(Age ~ DX_APD + RTQUIC, dfMVRS)
+# Anova(aov, type="II")
+# dfMVRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Age, na.rm=T), sd=sd(Age, na.rm=T))
+
+#TXT: AGE OF ONSET 
+	# shapiro.test(RTposdfMVRS$Onset) #normal
+	# shapiro.test(RTnegdfMVRS$Onset) #normal
+	# var.test(Onset ~ RTQUIC, data = dfMVRS) #homoscedasticity
+	# t.test(dfMVRS$Onset ~ dfMVRS$RTQUIC, var.equal=TRUE)
+	# aov2 <- aov(Onset ~ DX_APD*RTQUIC, dfMVRS)  
+	# Anova(aov2, type="III")
+# aov <- aov(Onset ~ DX_APD + RTQUIC, dfMVRS)
+# Anova(aov, type="II")
+# dfMVRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Onset, na.rm=T), sd=sd(Onset, na.rm=T))
+# dfMVRS %>% group_by(RTQUIC) %>% summarize(count=n(), mean=mean(Onset, na.rm=T), sd=sd(Onset, na.rm=T))
+
+
+#TXT: AGE AT PARKINSONISM ONSET 
+	# shapiro.test(RTposdfMVRS$Park_onset) #normal
+	# shapiro.test(RTnegdfMVRS$Park_onset) #normal
+	# var.test(Park_onset ~ RTQUIC, data = dfMVRS) #homoscedasticity
+	# t.test(dfMVRS$Park_onset ~ dfMVRS$RTQUIC, var.equal=TRUE)
+	# aov2 <- aov(Park_onset ~ DX_APD*RTQUIC, dfMVRS)  
+	# Anova(aov2, type="III")
+# aov <- aov(Park_onset ~ DX_APD + RTQUIC, dfMVRS)
+# Anova(aov, type="II")
+# dfMVRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Park_onset, na.rm=T), sd=sd(Park_onset, na.rm=T))
+# dfMVRS %>% group_by(RTQUIC) %>% summarize(count=n(), mean=mean(Onset, na.rm=T), sd=sd(Onset, na.rm=T))
+
+
+#TXT: TYPE OF ONSET
+	# fisher.test(table(dfMVRS$Parkinsonian_onset, dfMVRS$RTQUIC))
+# table(dfMVRS$Parkinsonian_onset, dfMVRS$RTQUIC)
+	# fisher.test(table(dfMVRS$Cognitive_onset, dfMVRS$RTQUIC))
+	# fisher.test(table(dfMVRS$Language_onset, dfMVRS$RTQUIC))
+
+#TXT: SEX
+# fisher.test(table(dfMVRS$Sex, dfMVRS$RTQUIC)) # Expected count is <5 for one cell
+
+
+
+
+
+##################################			CHARACTERIZATION OF THE AD+ GROUP		  ###########################################
+##################################################################################################################################
 
 
 # #COMPARISONS OF DEMOGRAPHICS FOR AD:
 # ####################################
 
 
-
-
-# PREVALENCE OF DX BY AD GROUP
-#Here remove CBS-HIV as looking at DX #USE LIFETIME_AD
+#TXT: PREVALENCE OF DX BY AD GROUP
+# Here remove CBS-HIV as looking at DX #USE LIFETIME_AD
 # chisq.test(table(dfRS$Lifetime_AD_binary, dfRS$DX_APD), correct=F)
 # table(dfRS$Lifetime_AD_binary, dfRS$DX_APD) 
 # sum(dfRS$Lifetime_AD_binary=="AD Positive" & dfRS$DX_APD=="CBS" & dfRS$Sex=="M")
 # sum(dfRS$Lifetime_AD_binary=="AD Positive" & dfRS$DX_APD=="PSP" & dfRS$Sex=="M")
 
 
-
-
-## PREVALENCE OF SEX BY AD GROUP
+#TXT: PREVALENCE OF APOEe4 BY AD GROUP
 #Here interested in AD and vars independent of DX so keeping CBS-HIV
-# df %>% group_by(Lifetime_AD_binary) %>% count(Sex)
-# table(df$Lifetime_AD_binary, df$Sex)
-# chisq.test(table(df$Lifetime_AD_binary, df$Sex), correct=F)
-
-
-
-
-# PREVALENCE OF APOEe4 BY AD GROUP
-#Here interested in AD and vars independent of DX so keeping CBS-HIV
-# df %>% group_by(Lifetime_AD_binary) %>% count(APOEe4)
-## table(df$Lifetime_AD_binary, df$APOEe4)
-## chisq.test(table(df$Lifetime_AD_binary, df$APOEe4), correct=T)
-
-
-
-
-#ANOVA TO COMPARE AGE OF ONSET BY AD AND DX AND APOE
-#Here remove CBS-HIV as looking at DX: dfRS dataset. 
-# First, identify outliers. Looking at AD+ vs AD- as this is my IV of interest and the data are quite normal to begin with
-# boxplot(Onset ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# stripchart(Onset ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# vec <- boxplot(Onset ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-	# stripchart(Onset ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfRSonset <- subset(dfRSDW, Onset!=vec[1]) #remove outlier: not needed here. 
-
-# #Then check normality of my group for AD and DX groups, and homoscedasticity
-# CBSdfRSonset <- subset(dfRSonset, DX_APD=="CBS")
-# PSPdfonsetRS <- subset(dfRSonset, DX_APD=="PSP")
-# ADposdfonsetRS <- subset(dfRSonset, Lifetime_AD_binary=="AD Positive")
-# ADnegdfonsetRS <- subset(dfRSonset, Lifetime_AD_binary=="AD Negative")
-# APOEposdfonsetRS <- subset(dfRSonset, APOEe4=="Positive")
-# APOEnegdfonsetRS <- subset(dfRSonset, APOEe4=="Negative")
-	# shapiro.test(CBSdfRSonset$Onset) #normal
-	# shapiro.test(PSPdfonsetRS$Onset) #normal
-	# shapiro.test(ADposdfonsetRS$Onset) #normal
-	# shapiro.test(ADnegdfonsetRS$Onset) #normal
-	# shapiro.test(APOEposdfonsetRS$Onset) #normal
-	# shapiro.test(APOEnegdfonsetRS$Onset) #normal
-	# leveneTest(Onset ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRSonset) #Homoscedasticity. Specify saturated model, ie includes the interaction term even if aovmodel does not
-
-	#Compare models with Ftest. Cannot include APOE as there is missing data. 
-	# test1 <- lm(Onset ~ Lifetime_AD_binary, dfRSonset)
-	# test2 <- lm(Onset ~ DX_APD, dfRSonset)
-	# test3 <- lm(Onset ~ DX_APD + Lifetime_AD_binary, dfRSonset)
-	# anova(test1, test3)
-	# anova(test2, test3) #dx_APD by itself is better thna with AD
-
-	# dfRSonsetapoe <- dfRSonset[!is.na(dfRSonset$APOEe4), ]
-	# test1 <- lm(Onset ~ APOEe4, dfRSonsetapoe)
-	# test2 <- lm(Onset ~ DX_APD, dfRSonsetapoe)
-	# test3 <- lm(Onset ~ DX_APD +APOEe4, dfRSonsetapoe)
-	# anova(test1, test3) 
-	# anova(test2, test3) #dx_APD by itself is better thna with APOEe4. Also tested with Sex.
-	# table(dfRSonsetapoe$APOEe4, dfRSonsetapoe$DX_APD)
-
-##MODEL FOR ONSET
-# aovmodel <- aov(Onset ~ DX_APD*APOEe4, dfRSonset) #This one is slightly better but we are interested in AD effect so reporting next one since AIC are similar. 
-# aovmodel2 <- aov(Onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRSonset) #The model reported as we are interested to describe the effect (here non-effect) of AD
-# summary(lm(Onset ~ DX_APD*APOEe4, dfRSonset)) #check omnibus aov
-# summary(lm(Onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRSonset))#REPORT AOV2 AS IT IS THE MODEL INCLUDING AD. IN SUPP MATERIAL ONLY. 
-
-#Diagnostics of the model run
-	# shapiro.test(residuals(aovmodel2))
-	# AIC(aovmodel2) #420
-	# summary(aovmodel2) #type I with DX first. 
-# Anova(aovmodel2, type="III") #Since it includes interaction, report III
-	# Anova(aovmodel2, type="II") #Compare with type III
-
-	##Means to report for model aov2: CHANGE TO MEANS PER COMBINATION OF GROUP + SD SINCE THIS IS AN ANOVA. 
-	# dfRSonset %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
-	# dfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
-	## emmeans(aovmodel2, ~ DX_APD:APOEe4, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-	## pairs(emmeans(aovmodel2,~ DX_APD:APOEe4))
+# dfRS %>% group_by(Lifetime_AD_binary) %>% count(APOEe4)
+	# chisq.test(table(dfRS$Lifetime_AD_binary, dfRS$APOEe4), correct=T)
 
 	
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		##Look only in CBS: should be no interaction of APOEe4 but possible effect of AD
-		# CBSdfRSonsetapoe <- CBSdfRSonset[!is.na(CBSdfRSonset$APOEe4), ]
-			# test1 <- lm(Onset ~ Lifetime_AD_binary, CBSdfRSonsetapoe)
-			# test2 <- lm(Onset ~ APOEe4, CBSdfRSonsetapoe)
-			# test3 <- lm(Onset ~ APOEe4+ Lifetime_AD_binary, CBSdfRSonsetapoe)
-			# anova(test1, test3)
-			# anova(test2, test3) 
-			# ADposCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Positive")
-			# ADnegCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Negative")
-			# shapiro.test(ADposCBSdfRSonset$Onset) #normal
-			# shapiro.test(ADnegCBSdfRSonset$Onset) #normal
-			# var.test(Onset ~ Lifetime_AD_binary, data = CBSdfRSonset) #homoscedasticity
-		# t.test(CBSdfRSonset$Onset ~ CBSdfRSonset$Lifetime_AD_binary, var.equal=TRUE)
-		# CBSdfRSonset %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
-		# CBSdfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+	#BONFERRONI CALCULATION FOR ONSET AGE/PARKINSONISM AGE COMPARISONS ATTRIBUTABLE TO AD 
+	# 0.05/2 #0.025
 
+#TXT: DIFFERENCES IN AGE OF ONSET BETWEEN AD+ AND AD-
+#Here remove CBS-HIV as looking at DX: dfRS dataset. 
+	# shapiro.test(CBSdfRS$Onset) #normal
+	# shapiro.test(PSPdfRS$Onset) #normal
+	# shapiro.test(ADposdfRS$Onset) #normal
+	# shapiro.test(ADnegdfRS$Onset) #normal
+	# shapiro.test(APOEposdfRS$Onset) #normal
+	# shapiro.test(APOEnegdfRS$Onset) #normal
+	# leveneTest(Onset ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. Specify saturated model, ie includes the interaction term even if aovmodel does not
 
-
-
-# #MLR TO COMPARE AGE OF ONSET FOR PARKINSONISM BY AD AND DX AND APOE
-## Here remove CBS-HIV as looking at DX.
-# First, identify outliers. Looking at AD+ vs AD- as this is my IV of interest and the data are quite normal to begin with
-# boxplot(Park_onset ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-# 	stripchart(Park_onset ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# vec <- boxplot(Park_onset ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-# 	stripchart(Park_onset ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfRSonset <- subset(dfRS, Park_onset!=vec[1]) #remove outlier
-
-# #Then check normality of my group for AD and DX groups, and homoscedasticity
-# CBSdfRSonset <- subset(dfRSonset, DX_APD=="CBS")
-# PSPdfonsetRS <- subset(dfRSonset, DX_APD=="PSP")
-# ADposdfonsetRS <- subset(dfRSonset, Lifetime_AD_binary=="AD Positive")
-# ADnegdfonsetRS <- subset(dfRSonset, Lifetime_AD_binary=="AD Negative")
-# APOEposdfonsetRS <- subset(dfRSonset, APOEe4=="Positive")
-# APOEnegdfonsetRS <- subset(dfRSonset, APOEe4=="Negative")
-	# shapiro.test(CBSdfonsetRS$Park_onset) #non-normal borderline
-	# shapiro.test(PSPdfonsetRS$Park_onset) #normal
-	# shapiro.test(ADposdfonsetRS$Park_onset) #normal
-	# shapiro.test(ADnegdfonsetRS$Park_onset) #normal
-	# shapiro.test(APOEposdfonsetRS$Park_onset) #normal
-	# shapiro.test(APOEnegdfonsetRS$Park_onset) #non-normal borderline
-	# leveneTest(Park_onset ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRSonset) #Homoscedasticity. 
-
-	# #Compare models with Ftest
-	# test1 <- lm(Park_onset ~ Lifetime_AD_binary, dfRSonset)
-	# test2 <- lm(Park_onset ~ DX_APD, dfRSonset)
-	# test3 <- lm(Park_onset ~ DX_APD + Lifetime_AD_binary, dfRSonset)
+	# Compare models with Ftest. Cannot include APOE as there is missing data. 
+	# test1 <- lm(Onset ~ Lifetime_AD_binary, dfRS)
+	# test2 <- lm(Onset ~ DX_APD, dfRS)
+	# test3 <- lm(Onset ~ DX_APD + Lifetime_AD_binary, dfRS)
 	# anova(test1, test3)
-	# anova(test2, test3) #DX by itself is better than with AD. Also tested with Sex. 
-
-	# dfRSonsetapoe <- dfRSonset[!is.na(dfRSonset$APOEe4), ]
-	# test1 <- lm(Park_onset ~ APOEe4, dfRSonsetapoe)
-	# test2 <- lm(Park_onset ~ DX_APD, dfRSonsetapoe)
-	# test3 <- lm(Park_onset ~ DX_APD +APOEe4, dfRSonsetapoe)
-	# anova(test1, test3) 
-	# anova(test2, test3) #No improvement from adding either
-
-# Everything good so can run 2-way ANOVA (factorial).  
-	# aovmodel <- aov(Park_onset ~ DX_APD*APOEe4, dfRSonset) #This one is slightly better but we are interested in AD effect so reporting next one since AIC are similar. 
-# aovmodel2 <- aov(Park_onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRSonset)
-	# summary(lm(Park_onset ~ DX_APD*APOEe4, dfRSonset)) #check omnibus aov
-# summary(lm(Park_onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRSonset))#check omnibus aov2
-
-	##SUPPLEMENTARY MATERIAL: ACTUAL MODEL FOR ONSET
-	#Diagnostics of the model run
-	# residuals <- residuals(aovmodel2)
-	# hist(residuals)
-	# qqnorm(residuals)
-	# shapiro.test(residuals)
-	# AIC(aovmodel2) #420
-	# summary(aovmodel2) #type I with DX first. 
-# Anova(aovmodel2, type="III") #Since it includes interaction, report III
-	# Anova(aovmodel2, type="II") #Compare with type III
-
-##Means to report for model aov2: CHANGE TO MEANS PER COMBINATION OF GROUP + SD SINCE THIS IS AN ANOVA. 
-# dfRSonset %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
-# dfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
-# emmeans(aovmodel2, ~ DX_APD:APOEe4, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-	# pairs(emmeans(aovmodel2,~ DX_APD:APOEe4))
-
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		##Look only in CBS: should be no interaction of APOEe4 but possible effect of AD
-		# CBSdfRSonsetapoe <- CBSdfRSonset[!is.na(CBSdfRSonset$APOEe4), ]
-		# test1 <- lm(Park_onset ~ Lifetime_AD_binary, CBSdfRSonsetapoe)
-		# test2 <- lm(Park_onset ~ APOEe4, CBSdfRSonsetapoe)
-		# test3 <- lm(Park_onset ~ APOEe4+ Lifetime_AD_binary, CBSdfRSonsetapoe)
-		# anova(test1, test3)
-		# anova(test2, test3) 
-		# ADposCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Positive")
-		# ADnegCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Negative")
-		# shapiro.test(ADposCBSdfRSonset$Park_onset) #normal
-		# shapiro.test(ADnegCBSdfRSonset$Park_onset) #normal
-		# var.test(Park_onset ~ Lifetime_AD_binary, data = CBSdfRSonset) #homoscedasticity
-		# t.test(CBSdfRSonset$Park_onset ~ CBSdfRSonset$Lifetime_AD_binary, var.equal=TRUE)
-		# CBSdfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
-		# CBSdfRSonset %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
-
-
-	##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-	# table(CBSdfRS$Parkinsonian_onset, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Parkinsonian_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$Cognitive_onset, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Cognitive_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$anyPPA, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$anyPPA, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$Tremor_binary, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Tremor_binary, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$Myoclonus, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Myoclonus, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-	# table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)
-	# fisher.test(table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
-
-
-
-# MULT LINEAR REGRESSION TO COMPARE COGNITIVE SCORES BETWEEN DX AND AD WITH DURATION AS COVARIATE
-	#Here remove CBS-HIV as looking at DX
-	# boxplot(Cognitive_Z ~ DX_APD, data= CBSdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(Cognitive_Z ~ DX_APD, data = CBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(Cognitive_Z ~ DX_APD, data= PSPdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(Cognitive_Z ~ DX_APD, data = PSPdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(Cognitive_Z ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(Cognitive_Z ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(Cognitive_Z ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(Cognitive_Z ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(Cognitive_Z ~ APOEe4, data= APOEposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(Cognitive_Z ~ APOEe4, data = APOEposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(Cognitive_Z ~ APOEe4, data= APOEnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(Cognitive_Z ~ APOEe4, data = APOEnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-	#Then check normality of my group for AD and DX groups, and homoscedasticity
-	# shapiro.test(CBSdfRS$Cognitive_Z) 
-	# shapiro.test(PSPdfRS$Cognitive_Z) #nonnormal
-	# shapiro.test(ADposdfRS$Cognitive_Z)
-	# shapiro.test(ADnegdfRS$Cognitive_Z) #nonnormal
-	# shapiro.test(APOEposdfRS$Cognitive_Z)
-	# shapiro.test(APOEnegdfRS$Cognitive_Z) #nonnormal
-	# leveneTest(Cognitive_Z ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. 
-
-	#Observing some bimodality in the z-scores. Explore:
-	# hist(dfRS$Cognitive_Z)
-	# testdf <- subset(dfRS, Onset<=65)
-	# hist(testdf$Cognitive_Z)
-	# testdf <- subset(dfRS, Onset>65)
-	# hist(testdf$Cognitive_Z) #Cannot tell source of bimodality.
-	# Seems it is just some coincidence + artefact of the nature of z-scores (the left skew is normal for a demented cohort)
-	# As a result, preference for MLR
-
-	#Inclusion of Age as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfRS, x = "Age", y = "Cognitive_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfRS, x = "Age", y = "Cognitive_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfRS, x = "Age", y = "Cognitive_Z", color = "APOEe4", add = "reg.line")+ #Okay
-  	# 	stat_regline_equation(aes(color = APOEe4)) 
-	# ggscatter(dfRS, x = "Age", y = "Cognitive_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
-  	# 	stat_regline_equation(aes(color = Lifetime_AD_binary))
-	# cor.test(dfRS$Cognitive_Z, dfRS$Age) #correlated
-	# summary(lm(dfRS$Cognitive_Z ~ dfRS$Age)) #linear relationship
-	##NOTE: possible interaction of Age with either DX or AD on Cognitive z-score (CBS/AD+ show much more steep differences in cognitive impairment
-			#relative to demographics depending on age. IE young AD+ has much worse CI than a young AD-, but an old AD+ and an old AD- are comparable.
-			#This points to AD+ subjects being much more affected at young age. Not sure if makes sense to include in this model). 
-
-	# #Inclusion of Duration as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "Cognitive_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
- 	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "Cognitive_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "Cognitive_Z", color = "APOEe4", add = "reg.line")+ #Okay
-  	# 	stat_regline_equation(aes(color = APOEe4)) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "Cognitive_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
-  	# 	stat_regline_equation(aes(color = Lifetime_AD_binary))
-	# cor.test(dfRS$Cognitive_Z, dfRS$LP2_Disease_Duration) #no correlation
-	# summary(lm(dfRS$Cognitive_Z ~ dfRS$LP2_Disease_Duration)) #no linear relationship
-
-	##Compare models with Ftest
-	# test1 <- lm(Cognitive_Z ~ DX_APD, dfRS)
-	# test2 <- lm(Cognitive_Z ~ Lifetime_AD_binary, dfRS)
-	# test3 <- lm(Cognitive_Z ~ Lifetime_AD_binary + DX_APD, dfRS) #both additions are beneficial so model should have AD and DX
-	# anova(test1, test3)
-	# anova(test2, test3)
-
-	# Inclusion of APOE in model:
+	# anova(test2, test3) #dx_APD by itself is better thna with AD
 	# dfRSapoe <- dfRS[!is.na(dfRS$APOEe4), ]
-	# test1 <- lm(Cognitive_Z ~ APOEe4, dfRSapoe)
-	# test2 <- lm(Cognitive_Z ~ DX_APD, dfRSapoe)
-	# test3 <- lm(Cognitive_Z ~ DX_APD +APOEe4, dfRSapoe)
+	# test1 <- lm(Onset ~ APOEe4, dfRSapoe)
+	# test2 <- lm(Onset ~ DX_APD, dfRSapoe)
+	# test3 <- lm(Onset ~ DX_APD +APOEe4, dfRSapoe)
 	# anova(test1, test3) 
-	# anova(test2, test3) #DX by itself is better than with APOEe4
+	# anova(test2, test3) #dx_APD by itself is better thna with APOEe4. Also tested with Sex.
 
-	##SUPPLEMENTARY MATERIAL
-	# Data are not normally distributed so be careful with residuals
-	# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
-	# mlr <- lm(Cognitive_Z ~ Lifetime_AD_binary + DX_APD + Age, dfRS)
-	# mlr2 <- lm(Cognitive_Z ~Age*Lifetime_AD_binary + DX_APD, dfRS) #Technically best model but since interaction remains ns I think for sake of simplicity it is okay to select mlr instead. 
-	# mlr3 <- lm(Cognitive_Z ~Age*DX_APD + Lifetime_AD_binary, dfRS)
-	# summary(mlr) 
-	# summary(mlr2) 
-	# summary(mlr3) 
+	#For the sake of clarity and because the SME analysis does not indicate APOEe4 to be a very important factor, report lm2 instead. 
+	# lm <- lm(Onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+	# Anova(lm, type="III") #Since it includes interaction, report III
+	# emmeans(lm, ~ DX_APD:APOEe4, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
+	# pairs(emmeans(lm,~ DX_APD:APOEe4))
 
-	# ##Diagnostics of the model run
-	# residuals <- residuals(mlr)
-	# hist(residuals)
-	# qqnorm(residuals)
-	# shapiro.test(residuals)
-	# check_normality(mlr) #Very non normal: model not fittint too well the data
-	# durbinWatsonTest(mlr) #Check the residuals are independent (multiple regression assumption)
-
-	##Means to report for model mlr: report EMMs + SE 
-	## dfRS %>% group_by(AD) %>% summarize(count=n(), mean=format(round(mean(Cognitive_Z, na.rm=T),3),3), sd=format(round(sd(Cognitive_Z, na.rm=T),3),3))
-	# emmeans(mlr, ~ AD, opt.digits=T) #adjusted means
-	## emmeans(mlr, ~ DX_APD, opt.digits=T) #adjusted means
+# lm2 <- lm(Onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(lm2)
+# Anova(lm2, type="II") 
+# 	shapiro.test(residuals(lm2))
+	# dfRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+	# dfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 
 
-# MULT LINEAR REGRESSION  TO COMPARE MOCA Z SCORES BETWEEN DX AND AD WITH DURATION AS COVARIATE
-# #Here remove CBS-HIV as looking at DX
+#TXT: DIFFERENCES IN AGE OF ONSET AT PARKINSONISM BETWEEN AD+ AND AD-
+#Here remove CBS-HIV as looking at DX: dfRS dataset. 
+	# shapiro.test(CBSdfRS$Park_onset) #normal
+	# shapiro.test(PSPdfRS$Park_onset) #normal
+	# shapiro.test(ADposdfRS$Park_onset) #normal
+	# shapiro.test(ADnegdfRS$Park_onset) #normal
+	# shapiro.test(APOEposdfRS$Park_onset) #normal
+	# shapiro.test(APOEnegdfRS$Park_onset) #normal
+	# leveneTest(Park_onset ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. Specify saturated model, ie includes the interaction term even if aovmodel does not
+
+# lm2 <- lm(Park_onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(lm2)
+# Anova(lm2, type="II") 
+	# shapiro.test(residuals(lm2))
+	# dfRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+	# dfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+
+
+
+#TXT: DIFFERENCES IN COGNITIVE SCORES BETWEEN AD+ and AD- 
+# Here remove CBS-HIV as looking at DX
 	# boxplot(MOCA_Z ~ DX_APD, data= CBSdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
 	# 	stripchart(MOCA_Z ~ DX_APD, data = CBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 	# boxplot(MOCA_Z ~ DX_APD, data= PSPdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
@@ -691,42 +517,44 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# boxplot(MOCA_Z ~ APOEe4, data= APOEnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
 	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-	# #Then check normality of my group for AD and DX groups, and homoscedasticity
-	# shapiro.test(CBSdfRS$MOCA_Z)
-	# shapiro.test(PSPdfRS$MOCA_Z) #not normal
+	# Then check normality of my group for AD and DX groups, and homoscedasticity
+	# shapiro.test(CBSdfRS$MOCA_Z) 
+	# shapiro.test(PSPdfRS$MOCA_Z) #nonnormal
 	# shapiro.test(ADposdfRS$MOCA_Z)
-	# shapiro.test(ADnegdfRS$MOCA_Z) #not normal
+	# shapiro.test(ADnegdfRS$MOCA_Z) #nonnormal
 	# shapiro.test(APOEposdfRS$MOCA_Z)
-	# shapiro.test(APOEnegdfRS$MOCA_Z) #not normal
+	# shapiro.test(APOEnegdfRS$MOCA_Z) #nonnormal
 	# leveneTest(MOCA_Z ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. 
 
-	#Inclusion of Age as a covariate:
+		#Observing some bimodality in the z-scores. Explore:
+		# hist(dfRS$MOCA_Z)
+		# testdf <- subset(dfRS, Onset<=65)
+		# hist(testdf$MOCA_Z)
+		# testdf <- subset(dfRS, Onset>65)
+		# hist(testdf$MOCA_Z) #Cannot tell source of bimodality.
+		# Seems it is just some coincidence + artefact of the nature of z-scores (the left skew is normal for a demented cohort)
+		# As a result, preference for MLR.
+
+	# #Inclusion of Age as a covariate:
 	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-	#   stat_regline_equation(aes()) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-	#   stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
-	#   stat_regline_equation(aes(color = APOEe4)) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
-	#   stat_regline_equation(aes(color = Lifetime_AD_binary))
-	# cor.test(dfRS$MOCA_Z, dfRS$Age)
+	# cor.test(dfRS$MOCA_Z, dfRS$Age) #correlated
 	# summary(lm(dfRS$MOCA_Z ~ dfRS$Age)) #linear relationship
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+  	# 	stat_regline_equation(aes()) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+  	# 	stat_regline_equation(aes(color = DX_APD)) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
+  	# 	stat_regline_equation(aes(color = APOEe4)) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
+  		# stat_regline_equation(aes(color = Lifetime_AD_binary))
 	##NOTE: possible interaction of Age with either DX or AD on Cognitive z-score (CBS/AD+ show much more steep differences in cognitive impairment
 			#relative to demographics depending on age. IE young AD+ has much worse CI than a young AD-, but an old AD+ and an old AD- are comparable.
 			#This points to AD+ subjects being much more affected at young age. Not sure if makes sense to include in this model). 
 
-	#Inclusion of Duration as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-	#   stat_regline_equation(aes()) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-	#   stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
-	#   stat_regline_equation(aes(color = APOEe4)) 
-	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "AD", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
-	#   stat_regline_equation(aes(color = AD))
-	# cor.test(dfRS$MOCA_Z, dfRS$LP2_Disease_Duration) #No relationship
+	# #Inclusion of Duration as a covariate:
+	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# cor.test(dfRS$MOCA_Z, dfRS$LP2_Disease_Duration) #no correlation
+	# summary(lm(dfRS$MOCA_Z ~ dfRS$LP2_Disease_Duration)) #no linear relationship
 
 	##Compare models with Ftest
 	# test1 <- lm(MOCA_Z ~ DX_APD, dfRS)
@@ -735,7 +563,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# anova(test1, test3)
 	# anova(test2, test3)
 
-	# Inclusion of APOE in model:
+	# #Inclusion of APOE in model:
 	# dfRSapoe <- dfRS[!is.na(dfRS$APOEe4), ]
 	# test1 <- lm(MOCA_Z ~ APOEe4, dfRSapoe)
 	# test2 <- lm(MOCA_Z ~ DX_APD, dfRSapoe)
@@ -743,208 +571,77 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# anova(test1, test3) 
 	# anova(test2, test3) #DX by itself is better than with APOEe4
 
-# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
-# mlr <- lm(MOCA_Z ~ Lifetime_AD_binary + DX_APD + Age, dfRS)
-	# mlr2 <- lm(MOCA_Z ~Age*Lifetime_AD_binary + DX_APD, dfRS) #Technically best model but since interaction remains ns I think for sake of simplicity it is okay to select mlr instead. 
-	# mlr3 <- lm(MOCA_Z ~Age*DX_APD + Lifetime_AD_binary, dfRS)
-# summary(mlr) #type I (no interaction so order does not matter)
-	# summary(mlr2) 
-	# summary(mlr3) 
-
-# # ##Diagnostics of the model run
-# hist(residuals)
-# qqnorm(residuals)
-# shapiro.test(residuals(mlr))
-# check_normality(mlr) #Very non normal: model not fittint too well the data
-# durbinWatsonTest(mlr) #Check the residuals are independent (multiple regression assumption)
-
-##Means to report for model mlr: report EMMs + SE 
-## dfRS %>% group_by(AD) %>% summarize(count=n(), mean=format(round(mean(Cognitive_Z, na.rm=T),3),3), sd=format(round(sd(Cognitive_Z, na.rm=T),3),3))
-# emmeans(mlr, ~ Lifetime_AD_binary, opt.digits=T) #adjusted means
-## emmeans(mlr, ~ DX_APD, opt.digits=T) #adjusted means
-
-
-			##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-			#Already got rid of outliers earlier. 
-			# CBSdfRSapoe <- CBSdfRS[!is.na(CBSdfRS$APOEe4), ]
-			# test1 <- lm(MOCA_Z ~ APOEe4, CBSdfRSapoe)
-			# test2 <- lm(MOCA_Z ~ Lifetime_AD_binary, CBSdfRSapoe)
-			# test3 <- lm(MOCA_Z ~ Lifetime_AD_binary +APOEe4, CBSdfRSapoe)
-			# anova(test1, test3) 
-			# anova(test2, test3) #DX by itself is better than with APOEe
-			# shapiro.test(ADposCBSdfRS$MOCA_Z) #normal
-			# shapiro.test(ADnegCBSdfRS$MOCA_Z) #normal
-			# leveneTest(MOCA_Z ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-			# t.test(CBSdfRS$MOCA_Z ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
-			# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
-			# CBSdfRS %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
+# lm <- lm(MOCA_Z ~ DX_APD*Lifetime_AD_binary + Age, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(lm)
+# Anova(lm, type="III") #Since it includes interaction, report III
+# 	shapiro.test(residuals(lm))
+# 	emmeans(lm, ~ DX_APD:Lifetime_AD_binary, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
+# 	pairs(emmeans(lm,~ DX_APD:Lifetime_AD_binary))
 	
-
-
-	###SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-	###COMPARISONS OF BIOMARKERS FOR AD:
-	##################################################
-
-	# #MULT LINEAR REGRESSION TO COMPARE NFL LEVELS
-	# #For NFL, another approach is chosen, as the data are expected to be very right-skewed. Threshold for outlier is changed.
-
-	# Remove outliers for AD
-	#First identify and remove outlier from the AD+ group only. 
-	# boxplot <- boxplot(NFL ~ Lifetime_AD_binary, data= ADposCBSdfRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	# 	stripchart(NFL ~ Lifetime_AD_binary, data = ADposCBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# #boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-	# threshold <- min(max(ADposCBSdfRS$NFL,na.rm=T), as.numeric(quantile(ADposCBSdfRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (ADposCBSdfRS$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-	# #dfRS[!((dfRS$NFL<threshold & dfRS$Lifetime_AD_binary=="AD Positive")| (dfRS$Lifetime_AD_binary=="AD Negative")), c("ID", "NFL")] 
-	# CBSdfRSnfl <- subset(CBSdfRS, (NFL<threshold & Lifetime_AD_binary=="AD Positive") | (Lifetime_AD_binary=="AD Negative")) #make sure you don't accidentally erase the AD negative here, or filter their values
-
-	# ##Then identify and remove outlier from the AD- group only
-	# boxplot <- boxplot(NFL ~ Lifetime_AD_binary, data= ADnegCBSdfRS, col = "white") #Same for AD- group
-	# 	stripchart(NFL ~ Lifetime_AD_binary, data = ADnegCBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# #boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-	# threshold<- min(max(ADnegCBSdfRS$NFL,na.rm=T), as.numeric(quantile(ADnegCBSdfRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (ADnegCBSdfRS$NFL)*3))) 
-	# #dfRSnflAD[!((dfRSnflAD$NFL<threshold & dfRSnflAD$Lifetime_AD_binary=="AD Negative")| (dfRSnflAD$Lifetime_AD_binary=="AD Positive")), c("ID", "NFL")] 
-	# CBSdfRSnfl <- subset(CBSdfRSnfl, (NFL<threshold & Lifetime_AD_binary=="AD Negative") | (Lifetime_AD_binary=="AD Positive")) 
-
-
-	#Compare models withand without AD after removing the AD outliers with the Ftest
-	# test1 <- lm(logNFL ~ Lifetime_AD_binary, CBSdfRSnfl)
-	# test2 <- lm(logNFL ~ Sex, CBSdfRSnfl)
-	# test3 <- lm(logNFL ~ Lifetime_AD_binary + Sex, CBSdfRSnfl)
-	# anova(test1, test3)
-	# anova(test2, test3)
-
-	# #Oneway seems better but let's perform F-test to have full picture. 
-	# testdf <- CBSdfRSnfl %>% drop_na("APOEe4") 
-	# testdf$APOEe4
-	# oneway <- lm(logNFL ~ Lifetime_AD_binary, testdf) 
-	# twoway <- lm(logNFL ~ APOEe4 + Lifetime_AD_binary, testdf) 
-	# anova(oneway, twoway)
-
-	# #Then check normality in both AD+ and AD- and overall
-	# ADposCBSdfRSnfl <- subset(CBSdfRSnfl, Lifetime_AD_binary=="AD Positive")
-	# ADnegCBSdfRSnfl <- subset(CBSdfRSnfl, Lifetime_AD_binary=="AD Negative")
-	# shapiro.test(ADposCBSdfRSnfl$logNFL) #normal
-	# shapiro.test(ADnegCBSdfRSnfl$logNFL) #nonnormal
-	# leveneTest(logNFL ~ Lifetime_AD_binary, CBSdfRSnfl) #Heterodasticity
-
-	#Inclusion of Age as a covariate:
-	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(CBSdfRSnfl, x = "Age", y = "NFL", add = "reg.line")+ #Not related to age
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(CBSdfRSnfl, x = "Age", y = "NFL", color = "Lifetime_AD_binary", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = Lifetime_AD_binary)) 
-	# cor.test(CBSdfRSnfl$NFL, CBSdfRSnfl$Age) #no corr
-	# cor.test(CBSdfRSnfl$logNFL, CBSdfRSnfl$Age) #no corr
-
-	# #Inclusion of Duration as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(CBSdfRSnfl, x = "LP2_Disease_Duration", y = "NFL", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-	#   stat_regline_equation(aes()) 
-	# ggscatter(CBSdfRSnfl, x = "LP2_Disease_Duration", y = "NFL", color = "Lifetime_AD_binary", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
-  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
-	# cor.test(CBSdfRSnfl$NFL, CBSdfRSnfl$LP2_Disease_Duration) #no corr
-	# cor.test(CBSdfRSnfl$logNFL, CBSdfRSnfl$LP2_Disease_Duration) #no corr
-
-	# #Inclusion of Abeta as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "abeta", add = "reg.line")+ #For overall group, NFL not related to age
-  	# stat_regline_equation(aes()) 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "abeta", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
-  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
-	# cor.test(CBSdfRSnfl$abeta, CBSdfRSnfl$NFL)
-	# cor.test(CBSdfRSnfl$abeta, CBSdfRSnfl$logNFL)
-	# cor.test(CBSdfRSnfl$logabeta, CBSdfRSnfl$NFL)
-	# summary(lm(CBSdfRSnfl$abeta ~ CBSdfRSnfl$logNFL)) #no linear relationship
-
-	# #Inclusion of ptau as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ptau", add = "reg.line")+ #For overall group, NFL not related to age
-  	# stat_regline_equation(aes()) 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ptau", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
-  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
-	# cor.test(CBSdfRSnfl$ptau, CBSdfRSnfl$NFL)
-	# cor.test(CBSdfRSnfl$ptau, CBSdfRSnfl$logNFL)
-	# summary(lm(CBSdfRSnfl$ptau ~ CBSdfRSnfl$logNFL)) #no linear relationship
-
-	# #Inclusion of ptau as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ttau", add = "reg.line")+ #For overall group, NFL not related to age
-  	# stat_regline_equation(aes()) 
-	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ttau", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
-  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
-	# cor.test(CBSdfRSnfl$ttau, CBSdfRSnfl$NFL)
-	# cor.test(CBSdfRSnfl$ttau, CBSdfRSnfl$logNFL)
-	# summary(lm(CBSdfRSnfl$ttau ~ CBSdfRSnfl$logNFL)) #no linear relationship
-
-	# # Data are not normally distributed so be careful with residuals
-	# #Many options were tried: most were eliminated as model significance way >0.10. Interactions including aforementioned covariates were tried just in case as visualization was ambiguous. 
-	# t.test(ADposCBSdfRSnfl$logNFL, ADnegCBSdfRSnfl$logNFL) #Welch's t-test: does not assume variance equal
-	# 	CBSdfRSnfl %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(NFL, na.rm=T),3),3), sd=format(round(sd(NFL, na.rm=T),3),3))
-	# 	CBSdfRSnfl %>% summarize(count=n(), mean=format(round(mean(NFL, na.rm=T),3),3), sd=format(round(sd(NFL, na.rm=T),3),3))
-	# CBSdfRSnfl %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(median(NFL, na.rm=T),2),2), IQR=format(round(IQR(NFL, na.rm=T),2),2), min=min(NFL, na.rm=T), max=max(NFL, na.rm=T))
-	# CBSdfRSnfl %>% summarize(count=n(), format(round(median(NFL, na.rm=T),2),2), IQR=IQR(NFL, na.rm=T), min=min(NFL, na.rm=T), max=max(NFL, na.rm=T))
+	# lm <- lm(Cognitive_Z ~ DX_APD*Lifetime_AD_binary + Age, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+	# summary(lm)
+	# Anova(lm, type="III") #Since it includes interaction, report III
+	# 	shapiro.test(residuals(lm))
+	# 	emmeans(lm, ~ DX_APD:Lifetime_AD_binary, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
+	# 	pairs(emmeans(lm,~ DX_APD:Lifetime_AD_binary))
 
 
 
 
-############################	PREVALENCE OF ASYN SAA POSITIVITY AND ASSOCIATION WITH AD  ####################################
+###############################			ASYN SAA POSITIVITY AND ASSOCIATION WITH AD  	######################################
 ##############################################################################################################################
+
 
 # DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH FREQUENCY DATA
 ##########################################################
 
-# FISHER AND CHI-SQUARES, TABLES:
 
-# df %>% count(RTQUIC)
-# dfMVRS %>% count(RTQUIC)
-
+#TXT: TOTAL NUMBER RTQUIC + SEX% WITHIN AD
+	# df %>% count(RTQUIC)
+	# dfMVRS %>% count(RTQUIC)
 # table(dfMVRS$RTQUIC, dfMVRS$AD_binary)
+# dfMVRS %>% count(AD_binary)
 # sum(dfMVRS$AD_binary=="AD Positive" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="M")
 # sum(dfMVRS$AD_binary=="AD Positive" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="F")
 # sum(dfMVRS$AD_binary=="AD Negative" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="M")
 # sum(dfMVRS$AD_binary=="AD Negative" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Sex=="F")
 
+	#BONFERRONI CALCULATION FOR FISHER TESTS USED FOR ASYN/AD RELATIONSHIP IN OVERALL DATASET AND YO DATASET 
+	# 0.05/2 #0.025
+
+#TXT: RTQUIC CHISQUARE WITH AD
 # Compare proportions between AD+ and AD- for RT positivity
-#https://study.com/skill/learn/how-to-calculate-expected-counts-for-the-chi-square-test-for-goodness-of-fit-explanation.html
 	# table(dfMVRS$AD_binary, dfMVRS$RTQUIC)
 	# chisq.test(table(dfMVRS$AD_binary, dfMVRS$RTQUIC), correct=T) #correct: Yates'continuity correction
 # fisher.test(table(dfMVRS$AD_binary, dfMVRS$RTQUIC)) # Expected count is <5 for one cell. Could use one-way but kind of weak to do so. (alternative="greater")
 	# cramerV(table(dfMVRS$AD_binary, dfMVRS$RTQUIC))
 # phi(table(dfMVRS$AD_binary, dfMVRS$RTQUIC), digits=6)
 
-# #Compare proportions between AD+ and AD- for RT positivity but in CBS only: Close to significance. 
-	# table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)
-	# chisq.test(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)) #correct: Yates'continuity correction
-# fisher.test(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)) # Expected count is <5 for one cell
-	# cramerV(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC))
-# phi(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC), digits=6)
 
-# Compare proportions between AD+ and AD- for RT positivity but in CBS only
-	# chisq.test(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC), correct=T) #correct: Yates'continuity correction
-# fisher.test(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC)) # Expected count is <5 for one cell
-	# table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC)
-# cramerV(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC))
-
-
+#TXT: RTQUIC CHISQUARE WITH AD IN YOD ONLY
 #Analysis of AD*RTQUIC association in the young cohort
 # dfMVRSyoung <- subset(dfMVRS, 65>=Onset)
 # nrow(dfMVRSyoung)
 # fisher.test(table(dfMVRSyoung$AD_binary, dfMVRSyoung$RTQUIC)) # Expected count is <5 for one cell
 	# cramerV(table(dfMVRSyoung$AD_binary, dfMVRSyoung$RTQUIC))
 # phi(table(dfMVRSyoung$AD_binary, dfMVRSyoung$RTQUIC), digits=6)
-	# table(dfMVRSyoung$AD_binary, dfMVRSyoung$RTQUIC)
-	# table(dfMVRSyoung$AD_Brink, dfMVRSyoung$RTQUIC)
-	# # dfMVRSyoung$Age
-	# # dfMVRSyoung$Onset
+	# dfMVRSyoung$Onset
 
+# #TXT: RTQUIC CHISQUARE WITH AD IN LOD ONLY
 # dfMVRSold <- subset(dfMVRS, Onset>65)
 # nrow(dfMVRSold)
 # fisher.test(table(dfMVRSold$AD_binary, dfMVRSold$RTQUIC)) # Expected count is <5 for one cell
 	# cramerV(table(dfMVRSold$AD_binary, dfMVRSold$RTQUIC))
 # phi(table(dfMVRSold$AD_binary, dfMVRSold$RTQUIC), digits=6)
+	# dfMVRSold$Onset
 
-	# table(dfMVRSold$AD_binary, dfMVRSold$RTQUIC)
-	# table(dfMVRSold$AD_Brink, dfMVRSold$RTQUIC)
+
+#TXT: PROPORTION OF AD- RTQUIC+ SUBJECTS in YOD and LOD
+# sum(dfMVRS$AD_binary=="AD Positive" & dfMVRS$RTQUIC=="SAA positive" & 65>=dfMVRS$Onset)
+# sum(dfMVRS$RTQUIC=="SAA positive" & 65>=dfMVRS$Onset)
+# sum(dfMVRS$AD_binary=="AD Positive" & dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Onset>65)
+# sum(dfMVRS$RTQUIC=="SAA positive" & dfMVRS$Onset>65)
+
 
 
 # DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH BIOMARKER DATA
@@ -1099,39 +796,6 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 		# shapiro.test(RTnegdfMVRSabeta$logabeta) #norm
 	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$Onset) #corr
 	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$Onset) #not corr
-
-
-############################	PREVALENCE OF ASYN SAA POSITIVITY AND DEMOGRAPHICS ###########################################
-##############################################################################################################################
-
-# DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH FREQUENCY DATA
-##########################################################
-
-# # ASYN SAA POSITIVITY AND DEMOGRAPHICS
-# df %>% group_by(RTQUIC) %>% count(DX_APD)
-# sum(df$DX_APD=="CBS" & df$RTQUIC=="SAA positive" & df$Sex=="M")
-# sum(df$DX_APD=="PSP" & df$RTQUIC=="SAA positive" & df$Sex=="M")
-
-# boxplot(dfMVRS$Age ~ dfMVRS$RTQUIC)$out
-# aovmodel <- aov(Age ~ DX_APD + RTQUIC, dfMVRS)
-# Anova(aovmodel, type='II') #Compare the fitted model to a null model. No need for posthoc given these are 2-level factors only.
-# dfMVRS %>% group_by(RTQUIC) %>% summarize(count=n(), mean=mean(Age, na.rm=T), sd=sd(Age, na.rm=T))
-
-# vec <- boxplot(dfMVRS$Onset ~ dfMVRS$RTQUIC)$out
-# dfMVRSonset <- subset(dfMVRS, Onset!=vec[1]) 
-# aovmodel <- aov(Onset ~ DX_APD + RTQUIC, dfMVRSonset)
-# Anova(aovmodel, type='II') #Compare the fitted model to a null model. No need for posthoc given these are 2-level factors only.
-
-# vec <- boxplot(dfMVRS$Park_onset ~ dfMVRS$RTQUIC)$out
-# dfMVRSonsetpark <- subset(dfMVRS, Park_onset!=vec[1]) 
-# aovmodel <- aov(Park_onset ~ DX_APD+ RTQUIC, dfMVRSonsetpark)
-# summary(aovmodel)
-# Anova(aovmodel, type='II') #Compare the fitted model to a null model. No need for posthoc given these are 2-level factors only.
-# dfMVRSonsetpark %>% group_by(RTQUIC) %>% summarize(count=n(), mean=mean(Park_onset, na.rm=T), sd=sd(Park_onset, na.rm=T))
-
-# table(dfMVRS$Parkinsonian_onset, dfMVRS$RTQUIC)
-# fisher.test(table(dfMVRS$Sex, dfMVRS$RTQUIC)) # Expected count is <5 for one cell
-
 
 
 
@@ -1558,22 +1222,153 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
 
 
+
+
+
 ###############################################################################################################################
-										   #SUPPLEMENTARY MATERIAL
+														#SUPPLEMENTARY MATERIAL
 ###############################################################################################################################
 
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(Sex)
-		# table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary)
-		# chisq.test(table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary), correct=F)
 
-		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
-			# shapiro.test(ADposCBSdfRS$Age) #normal
-			# shapiro.test(ADnegCBSdfRS$Age) #normal
-			# var.test(Age ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
-		# t.test(CBSdfRS$Age ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE)
-		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-		# CBSdfRS %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+
+#####################################			CBS-AD+ vs CBS-AD-	 			###############################################
+###############################################################################################################################
+
+
+
+	##SUPPLEMENTARY MATERIAL
+	# Data are not normally distributed so be careful with residuals
+	# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
+	# mlr <- lm(Cognitive_Z ~ Lifetime_AD_binary + DX_APD + Age, dfRS)
+	# mlr2 <- lm(Cognitive_Z ~Age*Lifetime_AD_binary + DX_APD, dfRS) #Technically best model but since interaction remains ns I think for sake of simplicity it is okay to select mlr instead. 
+	# mlr3 <- lm(Cognitive_Z ~Age*DX_APD + Lifetime_AD_binary, dfRS)
+	# summary(mlr) 
+	# summary(mlr2) 
+	# summary(mlr3) 
+
+	# ##Diagnostics of the model run
+	# residuals <- residuals(mlr)
+	# hist(residuals)
+	# qqnorm(residuals)
+	# shapiro.test(residuals)
+	# check_normality(mlr) #Very non normal: model not fittint too well the data
+	# durbinWatsonTest(mlr) #Check the residuals are independent (multiple regression assumption)
+
+	##Means to report for model mlr: report EMMs + SE 
+	## dfRS %>% group_by(AD) %>% summarize(count=n(), mean=format(round(mean(Cognitive_Z, na.rm=T),3),3), sd=format(round(sd(Cognitive_Z, na.rm=T),3),3))
+	# emmeans(mlr, ~ AD, opt.digits=T) #adjusted means
+	## emmeans(mlr, ~ DX_APD, opt.digits=T) #adjusted means
+
+
+# MULT LINEAR REGRESSION  TO COMPARE MOCA Z SCORES BETWEEN DX AND AD WITH DURATION AS COVARIATE
+# #Here remove CBS-HIV as looking at DX
+	# boxplot(MOCA_Z ~ DX_APD, data= CBSdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ DX_APD, data = CBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ DX_APD, data= PSPdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ DX_APD, data = PSPdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ APOEe4, data= APOEposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ APOEe4, data= APOEnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+	# #Then check normality of my group for AD and DX groups, and homoscedasticity
+	# shapiro.test(CBSdfRS$MOCA_Z)
+	# shapiro.test(PSPdfRS$MOCA_Z) #not normal
+	# shapiro.test(ADposdfRS$MOCA_Z)
+	# shapiro.test(ADnegdfRS$MOCA_Z) #not normal
+	# shapiro.test(APOEposdfRS$MOCA_Z)
+	# shapiro.test(APOEnegdfRS$MOCA_Z) #not normal
+	# leveneTest(MOCA_Z ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. 
+
+	#Inclusion of Age as a covariate:
+	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	#   stat_regline_equation(aes()) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	#   stat_regline_equation(aes(color = DX_APD)) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
+	#   stat_regline_equation(aes(color = APOEe4)) 
+	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
+	#   stat_regline_equation(aes(color = Lifetime_AD_binary))
+	# cor.test(dfRS$MOCA_Z, dfRS$Age)
+	# summary(lm(dfRS$MOCA_Z ~ dfRS$Age)) #linear relationship
+	##NOTE: possible interaction of Age with either DX or AD on Cognitive z-score (CBS/AD+ show much more steep differences in cognitive impairment
+			#relative to demographics depending on age. IE young AD+ has much worse CI than a young AD-, but an old AD+ and an old AD- are comparable.
+			#This points to AD+ subjects being much more affected at young age. Not sure if makes sense to include in this model). 
+
+	#Inclusion of Duration as a covariate:
+	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	#   stat_regline_equation(aes()) 
+	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	#   stat_regline_equation(aes(color = DX_APD)) 
+	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
+	#   stat_regline_equation(aes(color = APOEe4)) 
+	# ggscatter(dfRS, x = "LP2_Disease_Duration", y = "MOCA_Z", color = "AD", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
+	#   stat_regline_equation(aes(color = AD))
+	# cor.test(dfRS$MOCA_Z, dfRS$LP2_Disease_Duration) #No relationship
+
+	##Compare models with Ftest
+	# test1 <- lm(MOCA_Z ~ DX_APD, dfRS)
+	# test2 <- lm(MOCA_Z ~ Lifetime_AD_binary, dfRS)
+	# test3 <- lm(MOCA_Z ~ Lifetime_AD_binary + DX_APD, dfRS) #both additions are beneficial so model should have AD and DX
+	# anova(test1, test3)
+	# anova(test2, test3)
+
+	# Inclusion of APOE in model:
+	# dfRSapoe <- dfRS[!is.na(dfRS$APOEe4), ]
+	# test1 <- lm(MOCA_Z ~ APOEe4, dfRSapoe)
+	# test2 <- lm(MOCA_Z ~ DX_APD, dfRSapoe)
+	# test3 <- lm(MOCA_Z ~ DX_APD +APOEe4, dfRSapoe)
+	# anova(test1, test3) 
+	# anova(test2, test3) #DX by itself is better than with APOEe4
+
+# Using lm to compare Rsquare to that of test models below (there is no difference with aov)
+# mlr <- lm(MOCA_Z ~ Lifetime_AD_binary + DX_APD + Age, dfRS)
+	# mlr2 <- lm(MOCA_Z ~Age*Lifetime_AD_binary + DX_APD, dfRS) #Technically best model but since interaction remains ns I think for sake of simplicity it is okay to select mlr instead. 
+	# mlr3 <- lm(MOCA_Z ~Age*DX_APD + Lifetime_AD_binary, dfRS)
+# summary(mlr) #type I (no interaction so order does not matter)
+	# summary(mlr2) 
+	# summary(mlr3) 
+
+# # ##Diagnostics of the model run
+# hist(residuals)
+# qqnorm(residuals)
+# shapiro.test(residuals(mlr))
+# check_normality(mlr) #Very non normal: model not fittint too well the data
+# durbinWatsonTest(mlr) #Check the residuals are independent (multiple regression assumption)
+
+##Means to report for model mlr: report EMMs + SE 
+## dfRS %>% group_by(AD) %>% summarize(count=n(), mean=format(round(mean(Cognitive_Z, na.rm=T),3),3), sd=format(round(sd(Cognitive_Z, na.rm=T),3),3))
+# emmeans(mlr, ~ Lifetime_AD_binary, opt.digits=T) #adjusted means
+## emmeans(mlr, ~ DX_APD, opt.digits=T) #adjusted means
+
+
+
+
+
+	##### TABLES2 #####
+	#Remove CBS-HIV patient
+	
+	# CBSdfRS %>% count(Lifetime_AD_binary)
+
+	# #TABLE1: AGE
+	# 	shapiro.test(ADposCBSdfRS$Age) #normal
+	# 	shapiro.test(ADnegCBSdfRS$Age) #normal
+	# 	var.test(Age ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+	# t.test(CBSdfRS$Age ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE)
+	# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+	# CBSdfRS %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+
+	# #TABLE1:SEX
+	# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(Sex)
+	# table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary)
+	# chisq.test(table(CBSdfRS$Sex, CBSdfRS$Lifetime_AD_binary), correct=F)
+
 
 		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
 			# shapiro.test(ADposCBSdfRS$Onset) #normal
@@ -1605,6 +1400,199 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 		# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% count(APOEe4)
 		# table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)
 		# fisher.test(table(CBSdfRS$APOEe4, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+
+
+			###SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+	###COMPARISONS OF BIOMARKERS FOR AD:
+	##################################################
+
+			##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+		##Look only in CBS: should be no interaction of APOEe4 but possible effect of AD
+		# CBSdfRSonsetapoe <- CBSdfRSonset[!is.na(CBSdfRSonset$APOEe4), ]
+			# test1 <- lm(Onset ~ Lifetime_AD_binary, CBSdfRSonsetapoe)
+			# test2 <- lm(Onset ~ APOEe4, CBSdfRSonsetapoe)
+			# test3 <- lm(Onset ~ APOEe4+ Lifetime_AD_binary, CBSdfRSonsetapoe)
+			# anova(test1, test3)
+			# anova(test2, test3) 
+			# ADposCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Positive")
+			# ADnegCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Negative")
+			# shapiro.test(ADposCBSdfRSonset$Onset) #normal
+			# shapiro.test(ADnegCBSdfRSonset$Onset) #normal
+			# var.test(Onset ~ Lifetime_AD_binary, data = CBSdfRSonset) #homoscedasticity
+		# t.test(CBSdfRSonset$Onset ~ CBSdfRSonset$Lifetime_AD_binary, var.equal=TRUE)
+		# CBSdfRSonset %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+		# CBSdfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
+
+
+		##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+		##Look only in CBS: should be no interaction of APOEe4 but possible effect of AD
+		# CBSdfRSonsetapoe <- CBSdfRSonset[!is.na(CBSdfRSonset$APOEe4), ]
+		# test1 <- lm(Park_onset ~ Lifetime_AD_binary, CBSdfRSonsetapoe)
+		# test2 <- lm(Park_onset ~ APOEe4, CBSdfRSonsetapoe)
+		# test3 <- lm(Park_onset ~ APOEe4+ Lifetime_AD_binary, CBSdfRSonsetapoe)
+		# anova(test1, test3)
+		# anova(test2, test3) 
+		# ADposCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Positive")
+		# ADnegCBSdfRSonset <- subset(CBSdfRSonset, Lifetime_AD_binary=="AD Negative")
+		# shapiro.test(ADposCBSdfRSonset$Park_onset) #normal
+		# shapiro.test(ADnegCBSdfRSonset$Park_onset) #normal
+		# var.test(Park_onset ~ Lifetime_AD_binary, data = CBSdfRSonset) #homoscedasticity
+		# t.test(CBSdfRSonset$Park_onset ~ CBSdfRSonset$Lifetime_AD_binary, var.equal=TRUE)
+		# CBSdfRSonset %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
+		# CBSdfRSonset %>% summarize(count=n(), mean=format(round(mean(Park_onset, na.rm=T),3),3), sd=format(round(sd(Park_onset, na.rm=T),3),3))
+
+
+	##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+	# table(CBSdfRS$Parkinsonian_onset, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Parkinsonian_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$Cognitive_onset, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Cognitive_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$anyPPA, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$anyPPA, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$Tremor_binary, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Tremor_binary, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$Myoclonus, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Myoclonus, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+	# table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)
+	# fisher.test(table(CBSdfRS$Language_onset, CBSdfRS$Lifetime_AD_binary)) # Expected count is <5 for one cell
+
+
+
+			##SUPPLEMENTARY MATERIAL: TABLE CBS AD+ VS AD-
+			#Already got rid of outliers earlier. 
+			# CBSdfRSapoe <- CBSdfRS[!is.na(CBSdfRS$APOEe4), ]
+			# test1 <- lm(MOCA_Z ~ APOEe4, CBSdfRSapoe)
+			# test2 <- lm(MOCA_Z ~ Lifetime_AD_binary, CBSdfRSapoe)
+			# test3 <- lm(MOCA_Z ~ Lifetime_AD_binary +APOEe4, CBSdfRSapoe)
+			# anova(test1, test3) 
+			# anova(test2, test3) #DX by itself is better than with APOEe
+			# shapiro.test(ADposCBSdfRS$MOCA_Z) #normal
+			# shapiro.test(ADnegCBSdfRS$MOCA_Z) #normal
+			# leveneTest(MOCA_Z ~ Lifetime_AD_binary, data = CBSdfRS) #homoscedasticity
+			# t.test(CBSdfRS$MOCA_Z ~ CBSdfRS$Lifetime_AD_binary, var.equal=TRUE) 
+			# CBSdfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
+			# CBSdfRS %>% summarize(count=n(), format(round(mean(MOCA_Z, na.rm=T),2),2), sd=sd(MOCA_Z, na.rm=T))
+	
+
+	# #MULT LINEAR REGRESSION TO COMPARE NFL LEVELS
+	# #For NFL, another approach is chosen, as the data are expected to be very right-skewed. Threshold for outlier is changed.
+
+	# Remove outliers for AD
+	#First identify and remove outlier from the AD+ group only. 
+	# boxplot <- boxplot(NFL ~ Lifetime_AD_binary, data= ADposCBSdfRS, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+	# 	stripchart(NFL ~ Lifetime_AD_binary, data = ADposCBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# #boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+	# threshold <- min(max(ADposCBSdfRS$NFL,na.rm=T), as.numeric(quantile(ADposCBSdfRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (ADposCBSdfRS$NFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+	# #dfRS[!((dfRS$NFL<threshold & dfRS$Lifetime_AD_binary=="AD Positive")| (dfRS$Lifetime_AD_binary=="AD Negative")), c("ID", "NFL")] 
+	# CBSdfRSnfl <- subset(CBSdfRS, (NFL<threshold & Lifetime_AD_binary=="AD Positive") | (Lifetime_AD_binary=="AD Negative")) #make sure you don't accidentally erase the AD negative here, or filter their values
+
+	# ##Then identify and remove outlier from the AD- group only
+	# boxplot <- boxplot(NFL ~ Lifetime_AD_binary, data= ADnegCBSdfRS, col = "white") #Same for AD- group
+	# 	stripchart(NFL ~ Lifetime_AD_binary, data = ADnegCBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# #boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+	# threshold<- min(max(ADnegCBSdfRS$NFL,na.rm=T), as.numeric(quantile(ADnegCBSdfRS$NFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (ADnegCBSdfRS$NFL)*3))) 
+	# #dfRSnflAD[!((dfRSnflAD$NFL<threshold & dfRSnflAD$Lifetime_AD_binary=="AD Negative")| (dfRSnflAD$Lifetime_AD_binary=="AD Positive")), c("ID", "NFL")] 
+	# CBSdfRSnfl <- subset(CBSdfRSnfl, (NFL<threshold & Lifetime_AD_binary=="AD Negative") | (Lifetime_AD_binary=="AD Positive")) 
+
+
+	#Compare models withand without AD after removing the AD outliers with the Ftest
+	# test1 <- lm(logNFL ~ Lifetime_AD_binary, CBSdfRSnfl)
+	# test2 <- lm(logNFL ~ Sex, CBSdfRSnfl)
+	# test3 <- lm(logNFL ~ Lifetime_AD_binary + Sex, CBSdfRSnfl)
+	# anova(test1, test3)
+	# anova(test2, test3)
+
+	# #Oneway seems better but let's perform F-test to have full picture. 
+	# testdf <- CBSdfRSnfl %>% drop_na("APOEe4") 
+	# testdf$APOEe4
+	# oneway <- lm(logNFL ~ Lifetime_AD_binary, testdf) 
+	# twoway <- lm(logNFL ~ APOEe4 + Lifetime_AD_binary, testdf) 
+	# anova(oneway, twoway)
+
+	# #Then check normality in both AD+ and AD- and overall
+	# ADposCBSdfRSnfl <- subset(CBSdfRSnfl, Lifetime_AD_binary=="AD Positive")
+	# ADnegCBSdfRSnfl <- subset(CBSdfRSnfl, Lifetime_AD_binary=="AD Negative")
+	# shapiro.test(ADposCBSdfRSnfl$logNFL) #normal
+	# shapiro.test(ADnegCBSdfRSnfl$logNFL) #nonnormal
+	# leveneTest(logNFL ~ Lifetime_AD_binary, CBSdfRSnfl) #Heterodasticity
+
+	#Inclusion of Age as a covariate:
+	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(CBSdfRSnfl, x = "Age", y = "NFL", add = "reg.line")+ #Not related to age
+  	# 	stat_regline_equation(aes()) 
+	# ggscatter(CBSdfRSnfl, x = "Age", y = "NFL", color = "Lifetime_AD_binary", add = "reg.line")+
+  	# 	stat_regline_equation(aes(color = Lifetime_AD_binary)) 
+	# cor.test(CBSdfRSnfl$NFL, CBSdfRSnfl$Age) #no corr
+	# cor.test(CBSdfRSnfl$logNFL, CBSdfRSnfl$Age) #no corr
+
+	# #Inclusion of Duration as a covariate:
+	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(CBSdfRSnfl, x = "LP2_Disease_Duration", y = "NFL", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	#   stat_regline_equation(aes()) 
+	# ggscatter(CBSdfRSnfl, x = "LP2_Disease_Duration", y = "NFL", color = "Lifetime_AD_binary", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
+	# cor.test(CBSdfRSnfl$NFL, CBSdfRSnfl$LP2_Disease_Duration) #no corr
+	# cor.test(CBSdfRSnfl$logNFL, CBSdfRSnfl$LP2_Disease_Duration) #no corr
+
+	# #Inclusion of Abeta as a covariate:
+	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "abeta", add = "reg.line")+ #For overall group, NFL not related to age
+  	# stat_regline_equation(aes()) 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "abeta", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
+  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
+	# cor.test(CBSdfRSnfl$abeta, CBSdfRSnfl$NFL)
+	# cor.test(CBSdfRSnfl$abeta, CBSdfRSnfl$logNFL)
+	# cor.test(CBSdfRSnfl$logabeta, CBSdfRSnfl$NFL)
+	# summary(lm(CBSdfRSnfl$abeta ~ CBSdfRSnfl$logNFL)) #no linear relationship
+
+	# #Inclusion of ptau as a covariate:
+	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ptau", add = "reg.line")+ #For overall group, NFL not related to age
+  	# stat_regline_equation(aes()) 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ptau", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
+  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
+	# cor.test(CBSdfRSnfl$ptau, CBSdfRSnfl$NFL)
+	# cor.test(CBSdfRSnfl$ptau, CBSdfRSnfl$logNFL)
+	# summary(lm(CBSdfRSnfl$ptau ~ CBSdfRSnfl$logNFL)) #no linear relationship
+
+	# #Inclusion of ptau as a covariate:
+	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ttau", add = "reg.line")+ #For overall group, NFL not related to age
+  	# stat_regline_equation(aes()) 
+	# ggscatter(CBSdfRSnfl, x = "NFL", y = "ttau", color = "Lifetime_AD_binary", add = "reg.line")+ #There seems to be interaction. Possibly PSP have lower levels in older group. CBS slight increase as expected with age. 
+  	# stat_regline_equation(aes(color = Lifetime_AD_binary)) 
+	# cor.test(CBSdfRSnfl$ttau, CBSdfRSnfl$NFL)
+	# cor.test(CBSdfRSnfl$ttau, CBSdfRSnfl$logNFL)
+	# summary(lm(CBSdfRSnfl$ttau ~ CBSdfRSnfl$logNFL)) #no linear relationship
+
+	# # Data are not normally distributed so be careful with residuals
+	# #Many options were tried: most were eliminated as model significance way >0.10. Interactions including aforementioned covariates were tried just in case as visualization was ambiguous. 
+	# t.test(ADposCBSdfRSnfl$logNFL, ADnegCBSdfRSnfl$logNFL) #Welch's t-test: does not assume variance equal
+	# 	CBSdfRSnfl %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(NFL, na.rm=T),3),3), sd=format(round(sd(NFL, na.rm=T),3),3))
+	# 	CBSdfRSnfl %>% summarize(count=n(), mean=format(round(mean(NFL, na.rm=T),3),3), sd=format(round(sd(NFL, na.rm=T),3),3))
+	# CBSdfRSnfl %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), format(round(median(NFL, na.rm=T),2),2), IQR=format(round(IQR(NFL, na.rm=T),2),2), min=min(NFL, na.rm=T), max=max(NFL, na.rm=T))
+	# CBSdfRSnfl %>% summarize(count=n(), format(round(median(NFL, na.rm=T),2),2), IQR=IQR(NFL, na.rm=T), min=min(NFL, na.rm=T), max=max(NFL, na.rm=T))
+
+
+
+
+		#TXT: RTQUIC CHISQUARE WITH AD IN CBS ONLY
+	# #Compare proportions between AD+ and AD- for RT positivity but in CBS only: Close to significance. 
+	# 	table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)
+	# 	chisq.test(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)) #correct: Yates'continuity correction
+	# fisher.test(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC)) # Expected count is <5 for one cell
+	# 	# cramerV(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC))
+	# phi(table(CBSdfMVRS$AD_binary, CBSdfMVRS$RTQUIC), digits=6)
+
+	#TXT: RTQUIC CHISQUARE WITH AD IN PSP ONLY
+	# #Compare proportions between AD+ and AD- for RT positivity but in CBS only
+	# 	chisq.test(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC), correct=T) #correct: Yates'continuity correction
+	# fisher.test(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC)) # Expected count is <5 for one cell
+	# 	table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC)
+	# cramerV(table(PSPdfMVRS$AD_binary, PSPdfMVRS$RTQUIC))
+
 #########################################################################################################
 										   #DOCUMENTATION AND REFERENCES
 ###############################################################################################################################
@@ -1614,6 +1602,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 #https://stats.stackexchange.com/questions/298/in-linear-regression-when-is-it-appropriate-to-use-the-log-of-an-independent-va
 #https://data.library.virginia.edu/interpreting-log-transformations-in-a-linear-model/
 ##https://rdrr.io/cran/car/man/Anova.html
+#https://study.com/skill/learn/how-to-calculate-expected-counts-for-the-chi-square-test-for-goodness-of-fit-explanation.html
 
 #ANCOVA ASSUMPTIONS
 # https://www.researchgate.net/post/How_can_continue_ANCOVA_when_assumption_of_homogeneity_of_regression_slopes_is_violated
