@@ -43,11 +43,16 @@ dfMVRS <- subset(df, ID!="2308_v1" & ID!="T102, T192") #for some analysis, need 
 
 
 ##CREATE SOME OF THE SUBSETS USED LATER (MOSTLY FOR OUTLIER IDENTIFICATION)
+##CREATE A FUNCTION FOR THIS LATER
+#df
 CBSdf <- subset(df, DX_APD=="CBS") #for the description of AD+/- cohort
 PSPdf <- subset(df, DX_APD=="PSP") #for the description of AD+/- cohort
 ADposdf <- subset(df, Lifetime_AD_binary=="AD Positive") #for the description of AD+/- cohort
 ADnegdf <- subset(df, Lifetime_AD_binary=="AD Negative") #for the description of AD+/- cohort
+APOEposdf <- subset(df, APOEe4=="Positive") #for the description of APOE+/- cohort
+APOEnegdf <- subset(df, APOEe4=="Negative") #for the description of APOE+/- cohort
 
+#dfRS
 RTposdfRS <- subset(dfRS, RTQUIC=="SAA positive") #for the main results on RT+/-
 RTnegdfRS <- subset(dfRS, RTQUIC=="SAA negative") #for the main results on RT+/-
 CBSdfRS <- subset(dfRS, DX_APD=="CBS") #for the main results on RT+/-
@@ -57,6 +62,7 @@ ADnegdfRS <- subset(dfRS, Lifetime_AD_binary=="AD Negative") #for the descriptio
 APOEposdfRS <- subset(dfRS, APOEe4=="Positive") #for the description of APOE+/- cohort
 APOEnegdfRS <- subset(dfRS, APOEe4=="Negative") #for the description of APOE+/- cohort
 
+#dfMVRS
 RTposdfMVRS <- subset(dfMVRS, RTQUIC=="SAA positive") #for the main results on RT+/-
 RTnegdfMVRS <- subset(dfMVRS, RTQUIC=="SAA negative") #for the main results on RT+/-
 CBSdfMVRS <- subset(dfMVRS, DX_APD=="CBS") #for the main results on RT+/-
@@ -66,17 +72,33 @@ ADnegdfMVRS <- subset(dfMVRS, Lifetime_AD_binary=="AD Negative") #for the descri
 APOEposdfMVRS <- subset(dfMVRS, APOEe4=="Positive") #for the description of APOE+/- cohort
 APOEnegdfMVRS <- subset(dfMVRS, APOEe4=="Negative") #for the description of APOE+/- cohort
 
-ADposCBSdfRS <- subset(CBSdfRS, Lifetime_AD_binary=="AD Positive") #for the description of AD+/- cohort
-ADnegCBSdfRS <- subset(CBSdfRS, Lifetime_AD_binary=="AD Negative") #for the description of AD+/- cohort
-
-
 ##NORMALIZE THE DATA FOR MLR
+#dfRS
 procdfRS <- preProcess(as.data.frame(dfRS), method=c("range")) #All numerical data are put in a range of 0-1
 normdfRS <- predict(procdfRS, as.data.frame(dfRS))
 
+RTposnormdfRS <- subset(normdfRS, RTQUIC=="SAA positive") #for the main results on RT+/-
+RTnegnormdfRS <- subset(normdfRS, RTQUIC=="SAA negative") #for the main results on RT+/-
+CBSnormdfRS <- subset(normdfRS, DX_APD=="CBS") #for the main results on RT+/-
+PSPnormdfRS <- subset(normdfRS, DX_APD=="PSP") #for the main results on RT+/-
+ADposnormdfRS <- subset(normdfRS, Lifetime_AD_binary=="AD Positive") #for the description of AD+/- cohort
+ADnegnormdfRS <- subset(normdfRS, Lifetime_AD_binary=="AD Negative") #for the description of AD+/- cohort
+APOEposnormdfRS <- subset(normdfRS, APOEe4=="Positive") #for the description of APOE+/- cohort
+APOEnegnormdfRS <- subset(normdfRS, APOEe4=="Negative") #for the description of APOE+/- cohortRTposdfRS <- subset(dfRS, RTQUIC=="SAA positive") #for the main results on RT+/-
+
+#dfMVRS
 procdfMVRS <- preProcess(as.data.frame(dfMVRS), method=c("range"))
 normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
+RTposnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA positive") #for the main results on RT+/-
+RTnegnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA negative") #for the main results on RT+/-
+CBSnormdfMVRS <- subset(normdfMVRS, DX_APD=="CBS") #for the main results on RT+/-
+PSPnormdfMVRS <- subset(normdfMVRS, DX_APD=="PSP") #for the main results on RT+/-
+ADposnormdfMVRS <- subset(normdfMVRS, Lifetime_AD_binary=="AD Positive") #for the description of AD+/- cohort
+ADnegnormdfMVRS <- subset(normdfMVRS, Lifetime_AD_binary=="AD Negative") #for the description of AD+/- cohort
+APOEposnormdfMVRS <- subset(normdfMVRS, APOEe4=="Positive") #for the description of APOE+/- cohort
+APOEnegnormdfMVRS <- subset(normdfMVRS, APOEe4=="Negative") #for the description of APOE+/- cohortRTposdfRS <- subset(dfRS, RTQUIC=="SAA positive") #for the main results on RT+/-
+RTnegnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA negative") #for the main results on RT+/-
 
 
 ###############################################################################################################################
@@ -470,15 +492,15 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# anova(test2, test3) #dx_APD by itself is better thna with APOEe4. Also tested with Sex.
 
 	#For the sake of clarity and because the SME analysis does not indicate APOEe4 to be a very important factor, report lm2 instead. 
-	# lm <- lm(Onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
-	# Anova(lm, type="III") #Since it includes interaction, report III
-	# emmeans(lm, ~ DX_APD:APOEe4, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-	# pairs(emmeans(lm,~ DX_APD:APOEe4))
+	# aov <- aov(Onset ~ DX_APD*APOEe4 + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+	# Anova(aov, type="III") #Since it includes interaction, report III
+	# emmeans(aov, ~ DX_APD:APOEe4, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
+	# pairs(emmeans(aov,~ DX_APD:APOEe4))
 
-# lm2 <- lm(Onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
-# summary(lm2)
-# Anova(lm2, type="II") 
-# 	shapiro.test(residuals(lm2))
+# aov2 <- aov(Onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(aov2)
+# Anova(aov2, type="II") 
+	# shapiro.test(residuals(aov2)) #Careful as not normal
 	# dfRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 	# dfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 
@@ -493,10 +515,10 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 	# shapiro.test(APOEnegdfRS$Park_onset) #normal
 	# leveneTest(Park_onset ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. Specify saturated model, ie includes the interaction term even if aovmodel does not
 
-# lm2 <- lm(Park_onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
-# summary(lm2)
-# Anova(lm2, type="II") 
-	# shapiro.test(residuals(lm2))
+# aov2 <- aov(Park_onset ~ DX_APD + Lifetime_AD_binary, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(aov2)
+# Anova(aov2, type="II") 
+	# shapiro.test(residuals(aov2))
 	# dfRS %>% group_by(DX_APD) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 	# dfRS %>% group_by(Lifetime_AD_binary) %>% summarize(count=n(), mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 
@@ -504,87 +526,83 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
 #TXT: DIFFERENCES IN COGNITIVE SCORES BETWEEN AD+ and AD- 
 # Here remove CBS-HIV as looking at DX
-	# boxplot(MOCA_Z ~ DX_APD, data= CBSdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(MOCA_Z ~ DX_APD, data = CBSdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(MOCA_Z ~ DX_APD, data= PSPdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(MOCA_Z ~ DX_APD, data = PSPdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(MOCA_Z ~ APOEe4, data= APOEposdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
-	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEposdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# boxplot(MOCA_Z ~ APOEe4, data= APOEnegdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
-	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEnegdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ DX_APD, data= CBSnormdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ DX_APD, data = CBSnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ DX_APD, data= PSPnormdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ DX_APD, data = PSPnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADposnormdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADposnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ Lifetime_AD_binary, data= ADnegnormdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ Lifetime_AD_binary, data = ADnegnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ APOEe4, data= APOEposnormdfRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEposnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(MOCA_Z ~ APOEe4, data= APOEnegnormdfRS, col = "white")$out #identify outliers: in AD negative df, none. 
+	# 	stripchart(MOCA_Z ~ APOEe4, data = APOEnegnormdfRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
 	# Then check normality of my group for AD and DX groups, and homoscedasticity
-	# shapiro.test(CBSdfRS$MOCA_Z) 
-	# shapiro.test(PSPdfRS$MOCA_Z) #nonnormal
-	# shapiro.test(ADposdfRS$MOCA_Z)
-	# shapiro.test(ADnegdfRS$MOCA_Z) #nonnormal
-	# shapiro.test(APOEposdfRS$MOCA_Z)
-	# shapiro.test(APOEnegdfRS$MOCA_Z) #nonnormal
-	# leveneTest(MOCA_Z ~ DX_APD*APOEe4*Lifetime_AD_binary, dfRS) #Homoscedasticity. 
+	# shapiro.test(CBSnormdfRS$MOCA_Z) 
+	# shapiro.test(PSPnormdfRS$MOCA_Z) #nonnormal
+	# shapiro.test(ADposnormdfRS$MOCA_Z)
+	# shapiro.test(ADnegnormdfRS$MOCA_Z) #nonnormal
+	# shapiro.test(APOEposnormdfRS$MOCA_Z)
+	# shapiro.test(APOEnegnormdfRS$MOCA_Z) #nonnormal
+	# leveneTest(MOCA_Z ~ DX_APD*APOEe4*Lifetime_AD_binary, normdfRS) #Homoscedasticity. 
 
 		#Observing some bimodality in the z-scores. Explore:
-		# hist(dfRS$MOCA_Z)
-		# testdf <- subset(dfRS, Onset<=65)
+		# hist(normdfRS$MOCA_Z)
+		# testdf <- subset(normdfRS, Onset<=65)
 		# hist(testdf$MOCA_Z)
-		# testdf <- subset(dfRS, Onset>65)
+		# testdf <- subset(normdfRS, Onset>65)
 		# hist(testdf$MOCA_Z) #Cannot tell source of bimodality.
 		# Seems it is just some coincidence + artefact of the nature of z-scores (the left skew is normal for a demented cohort)
 		# As a result, preference for MLR.
 
 	# #Inclusion of Age as a covariate:
 	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# cor.test(dfRS$MOCA_Z, dfRS$Age) #correlated
-	# summary(lm(dfRS$MOCA_Z ~ dfRS$Age)) #linear relationship
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	# cor.test(normdfRS$MOCA_Z, normdfRS$Age) #correlated
+	# summary(lm(normdfRS$MOCA_Z ~ normdfRS$Age)) #linear relationship
+	# ggscatter(normdfRS, x = "Age", y = "MOCA_Z", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
   	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
+	# ggscatter(normdfRS, x = "Age", y = "MOCA_Z", color = "DX_APD", add = "reg.line")+ #Relative to their demographics, old CBS tend to fare less bad than young CBS, which is not seen in PSP. 
   	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
+	# ggscatter(normdfRS, x = "Age", y = "MOCA_Z", color = "APOEe4", add = "reg.line")+ #Okay
   	# 	stat_regline_equation(aes(color = APOEe4)) 
-	# ggscatter(dfRS, x = "Age", y = "MOCA_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
-  		# stat_regline_equation(aes(color = Lifetime_AD_binary))
-	##NOTE: possible interaction of Age with either DX or AD on Cognitive z-score (CBS/AD+ show much more steep differences in cognitive impairment
+	# ggscatter(normdfRS, x = "Age", y = "MOCA_Z", color = "Lifetime_AD_binary", add = "reg.line")+#Same as for DX, AD+ seem to be much worse when young
+  	# 	stat_regline_equation(aes(color = Lifetime_AD_binary))
+	##NOTE: Interaction of Age with either DX or AD on Cognitive z-score (CBS/AD+ show much more steep differences in cognitive impairment
 			#relative to demographics depending on age. IE young AD+ has much worse CI than a young AD-, but an old AD+ and an old AD- are comparable.
-			#This points to AD+ subjects being much more affected at young age. Not sure if makes sense to include in this model). 
+			#This points to AD+ subjects being much more affected at young age.  
 
-	# #Inclusion of Duration as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# cor.test(dfRS$MOCA_Z, dfRS$LP2_Disease_Duration) #no correlation
-	# summary(lm(dfRS$MOCA_Z ~ dfRS$LP2_Disease_Duration)) #no linear relationship
+	#Inclusion of Duration as a covariate:
+	#Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# cor.test(normdfRS$MOCA_Z, normdfRS$LP2_Disease_Duration) #no correlation
+	# summary(lm(normdfRS$MOCA_Z ~ normdfRS$LP2_Disease_Duration)) #no linear relationship
 
 	##Compare models with Ftest
-	# test1 <- lm(MOCA_Z ~ DX_APD, dfRS)
-	# test2 <- lm(MOCA_Z ~ Lifetime_AD_binary, dfRS)
-	# test3 <- lm(MOCA_Z ~ Lifetime_AD_binary + DX_APD, dfRS) #both additions are beneficial so model should have AD and DX
+	# test1 <- lm(MOCA_Z ~ DX_APD, normdfRS)
+	# test2 <- lm(MOCA_Z ~ Lifetime_AD_binary, normdfRS)
+	# test3 <- lm(MOCA_Z ~ Lifetime_AD_binary + DX_APD, normdfRS) #both additions are beneficial so model should have AD and DX
 	# anova(test1, test3)
 	# anova(test2, test3)
 
 	# #Inclusion of APOE in model:
-	# dfRSapoe <- dfRS[!is.na(dfRS$APOEe4), ]
+	# dfRSapoe <- normdfRS[!is.na(normdfRS$APOEe4), ]
 	# test1 <- lm(MOCA_Z ~ APOEe4, dfRSapoe)
 	# test2 <- lm(MOCA_Z ~ DX_APD, dfRSapoe)
 	# test3 <- lm(MOCA_Z ~ DX_APD +APOEe4, dfRSapoe)
 	# anova(test1, test3) 
 	# anova(test2, test3) #DX by itself is better than with APOEe4
 
-# lm <- lm(MOCA_Z ~ DX_APD*Lifetime_AD_binary + Age, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
-# summary(lm)
-# Anova(lm, type="III") #Since it includes interaction, report III
-# 	shapiro.test(residuals(lm))
-# 	emmeans(lm, ~ DX_APD:Lifetime_AD_binary, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-# 	pairs(emmeans(lm,~ DX_APD:Lifetime_AD_binary))
+# Do not include interaction of DX_APD with AD because too few PSP-AD subjects. 
+#Include the interaction of age with AD though. 
+# mlr <- lm(MOCA_Z ~ DX_APD + Lifetime_AD_binary*Age, normdfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
+# summary(mlr)
+	# shapiro.test(residuals(mlr))
+# emmeans(mlr, ~ Lifetime_AD_binary, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
 	
-	# lm <- lm(Cognitive_Z ~ DX_APD*Lifetime_AD_binary + Age, dfRS) #The model reported as we are interested to describe the effect (here non-effect) of AD
-	# summary(lm)
-	# Anova(lm, type="III") #Since it includes interaction, report III
-	# 	shapiro.test(residuals(lm))
-	# 	emmeans(lm, ~ DX_APD:Lifetime_AD_binary, opt.digits=T) #opt.digits: if F, base R getOption setting used. However, this may be more precision than justified using SE. 
-	# 	pairs(emmeans(lm,~ DX_APD:Lifetime_AD_binary))
-
+	## ALL COGNITIVE SCORES FOR CONFIRMATION
+	# mlr <- lm(Cognitive_Z ~ DX_APD + Lifetime_AD_binary*Age, normdfRS)
+	# summary(mlr)
 
 
 
@@ -593,7 +611,7 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
 
 # DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH FREQUENCY DATA
-##########################################################
+###########################################################
 
 
 #TXT: TOTAL NUMBER RTQUIC + SEX% WITHIN AD
@@ -644,159 +662,78 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 
 
 
-# DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH BIOMARKER DATA
-##########################################################
+# DESCRIPTION OF AD/RTQUIC RELATIONSHIP WITH ABETA42
+#####################################################
 
-# vec1<- boxplot(abeta ~ Lifetime_AD_binary, data= ADposdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
-# 	stripchart(abeta ~ Lifetime_AD_binary, data = ADposdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# vec2 <-boxplot(abeta ~ Lifetime_AD_binary, data= ADnegdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-# 	stripchart(abeta ~ Lifetime_AD_binary, data = ADnegdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# dfMVRSabeta <- subset(dfMVRS, abeta!=vec1[1] & abeta!=vec2[1]) #remove outlier
+#TXT: ABETA COMPARISON BETWEEN ASYN+ VS ASYN- 
+#Use preprocessed dataset (normalized so all cont variables fall within range)
+	boxplot(logabeta ~ RTQUIC, data= RTposnormdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
+		stripchart(logabeta ~ RTQUIC, data = RTposnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	boxplot(logabeta ~ RTQUIC, data= RTnegnormdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
+		stripchart(logabeta ~ RTQUIC, data = RTnegnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	normdfMVRSabeta <- normdfMVRS #No positive outlier
+	# nrow(normdfMVRSabeta)
+	# head(normdfMVRSabeta)
 
-# 	RTposdfMVRSabeta<- subset(dfMVRSabeta, RTQUIC=="SAA positive")
-# 	RTnegdfMVRSabeta <- subset(dfMVRSabeta, RTQUIC=="SAA negative")
-	# CBSdfMVRSabeta <- subset(dfMVRSabeta, DX_APD=="CBS")
-	# PSPdfMVRSabeta <- subset(dfMVRSabeta, DX_APD=="PSP")
+	# RTposnormdfMVRSabeta<- subset(normdfMVRSabeta, RTQUIC=="SAA positive")
+	# RTnegnormdfMVRSabeta <- subset(normdfMVRSabeta, RTQUIC=="SAA negative")
+	# CBSnormdfMVRSabeta <- subset(normdfMVRSabeta, DX_APD=="CBS")
+	# PSPnormdfMVRSabeta <- subset(normdfMVRSabeta, DX_APD=="PSP")
 
-	# Check if data are normal and homogeneity of variance
-	# shapiro.test(RTposdfMVRSabeta$abeta) #normal
-	# shapiro.test(RTnegdfMVRSabeta$abeta) #nonnormal
-	# shapiro.test(CBSdfMVRSabeta$abeta)#normal
-	# shapiro.test(PSPdfMVRSabeta$abeta)#normal
-	# leveneTest(abeta ~ DX_APD*RTQUIC, dfMVRSabeta) #homo
+	# shapiro.test(RTposnormdfMVRSabeta$logabeta) #normal
+	# shapiro.test(RTnegnormdfMVRSabeta$logabeta)  #normal
+	# shapiro.test(CBSnormdfMVRSabeta$logabeta)  #normal
+	# shapiro.test(PSPnormdfMVRSabeta$logabeta)  #normal
+	# leveneTest(logabeta ~ DX_APD*RTQUIC, normdfMVRSabeta) #homo
 
-	# shapiro.test(RTposdfMVRSabeta$logabeta) #normal
-	# shapiro.test(RTnegdfMVRSabeta$logabeta)  #normal
-	# shapiro.test(CBSdfMVRSabeta$logabeta)  #normal
-	# shapiro.test(PSPdfMVRSabeta$logabeta)  #normal
-	# leveneTest(logabeta ~ DX_APD*RTQUIC, dfMVRSabeta) #homo
-
-	# # Compare models with Ftest
-	# test1 <- lm(logabeta ~ RTQUIC, dfMVRSabeta)
-	# test2 <- lm(logabeta ~ RTQUIC  + DX_APD, dfMVRSabeta)
-	# test3 <- lm(logabeta ~ RTQUIC + Sex, dfMVRSabeta) #not adding any value to the model
+	# Compare models with Ftest
+	# test1 <- lm(logabeta ~ RTQUIC, normdfMVRSabeta)
+	# test2 <- lm(logabeta ~ RTQUIC  + DX_APD, normdfMVRSabeta)
+	# test3 <- lm(logabeta ~ RTQUIC + Sex, normdfMVRSabeta) #not adding any value to the model
 	# anova(test1, test2) 
 	# anova(test1, test3) 
 
-	# Inclusion of Age as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "Age", y = "logabeta", add = "reg.line")+ 
- 	#  	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "Age", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "Age", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$Age, method="spearman") #corr
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$Age) #corr
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$Age) #corr
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$Age) #corr
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$Age)) #linear relationship
-
-	# #Inclusion of Disease duration as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "LP2_Disease_Duration", y = "logabeta", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "LP2_Disease_Duration", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "LP2_Disease_Duration", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$LP2_Disease_Duration, method="spearman")
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$LP2_Disease_Duration)
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$LP2_Disease_Duration)
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$LP2_Disease_Duration)
-	# cor.test(CBSdfMVRSabeta$logabeta, CBSdfMVRSabeta$LP2_Disease_Duration)
-	# cor.test(PSPdfMVRSabeta$logabeta, PSPdfMVRSabeta$LP2_Disease_Duration)
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$LP2_Disease_Duration)) #no linear relationship
-
-	# #Inclusion of total tau as a covariate:
-	# # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "ttau", y = "logabeta", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "ttau", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "ttau", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$ttau, method="spearman")
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$ttau)
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$ttau)
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$ttau)
-	# cor.test(CBSdfMVRSabeta$logabeta, CBSdfMVRSabeta$ttau)
-	# cor.test(PSPdfMVRSabeta$logabeta, PSPdfMVRSabeta$ttau)
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$ttau)) #no linear relationship
-
-	# # #Inclusion of p tau as a covariate:
-	# # # Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "ptau", y = "logabeta", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "ptau", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# 	stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "ptau", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# 	stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$ptau, method="spearman")
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$ptau)
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$ptau)
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$ptau)
-	# cor.test(CBSdfMVRSabeta$logabeta, CBSdfMVRSabeta$ptau)
-	# cor.test(PSPdfMVRSabeta$logabeta, PSPdfMVRSabeta$ptau)
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$ptau)) #no linear relationship
-
-	# # Inclusion of NFL as a covariate:
-	# #Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "NFL", y = "logabeta", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "NFL", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "NFL", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$NFL, method="spearman") #almost corr
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$NFL)
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$NFL)#almost corr
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$NFL)
-	# cor.test(CBSdfMVRSabeta$logabeta, CBSdfMVRSabeta$NFL)
-	# cor.test(PSPdfMVRSabeta$logabeta, PSPdfMVRSabeta$NFL)
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$NFL)) #no linear relationship
-
 	# Inclusion of Onset as a covariate:
 	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
-	# ggscatter(dfMVRSabeta, x = "Onset", y = "logabeta", add = "reg.line")+ 
-  	# stat_regline_equation(aes()) 
-	# ggscatter(dfMVRSabeta, x = "Onset", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
-  	# stat_regline_equation(aes(color = DX_APD)) 
-	# ggscatter(dfMVRSabeta, x = "Onset", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  	# stat_regline_equation(aes(color = RTQUIC))
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$Onset, method="spearman") #corr
-	# cor.test(dfMVRSabeta$logabeta, dfMVRSabeta$Onset) #
-	# summary(lm(dfMVRSabeta$logabeta ~ dfMVRSabeta$Onset)) #linear relationship 
+	# ggscatter(normdfMVRSabeta, x = "Onset", y = "logabeta", add = "reg.line")+ 
+  	# 	stat_regline_equation(aes()) 
+	# ggscatter(normdfMVRSabeta, x = "Onset", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
+  	# 	stat_regline_equation(aes(color = DX_APD)) 
+	# ggscatter(normdfMVRSabeta, x = "Onset", y = "logabeta", color = "RTQUIC", add = "reg.line")+
+  	# 	stat_regline_equation(aes(color = RTQUIC))
+	# cor.test(normdfMVRSabeta$logabeta, normdfMVRSabeta$Onset) #corr
+	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$Onset)) #linear relationship 
 
-	# shapiro.test(RTposdfMVRSabeta$logabeta)
-	# shapiro.test(RTnegdfMVRSabeta$logabeta)
-	# var.test(logabeta ~ RTQUIC, data = dfMVRSabeta) #Hetero
-	# t.test(dfMVRSabeta$logabeta ~ dfMVRSabeta$RTQUIC, var.equal=T) #Student t-test as normal + var equal. Var equal assumption based both on data + expectation.
+	# Inclusion of NFL as a covariate:
+	# Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+	# ggscatter(normdfMVRSabeta, x = "NFL", y = "logabeta", add = "reg.line")+ 
+  	# 	stat_regline_equation(aes()) 
+	# ggscatter(normdfMVRSabeta, x = "NFL", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
+  	# 	stat_regline_equation(aes(color = DX_APD)) 
+	# ggscatter(normdfMVRSabeta, x = "NFL", y = "logabeta", color = "RTQUIC", add = "reg.line")+
+  	# 	stat_regline_equation(aes(color = RTQUIC))
+	# cor.test(normdfMVRSabeta$logabeta, normdfMVRSabeta$NFL) #corr
+	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$NFL)) #linear relationship 
 
-	# shapiro.test(CBSdfMVRSabeta$logabeta)
-	# shapiro.test(PSPdfMVRSabeta$logabeta)
-	# var.test(logabeta ~ DX_APD, data = dfMVRS) #homoscedasticity
-	# var.test(logabeta ~ DX_APD, data = dfMVRSabeta) #homoscedasticity
-	# t.test(dfMVRSabeta$logabeta ~ dfMVRSabeta$DX_APD, var.equal=T) #Student t-test as normal + var equal. Var equal assumption based both on data + expectation.
-	# dfMVRSabeta %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta, na.rm=T),2),2), sd=sd(abeta, na.rm=T))
+	# Inclusion of other variables as covariate:
+	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$LP2_Disease_Duration)) #no linear relationship
+	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$ttau)) #no linear relationship
+	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$ptau)) #no linear relationship
 
-# Data are not normally distributed so be careful with residuals
-# # Using lm to compare Rsquare to that of test models below (there is no difference with aov)
-# mlr1 <- lm(logabeta ~ Onset*RTQUIC + DX_APD, dfMVRSabeta) 
-# summary(mlr1) 
-
+#Model
+mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, normdfMVRSabeta) 
+summary(mlr) 
 
 	# Diagnostics of the model run
-	# check_normality(mlr1) #Very non normal: model not fittint too well the data
-	# durbinWatsonTest(mlr1) #Check the residuals are independent (multiple regression assumption)
-# emmeans(mlr1, ~ RTQUIC) #adjusted means
-# emmeans(mlr1, ~ DX_APD) #adjusted means
-# emmeans(mlr1, ~ Onset:RTQUIC) #adjusted means
-		# shapiro.test(RTposdfMVRSabeta$logabeta) #norm
-		# shapiro.test(RTnegdfMVRSabeta$logabeta) #norm
-	# cor.test(RTposdfMVRSabeta$logabeta, RTposdfMVRSabeta$Onset) #corr
-	# cor.test(RTnegdfMVRSabeta$logabeta, RTnegdfMVRSabeta$Onset) #not corr
+	# check_normality(mlr) #Ok
+	# durbinWatsonTest(mlr) #Ok
 
+#Simple slopes for onset: 
+
+
+#Main effects: 
+emmeans(mlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
+emmeans(mlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
 
 
 ###############################################	ASYN SAA POSITIVITY AND NFL ##################################################
@@ -1632,3 +1569,4 @@ normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
 #https://www.statology.org/durbin-watson-test-r/ #DW test for independence of residuals
 # https://www.statology.org/multiple-linear-regression-assumptions/
 #https://www.statology.org/how-to-report-regression-results/ #Report mlr
+# https://stats.stackexchange.com/questions/3200/is-adjusting-p-values-in-a-multiple-regression-for-multiple-comparisons-a-good-i]
