@@ -743,28 +743,33 @@ RTnegnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA negative") #for the main resu
 ##############################################################################################################################
 
 #TXT: BLR
-dfMVRS <- dfMVRS %>%
-        mutate(RTQUIC = case_when(RTQUIC == "SAA positive" ~ 1,
-                                                RTQUIC == "SAA negative" ~ 0)) %>%
-        data.frame() #Convert to dataframe to facilitate operations.
+normdfMVRS <- normdfMVRS %>%
+        		mutate(RTQUIC = case_when(RTQUIC == "SAA positive" ~ 1,
+                       RTQUIC == "SAA negative" ~ 0)) %>%
+        		data.frame() #Convert to dataframe to facilitate operations.
 
-# procdfMVRS <- preProcess(as.data.frame(dfMVRS), method=c("range"))
-# normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
+	sum(normdfMVRS$RTQUIC ==1)
 
-# # library(boot)
-# # library(perm)
+library(boot)
+library(perm)
 
-# blr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary + Gait, data= dfMVRS, family = "binomial")
-# summary(blr)
-# AIC(blr)
+#Model is selected based on previous analyses (logabeta*Onset), simple comparisons in Supp material (Gait/RBD_binary).
+#Model was run with and without AD/DX_APD status and all values remained very similar. 
+blr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
+summary(blr)
+	
+	#model diagnostics
+	AIC(blr)
+	pscl::pR2(blr)["McFadden"]
+	caret::varImp(blr)	
 
-# normblr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
-# summary(normblr)
-# AIC(normblr)
+	# car::vif(blr)
+	# 	blronset <- glm(RTQUIC ~ DX_APD + Onset + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
+	# 		car::vif(blronset)
+	# 	blrabeta <- glm(RTQUIC ~ DX_APD + logabeta + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
+	# 		car::vif(blrabeta)
 
-# blr2 <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary, data= dfMVRS, family = "binomial")
-# summary(blr2)
-# AIC(blr2)
+
 
 # # logodds <- blr$linear.predictors
 # # boxTidwell(logodds ~ dfMVRS$DX_APD)
@@ -780,8 +785,6 @@ dfMVRS <- dfMVRS %>%
 # durbinWatsonTest(blr2) #Check the residuals are independent (multiple regression assumption)
 # AIC(blr2) 
 
-# pscl::pR2(blr)["McFadden"]
-# pscl::pR2(blr2)["McFadden"]
 
 # #6 people have RBD and are RTQUIC positive + 1 is excluded from model but is positive on autopsy (MV) + 1 is negative for RTQUIC
 
