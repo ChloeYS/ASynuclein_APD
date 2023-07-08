@@ -667,11 +667,11 @@ RTnegnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA negative") #for the main resu
 
 #TXT: ABETA COMPARISON BETWEEN ASYN+ VS ASYN- 
 #Use preprocessed dataset (normalized so all cont variables fall within range)
-	boxplot(logabeta ~ RTQUIC, data= RTposnormdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
-		stripchart(logabeta ~ RTQUIC, data = RTposnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	boxplot(logabeta ~ RTQUIC, data= RTnegnormdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
-		stripchart(logabeta ~ RTQUIC, data = RTnegnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	normdfMVRSabeta <- normdfMVRS #No positive outlier
+	# boxplot(logabeta ~ RTQUIC, data= RTposnormdfMVRS, col = "white")$out #identify outliers: in AD positive df, none. 
+	# 	stripchart(logabeta ~ RTQUIC, data = RTposnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# boxplot(logabeta ~ RTQUIC, data= RTnegnormdfMVRS, col = "white")$out #create vector with outlier values (from AD-negative group)
+	# 	stripchart(logabeta ~ RTQUIC, data = RTnegnormdfMVRS, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	# normdfMVRSabeta <- normdfMVRS #No positive outlier
 	# nrow(normdfMVRSabeta)
 	# head(normdfMVRSabeta)
 
@@ -721,19 +721,77 @@ RTnegnormdfMVRS <- subset(normdfMVRS, RTQUIC=="SAA negative") #for the main resu
 	# summary(lm(normdfMVRSabeta$logabeta ~ normdfMVRSabeta$ptau)) #no linear relationship
 
 #Model
-mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, normdfMVRSabeta) 
-summary(mlr) 
+# mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, normdfMVRSabeta) 
+# summary(mlr) 
 
 	# Diagnostics of the model run
 	# check_normality(mlr) #Ok
 	# durbinWatsonTest(mlr) #Ok
 
 #Simple slopes for onset: 
+# emtrends(mlr,pairwise ~  RTQUIC, var="Onset")
 
 
 #Main effects: 
-emmeans(mlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
-emmeans(mlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
+# emmeans(mlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
+# emmeans(mlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
+
+
+
+
+###################################	BINARY LOGISTIC REGRESSION INCLUDING CLINICAL ###########################################
+##############################################################################################################################
+
+#TXT: BLR
+dfMVRS <- dfMVRS %>%
+        mutate(RTQUIC = case_when(RTQUIC == "SAA positive" ~ 1,
+                                                RTQUIC == "SAA negative" ~ 0)) %>%
+        data.frame() #Convert to dataframe to facilitate operations.
+
+# procdfMVRS <- preProcess(as.data.frame(dfMVRS), method=c("range"))
+# normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
+
+# # library(boot)
+# # library(perm)
+
+# blr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary + Gait, data= dfMVRS, family = "binomial")
+# summary(blr)
+# AIC(blr)
+
+# normblr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
+# summary(normblr)
+# AIC(normblr)
+
+# blr2 <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary, data= dfMVRS, family = "binomial")
+# summary(blr2)
+# AIC(blr2)
+
+# # logodds <- blr$linear.predictors
+# # boxTidwell(logodds ~ dfMVRS$DX_APD)
+# # boxTidwell(logodds ~ dfMVRS$RBD_binary)
+# # boxTidwell(logodds ~ dfMVRS$Gait)
+
+# # residuals <- residuals(blr)
+# # hist(residuals)
+# # qqnorm(residuals)
+# # shapiro.test(residuals)
+# durbinWatsonTest(blr) #Check the residuals are independent (multiple regression assumption)
+# AIC(blr) 
+# durbinWatsonTest(blr2) #Check the residuals are independent (multiple regression assumption)
+# AIC(blr2) 
+
+# pscl::pR2(blr)["McFadden"]
+# pscl::pR2(blr2)["McFadden"]
+
+# #6 people have RBD and are RTQUIC positive + 1 is excluded from model but is positive on autopsy (MV) + 1 is negative for RTQUIC
+
+# exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
+# exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
+##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
+
+# ggscatter(dfMVRS, x = "Age", y = "logabeta", color = "RTQUIC", add = "reg.line")+
+  # stat_regline_equation(aes(color = RTQUIC))
+# summary(lm(logabeta ~ RTQUIC*Age, normdfMVRS))
 
 
 ###############################################	ASYN SAA POSITIVITY AND NFL ##################################################
@@ -988,59 +1046,6 @@ emmeans(mlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 # fisher.test(table(PSPdfMVRS$Urinary_binary, PSPdfMVRS$RTQUIC)) # Expected count is <5 for one cell
 # table(PSPdfMVRS$Bowel_binary, PSPdfMVRS$RTQUIC)
 # fisher.test(table(PSPdfMVRS$Bowel_binary, PSPdfMVRS$RTQUIC)) # Expected count is <5 for one cell
-
-###################################	BINARY LOGISTIC REGRESSION INCLUDING CLINICAL ###########################################
-##############################################################################################################################
-
-# dfMVRS <- dfMVRS %>%
-#         mutate(RTQUIC = case_when(RTQUIC == "SAA positive" ~ 1,
-#                                                 RTQUIC == "SAA negative" ~ 0)) %>%
-#         data.frame() #Convert to dataframe to facilitate operations.
-
-# procdfMVRS <- preProcess(as.data.frame(dfMVRS), method=c("range"))
-# normdfMVRS <- predict(procdfMVRS, as.data.frame(dfMVRS))
-
-# # library(boot)
-# # library(perm)
-
-# blr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary + Gait, data= dfMVRS, family = "binomial")
-# summary(blr)
-# AIC(blr)
-
-# normblr <- glm(RTQUIC ~ DX_APD + logabeta*Onset + RBD_binary + Gait, data= normdfMVRS, family = "binomial")
-# summary(normblr)
-# AIC(normblr)
-
-# blr2 <- glm(RTQUIC ~ DX_APD + logabeta*Onset + LP2_Disease_Duration + RBD_binary, data= dfMVRS, family = "binomial")
-# summary(blr2)
-# AIC(blr2)
-
-# # logodds <- blr$linear.predictors
-# # boxTidwell(logodds ~ dfMVRS$DX_APD)
-# # boxTidwell(logodds ~ dfMVRS$RBD_binary)
-# # boxTidwell(logodds ~ dfMVRS$Gait)
-
-# # residuals <- residuals(blr)
-# # hist(residuals)
-# # qqnorm(residuals)
-# # shapiro.test(residuals)
-# durbinWatsonTest(blr) #Check the residuals are independent (multiple regression assumption)
-# AIC(blr) 
-# durbinWatsonTest(blr2) #Check the residuals are independent (multiple regression assumption)
-# AIC(blr2) 
-
-# pscl::pR2(blr)["McFadden"]
-# pscl::pR2(blr2)["McFadden"]
-
-# #6 people have RBD and are RTQUIC positive + 1 is excluded from model but is positive on autopsy (MV) + 1 is negative for RTQUIC
-
-# exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
-# exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
-##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
-
-# ggscatter(dfMVRS, x = "Age", y = "logabeta", color = "RTQUIC", add = "reg.line")+
-  # stat_regline_equation(aes(color = RTQUIC))
-# summary(lm(logabeta ~ RTQUIC*Age, normdfMVRS))
 
 
 ###################################	SURVIVAL ANALYSES ON THE SEVERE MOTOR DISEASE ###########################################
