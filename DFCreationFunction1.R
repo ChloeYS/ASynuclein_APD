@@ -478,8 +478,8 @@ df <- df %>%
 
           ##RTQUIC_lifetime: Instead of TRUE and False have Positive and Negative
           mutate(RTQUIC= RTQUIC) %>%
-          mutate(RTQUIC = case_when(RTQUIC == "Positive" ~ "SAA positive",
-                                    RTQUIC == "Negative" ~ "SAA negative")) %>%
+          mutate(RTQUIC = case_when(RTQUIC == "Positive" ~ "aSyn-SAA positive", #paste("\U03B1","Syn-SAA+") fails at plot level. expression(alpha*) is incompatible with case_when
+                                    RTQUIC == "Negative" ~ "aSyn-SAA negative")) %>%
           mutate(RTQUIC= as.factor(RTQUIC)) %>%
 
           ##Lifetime_VisualHallucinations_binary: Instead of TRUE and False have Positive and Negative
