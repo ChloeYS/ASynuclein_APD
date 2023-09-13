@@ -29,6 +29,7 @@ library(ggplot2) #plot figures with stats
 library(ggpubr) #ggscatter
 library(ggstatsplot) #plot figures
 library(ggpmisc) #annotate figures
+library(fmsb) #radar plot
 # library(multcomp) #multiple comparisons
 
 
@@ -73,15 +74,13 @@ ADnegdf2 <- subset(df2, Lifetime_AD_binary=="AD Negative") #for the description 
 APOEposdf2 <- subset(df2, APOEe4=="Positive") #for the description of APOE+/- cohort
 APOEnegdf2 <- subset(df2, APOEe4=="Negative") #for the description of APOE+/- cohort
 
-	##SCALE THE DATA FOR MLR/BLR
+	##SCALE THE DATA FOR MLR/BLR. NOT USED IN THE END. 
 	# procdf1 <- preProcess(as.data.frame(df1), method=c("range")) #All numerical data are put in a range of 0-1
 	# normdf1 <- predict(procdf1, as.data.frame(df1))
 
-	# procdf2 <- preProcess(as.data.frame(df2), method=c("range")) #All numerical data are put in a range of 0-1
-	# normdf2 <- predict(procdf2, as.data.frame(df2))
-
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
 cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
 
 
 ###############################################################################################################################
@@ -355,8 +354,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 #TXT: TOTAL NUMBER RTQUIC + SEX% WITHIN DIAGNOSIS
 	# df %>% group_by(RTQUIC) %>% count(DX_APD)
 # df2 %>% group_by(RTQUIC) %>% count(DX_APD)
-# sum(df2$DX_APD=="CBS" & df2$RTQUIC=="SAA positive" & df2$Sex=="M")
-# sum(df2$DX_APD=="PSP" & df2$RTQUIC=="SAA positive" & df2$Sex=="M")
+# sum(df2$DX_APD=="CBS" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="M")
+# sum(df2$DX_APD=="PSP" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="M")
 
 	#BONFERRONI CALCULATION FOR AGE/ONSET AGE/PARKINSONISM AGE COMPARISONS ATTRIBUTABLE TO RTQUIC
 	# 0.05/3 #0.01666667
@@ -590,10 +589,10 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 	# df2 %>% count(RTQUIC)
 # table(df2$RTQUIC, df2$AD_binary)
 # df2 %>% count(AD_binary)
-# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="SAA positive" & df2$Sex=="M")
-# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="SAA positive" & df2$Sex=="F")
-# sum(df2$AD_binary=="AD Negative" & df2$RTQUIC=="SAA positive" & df2$Sex=="M")
-# sum(df2$AD_binary=="AD Negative" & df2$RTQUIC=="SAA positive" & df2$Sex=="F")
+# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="M")
+# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="F")
+# sum(df2$AD_binary=="AD Negative" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="M")
+# sum(df2$AD_binary=="AD Negative" & df2$RTQUIC=="aSyn-SAA positive" & df2$Sex=="F")
 
 	#BONFERRONI CALCULATION FOR FISHER TESTS USED FOR ASYN/AD RELATIONSHIP IN OVERALL DATASET AND YO DATASET 
 	# 0.05/2 #0.025
@@ -627,10 +626,10 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 
 
 #TXT: PROPORTION OF AD- RTQUIC+ SUBJECTS in YOD and LOD
-# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="SAA positive" & 65>=df2$Onset)
-# sum(df2$RTQUIC=="SAA positive" & 65>=df2$Onset)
-# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="SAA positive" & df2$Onset>65)
-# sum(df2$RTQUIC=="SAA positive" & df2$Onset>65)
+# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="aSyn-SAA positive" & 65>=df2$Onset)
+# sum(df2$RTQUIC=="aSyn-SAA positive" & 65>=df2$Onset)
+# sum(df2$AD_binary=="AD Positive" & df2$RTQUIC=="aSyn-SAA positive" & df2$Onset>65)
+# sum(df2$RTQUIC=="aSyn-SAA positive" & df2$Onset>65)
 
 
 
@@ -644,13 +643,13 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 		# stripchart(logabeta ~ RTQUIC, data = RTposdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 	# boxplot(logabeta ~ RTQUIC, data= RTnegdf2, col = "white")$out #create vector with outlier values (from AD-negative group)
 		# stripchart(logabeta ~ RTQUIC, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	# df2abeta <- df2 #No positive outlier
+	df2abeta <- df2 #No positive outlier
 	# df2$abeta
 	# nrow(df2abeta)
 	# head(df2abeta)
 
-	# RTposdf2abeta<- subset(df2abeta, RTQUIC=="SAA positive")
-	# RTnegdf2abeta <- subset(df2abeta, RTQUIC=="SAA negative")
+	# RTposdf2abeta<- subset(df2abeta, RTQUIC=="aSyn-SAA positive")
+	# RTnegdf2abeta <- subset(df2abeta, RTQUIC=="aSyn-SAA negative")
 	# CBSdf2abeta <- subset(df2abeta, DX_APD=="CBS")
 	# PSPdf2abeta <- subset(df2abeta, DX_APD=="PSP")
 
@@ -696,8 +695,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 
 
 #Model
-# mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, df2abeta) 
-# summary(mlr)
+mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, df2abeta) 
+summary(mlr)
 
 
 	# Diagnostics of the model run
@@ -738,8 +737,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 
 
 # MODEL SCALING THE CONTINUOUS VARIABLES FOR 
-# stdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), df2abeta) 
-# summary(stdmlr)
+stdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), df2abeta) 
+summary(stdmlr)
 
 
 	# Diagnostics of the model run
@@ -758,8 +757,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 		# vecIDs <- df2abeta[c(5,21,27,37,45,65), "ID"] #Create vector of each ID
 		# for (i in vecIDs) {
 			# test <- subset(df2abeta, ID!=i) #for some analysis, need to exclude the potential false negative too
-			# stdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), test) 
-			# print(summary(stdmlr))
+			# teststdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), test) 
+			# print(summary(teststdmlr))
 		# }
 
 		# plot(stdmlr, which = 3) # 3 = Scale-Location plot. Variance of residuals
@@ -777,11 +776,11 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 	# car::vif(stdmlr) #no multicollinearity at all
 
 # Simple slopes for onset: 
-# emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset")
+emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset")
 
 #Main effects: 
-# emmeans(stdmlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
-# emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
+emmeans(stdmlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
+emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
 
 	# FIG1A: ABETA42 over time from the real datapoints
 	##Create df for the figure based on the actual model
@@ -791,8 +790,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 	#Dataset: data are from the model (predicted values)
 	# figdf <- emmip(stdmlr, RTQUIC ~ Onset, at=mylist, CIs=TRUE, plotit=FALSE) #
     
-    # label1 <- "paste(F*'(5, 59)'==4.29*', ' ~~ italic(P)-value, \" = .018\")" #First annotation of the plot: Model diagnostics. Comma has to be entered as text not in mathematical notation. 
-    # label2 <- "paste(italic(R)^2==20.47*'%')" #Second annotation is the Rsquare of teh model. To enter as character, use *'character'. There cannot be parentheses inside. 
+    # label1 <- "paste(F*'(5, 59)'==4.29*', ' ~~ italic(p), \"< .01\"*', ' ~~ italic(R)^2==20.47*'%')" #First annotation of the plot: Model diagnostics. Comma has to be entered as text not in mathematical notation. 
+    # label2 <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
     #Change name of variable RTQUIC
 	# fig1a_ver1 <- ggplot(data=figdf, aes(x=Onset,y=yvar, color=RTQUIC)) + #yvar is Abeta42 logged 	#Ggplot figure basic layout
@@ -807,13 +806,13 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 					# scale_color_manual(values=cbPalette_RTQUIC, name= "ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
 
 					#Add actual data
-					# geom_point(data=df2abeta, aes(x=Onset, y=logabeta)) + #Actual datapoints 
+					# geom_point(data=df2abeta, aes(x=Onset, y=logabeta), size=4) + #Actual datapoints 
 
 					#Annotate:
-					# stat_regline_equation(label.x=35, label.y=c(7.3, 7.2), show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
+					# stat_regline_equation(label.x=37, label.y=c(7.4, 7.2), size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
 			
-				  	# annotate("text", size=5, x=48, y=7.7, label=label1, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
-					# annotate("text", size=5, x=40, y=7.6, label=label2, parse=TRUE)+
+				  	# annotate("text", size=5, x=70, y=4, label=label1, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
+					# annotate("text", size=6, x=40, y=7, label=label2, parse=TRUE)+
 				
 
 					#Add the labels
@@ -826,25 +825,18 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 					# theme_classic() +
 					# theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
 					# theme(plot.subtitle = element_text(size=14, hjust=0.5)) +
-			    	# theme(axis.text=element_text(size=14), axis.title=element_text(size=14,face="bold")) +
-			    	# theme(legend.title = element_text(face="bold", size=14), legend.text= element_text(size=13))
-	fig1a_ver1
+			    	# theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
+			    	# theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
+	# fig1a_ver1
 
 	# ggsave(fig1a_ver1, filename = "Fig1a_ver1.png", bg= "transparent", width=9, height=10)
-
-	#figure with scatterplot overlaid
-	# fig1a_ver2 <- fig1a_ver1 +
-	# 				geom_point(data=df2abeta, aes(x=Onset, y=logabeta))
-
-	# fig1a_ver2
-
 
 
 ###################################	BINARY LOGISTIC REGRESSION INCLUDING CLINICAL ###########################################
 ##############################################################################################################################
 
 #TXT: BLR
-# df2 <- df2 %>% mutate(RTQUIC = case_when(RTQUIC == "SAA positive" ~ 1, RTQUIC == "SAA negative" ~ 0)) %>% data.frame() 
+# df2 <- df2 %>% mutate(RTQUIC = case_when(RTQUIC == "aSyn-SAA positive" ~ 1, RTQUIC == "aSyn-SAA negative" ~ 0)) %>% data.frame() 
 	# sum(df2$RTQUIC ==1)
 
 # library(boot)
@@ -884,7 +876,7 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 	# cooksD <- cooks.distance(blr)
 	# n <- nrow(df2abeta) #Another threshold for Cook,s data = 4/n so lower. In this case, too many high Cook. 
 	# plot(cooksD, main = "Cooks Distance for Influential Obs") #Two subjects are clearly different than others. However, 1 is one of few RBD+ subjects & 1 is one of few AD+/RT+: hard to exclude them as analysis pointless then.
-	# 	abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
+		# abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
 		# df2 %>% group_by(RTQUIC) %>% summarize(mean=format(round(mean(Onset, na.rm=T),3),3), sd=format(round(sd(Onset, na.rm=T),3),3))
 		# df2 %>% group_by(RTQUIC) %>% summarize(mean=format(round(mean(logabeta, na.rm=T),3),3), sd=format(round(sd(logabeta, na.rm=T),3),3))
 
@@ -913,7 +905,7 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 #Coefficients
 # caret::varImp(blr)	
 
-# #Odds ratio
+#Odds ratio
 # coef(blr)
 # exp(coef(blr)) 
 # cbind(coef(blr),odds_ratio=exp(coef(blr)),exp(confint(blr, level=0.95))) #it says 2.5% and 97.5% because these are the two borders to end up with the cnetral 95% of your distribution
@@ -930,30 +922,37 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 ##############################################################################################################################
 
 #TXT: NFL COMPARISON BETWEEN ASYN+ VS ASYN- 
+		
+		# sum(is.na(df2$logNFL)==TRUE)
 
 		# Even if it is just a descriptive analysis, remove outlier to better represent the data
-		# boxplot <- boxplot(logNFL ~ DX_APD, data= RTposdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-		# 	# stripchart(logNFL ~ DX_APD, data = RTposdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+			# boxplot <- boxplot(logNFL ~ DX_APD, data= RTposdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+				# stripchart(logNFL ~ DX_APD, data = RTposdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+			# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
 		# threshold <- min(max(RTposdf2$logNFL,na.rm=T), as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-		# df2[!((df2$logNFL<threshold & df2$RTQUIC=="SAA positive")| (df2$RTQUIC=="SAA negative")), c("ID", "NFL")] 
-		# df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="SAA positive") | (RTQUIC=="SAA negative"))
+		# df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL")] 
+		# df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
 
-		# boxplot <- boxplot(logNFL ~ DX_APD, data= RTnegdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-			# stripchart(logNFL ~ DX_APD, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-		# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+			# boxplot <- boxplot(logNFL ~ DX_APD, data= RTnegdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+			# 	stripchart(logNFL ~ DX_APD, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+			# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
 		# threshold <- min(max(RTnegdf2$logNFL,na.rm=T), as.numeric(quantile(RTnegdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdf2$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-		# df2nfl[!((df2nfl$logNFL<threshold & df2nfl$RTQUIC=="SAA negative")| (df2nfl$RTQUIC=="SAA positive")), c("ID", "NFL")] 
-		# df2nfl <- subset(df2nfl, (logNFL<threshold & RTQUIC=="SAA negative") | (RTQUIC=="SAA positive"))
+		# df2nfl[!((df2nfl$logNFL<threshold & df2nfl$RTQUIC=="aSyn-SAA negative")| (df2nfl$RTQUIC=="aSyn-SAA positive")), c("ID", "NFL")] 
+		# df2nfl <- subset(df2nfl, (logNFL<threshold & RTQUIC=="aSyn-SAA negative") | (RTQUIC=="aSyn-SAA positive"))
 
-		# nrow(df2nfl)
+			# nrow(df2nfl)
+			# boxplot(NFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+				# stripchart(NFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+			# boxplot(NFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+				# stripchart(NFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-		#RESCALE NFL
-		# procdf2nfl <- preProcess(as.data.frame(df2nfl), method=c("range"))
-		# df2nfl <- predict(procdf2nfl, as.data.frame(df2nfl))
+			# boxplot(logNFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+				# stripchart(logNFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+			# boxplot(logNFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+				# stripchart(logNFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-		# RTposdf2nfl <- subset(df2nfl, RTQUIC=="SAA positive") #for the main results on RT+/-
-		# RTnegdf2nfl <- subset(df2nfl, RTQUIC=="SAA negative") #for the main results on RT+/-
+		# RTposdf2nfl <- subset(df2nfl, RTQUIC=="aSyn-SAA positive") #for the main results on RT+/-
+		# RTnegdf2nfl <- subset(df2nfl, RTQUIC=="aSyn-SAA negative") #for the main results on RT+/-
 		# CBSdf2nfl <- subset(df2nfl, DX_APD=="CBS") #for the main results on RT+/-
 		# PSPdf2nfl <- subset(df2nfl, DX_APD=="PSP") #for the main results on RT+/-
 		# ADposdf2nfl <- subset(df2nfl, Lifetime_AD_binary=="AD Positive") #for the description of AD+/- cohort
@@ -970,9 +969,11 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 		# Compare models with Ftest
 		# test1 <- lm(logNFL ~ RTQUIC, df2nfl)
 		# test2 <- lm(logNFL ~ DX_APD, df2nfl)
-		# test3 <- lm(logNFL ~ RTQUIC + DX_APD, df2nfl) #not adding any value to the model
-		# anova(test1, test3) 
-		# anova(test2, test3) 
+		# test3 <- lm(logNFL ~ Lifetime_AD_binary, df2nfl)
+		# test4 <- lm(logNFL ~ RTQUIC + DX_APD, df2nfl) #adding value to the model
+		# test5 <- lm(logNFL ~ RTQUIC + Lifetime_AD_binary, df2nfl) #not adding any value to the model
+		# anova(test1, test4) 
+		# anova(test1, test5) 
 
 		# Inclusion of other variables as covariate:
 		# summary(lm(df2nfl$logNFL ~ df2nfl$Age)) #no linear relationship
@@ -981,30 +982,88 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 		# summary(lm(df2nfl$logNFL ~ df2nfl$ptau)) #no linear relationship
 		# summary(lm(df2nfl$logNFL ~ df2nfl$ttau)) #no linear relationship
 
-
 #Model
-# mlr <- lm(logNFL ~ RTQUIC + DX_APD + abeta, df2nfl) 
-# summary(mlr) 
+# stdmlr <- lm(logNFL ~ RTQUIC + DX_APD + scale(abeta), df2nfl) 
+# summary(stdmlr) 
 
+# Diagnostics of the model run
+	# check_normality(stdmlr) #Ok normality of residuals
+	# autoplot(stdmlr, which = 1:6) #All plots including scale location plot
 
-	# Diagnostics of the model run
-	# check_ality(mlr) #Ok
-	# durbinWatsonTest(mlr) #Ok
+		#Visualize the values for each of the IDs that are indexed on above plots
+		# df2nfl[8, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+		# df2nfl[34, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+		# df2nfl[37, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+		# df2nfl[57, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+		
+		#for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
+		# vecIDs <- df2nfl[c(8,34,37,57), "ID"] #Create vector of each ID
+		# for (i in vecIDs) {
+			# test <- subset(df2nfl, ID!=i) #for some analysis, need to exclude the potential false negative too
+			# teststdmlr <- lm(logNFL ~ RTQUIC + DX_APD + scale(abeta), test) 
+			# print(summary(teststdmlr))
+		# }
+
+		# plot(stdmlr, which = 3) # 3 = Scale-Location plot. Variance of residuals
+	# bptest(stdmlr) #Ok variance of residulas. Breusch-Pagan test for heterodasticity.
+	# durbinWatsonTest(stdmlr) #Ok autocorrelation of residuals	
 
 		#Examine Cook's distance: not as importnat given dataset characteristics (sample size limited in terms of number of subjects both AD+ and RT+: cannot exclude easily subjects)
-		# df2[(cooks.distance(mlr))>0.25, ]$ID #no subject >0.25
-		# cooksD <- cooks.distance(mlr)
-		# n <- nrow(df2abeta) #Anothr threshold for Cook,s data = 4/n so lower. In this case, too many high Cook. 
+		# df2nfl[(cooks.distance(stdmlr))>0.25, ]$ID #no subject >0.25
+		# cooksD <- cooks.distance(stdmlr)
+		# n <- nrow(df2nfl) #Anothr threshold for Cook's data = 4/n so lower. In this case, too many high Cook. 
 		# plot(cooksD, main = "Cooks Distance for Influential Obs") #Plot Cook's Distance with a horizontal line at 4/n to see which observations exceed this thresdhold. There is a cluster of high Cook subjects. 
-		# 	abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
+			# abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
 
-#Simple slopes for onset: 
-# emtrends(mlr,pairwise ~  RTQUIC, var="Onset")
+	# Multicollinearity checks
+	# car::vif(stdmlr) #no multicollinearity at all
 
+	# Main effects: 
+	# emmeans(stdmlr, ~ RTQUIC) #adjusted means. NS anyway. 
+	# emmeans(stdmlr, ~ DX_APD) #adjusted means. NS anyway. 
+        
 
-#Main effects: 
-# emmeans(mlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
-# emmeans(mlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
+# FIG1B: NFL: not different between DX, RTQUIC, but linearly related to Abeta42. Option 1: Plot Abeta42 by NFL relationship and add colors for DX and shapes for RTQUIC. 
+##Option 2: Plot boxplot between RTQUIC status. 
+
+	#Create dataframe usable for plotting (ie kick out the scale())
+	# plotmlr <- lm(logNFL ~ RTQUIC + DX_APD + abeta, df2nfl) 
+	# summary(plotmlr) 
+
+	# label <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
+
+	#General layout of the plot: x and y + stats_smooth for linear relationship
+	# fig1b_ver1 <- ggplot(df2nfl, aes(x=abeta, y=logNFL)) + #No need for color or fill 
+
+				#Add actual datapoints
+				# geom_point(aes(color=RTQUIC, shape=DX_APD), size=4) + 
+
+				# stat_smooth(aes(), method="lm", color="red", fill="red", linewidth=0.5, alpha=0.2, level = 0.95) + #No need to do separate lines for RTQUIC diagnosis. Lines are very similar and CIs encompass each other. Tried with geom_smooth too. 
+
+				#Fix legends and set up the appearance of the points
+				# scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+				# scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
+
+				#Fix labs
+				# labs(title=expression(bold("Linear relationship between "*Alpha*beta*"42 and NfL")),
+					# subtitle=(""),
+					# x=expression(bold("CSF A"*beta*"42 levels (pg/mL)")),
+					# y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+
+				#Annotate:
+				# stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
+				
+				# annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
+
+				#Aesthetic only
+				# theme_classic() +
+				# theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
+				# theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
+				# theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
+	
+	# fig1b_ver1
+
+	# ggsave(fig1b_ver1, filename = "Fig1b_ver1.png", bg= "transparent", width=9, height=10)
 
 
 
@@ -1024,8 +1083,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 
 	# DO CBS FIRST: COUNTS + ANALYSES
 	#################################
-	# RTposCBSdf2 <- subset(CBSdf2, RTQUIC=="SAA positive")
-	# RTnegCBSdf2 <- subset(CBSdf2, RTQUIC=="SAA negative")
+	# RTposCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA positive")
+	# RTnegCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA negative")
 
 	# CBSdf2 %>% group_by(RTQUIC) %>% count(Sex)
 	# CBSdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
@@ -1110,8 +1169,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 
 	# DO PSP SECOND: COUNTS + ANALYSES
 	################################
-	# RTposPSPdf2 <- subset(PSPdf2, RTQUIC=="SAA positive")
-	# RTnegPSPdf2 <- subset(PSPdf2, RTQUIC=="SAA negative")
+	# RTposPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA positive")
+	# RTnegPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA negative")
 
 	# PSPdf2 %>% group_by(RTQUIC) %>% count(Sex)
 	# PSPdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
@@ -1194,7 +1253,6 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 # fisher.test(table(PSPdf2$Bowel_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
 
 
-
 	# COMPARISONS IGNORING DX
 	# t.test(df2$Age ~ df2$RTQUIC, var.equal=TRUE) 
 	# t.test(df2$Onset ~ df2$RTQUIC, var.equal=TRUE) 
@@ -1237,6 +1295,158 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 # chisq.test(table(df2$LimbRigidity, df2$RTQUIC), correct=F)
 # chisq.test(table(df2$Gait, df2$RTQUIC), correct=F)
 # chisq.test(table(df2$Urinary, df2$RTQUIC), correct=F)
+
+
+
+# FIG1C: Clinical symptoms in radar plot
+
+####2. RADAR PLOTS
+
+#START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
+
+# List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
+
+# rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
+# for (rt in rt.value) { #for-loop that tests each value of the variable
+
+# 	CBSdf2.rt <- CBSdf2[CBSdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
+
+# print(rt)
+
+# #SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
+# Tremor_perc <- CBSdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(CBSdf2.rt)*100))
+# RestTremor_perc <- CBSdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(CBSdf2.rt)*100))
+# LimbRigidity_perc <- CBSdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(CBSdf2.rt)*100))
+# Slowness_perc <- CBSdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(CBSdf2.rt)*100))
+# Apraxia_perc <- CBSdf2.rt %>% summarise(Apraxia_count= sum(Apraxia == "Yes")) %>% mutate(Apraxia_count= (as.numeric(Apraxia_count)/nrow(CBSdf2.rt)*100))
+# Gait_perc <- CBSdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(CBSdf2.rt)*100))
+# FallsPI_perc <- CBSdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(CBSdf2.rt)*100))
+
+# #Assign these counts to a variable
+# Tremor_perc <- Tremor_perc[, 1]
+# RestTremor_perc <- RestTremor_perc[, 1]
+# LimbRigidity_perc <- LimbRigidity_perc[, 1]
+# Slowness_perc <- Slowness_perc[, 1]
+# Apraxia_perc <- Apraxia_perc[, 1]
+# Gait_perc <- Gait_perc[, 1]
+# FallsPI_perc <- FallsPI_perc[, 1]
+
+# #Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
+# List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, Slowness_perc, Apraxia_perc, Gait_perc, FallsPI_perc)
+
+
+# } #end of loop
+
+# # To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
+# print(List[[1]])
+# print(List[[2]])
+
+# radar.CBSdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
+#      Tremor = c(List[[1]][[1]], List[[2]][[1]]),
+#      Rest = c(List[[1]][[2]], List[[2]][[2]]),
+#      Limb = c(List[[1]][[3]], List[[2]][[3]]),
+#      Slowness = c(List[[1]][[4]], List[[2]][[4]]),
+#      Apraxia = c(List[[1]][[5]], List[[2]][[5]]),
+#      Gait = c(List[[1]][[6]], List[[2]][[6]]),
+#      Falls = c(List[[1]][[7]], List[[2]][[7]]))
+
+# max_mindf <- data.frame(Tremor = c(100, 0), Rest = c(100, 0), Limb = c(100, 0), Slowness = c(100, 0), Apraxia = c(100, 0), Gait = c(100, 0), Falls = c(100, 0))
+# rownames(max_mindf) <- c("Max", "Min")
+
+# # Bind the variable ranges to the data
+# radar.CBSdf2 <- rbind(max_mindf, radar.CBSdf2)
+# radar.CBSdf2
+
+# #Rename some variables for presentation purposes
+# colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Rest")] <- "Rest tremor"
+# colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Limb")] <- "Limb rigidity"
+# colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Falls")] <- "Falls & instability"
+# colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Gait")] <- "Gait \n p<0.1"
+
+
+# # Create the radar charts
+# png(filename ="Fig1c_ver1.png")
+
+# create_beautiful_radarchart(data= radar.CBSdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in CBS")
+# 		# Add an horizontal legend
+# 		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
+
+# # dev.off()#Not needed?
+
+
+# #NOW PSP. 
+
+# #START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
+# List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
+
+# rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
+# for (rt in rt.value) { #for-loop that tests each value of the variable
+
+# 	PSPdf2.rt <- PSPdf2[PSPdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
+
+# print(rt)
+
+# #SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
+# Tremor_perc <- PSPdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(PSPdf2.rt)*100))
+# RestTremor_perc <- PSPdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(PSPdf2.rt)*100))
+# LimbRigidity_perc <- PSPdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(PSPdf2.rt)*100))
+# AxialRigidity_perc <- PSPdf2.rt %>%  summarise(AxialRigidity_count= sum(AxialRigidity == "Yes")) %>% mutate(AxialRigidity_count= (as.numeric(AxialRigidity_count)/nrow(PSPdf2.rt)*100))
+# Slowness_perc <- PSPdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(PSPdf2.rt)*100))
+# OM_perc <- PSPdf2.rt %>% summarise(OM_count= sum(VerticalOM == "Yes")) %>% mutate(OM_count= (as.numeric(OM_count)/nrow(PSPdf2.rt)*100))
+# Gait_perc <- PSPdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(PSPdf2.rt)*100))
+# FallsPI_perc <- PSPdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(PSPdf2.rt)*100))
+
+# #Assign these counts to a variable
+# Tremor_perc <- Tremor_perc[, 1]
+# RestTremor_perc <- RestTremor_perc[, 1]
+# LimbRigidity_perc <- LimbRigidity_perc[, 1]
+# AxialRigidity_perc <- AxialRigidity_perc[, 1]
+# Slowness_perc <- Slowness_perc[, 1]
+# OM_perc <- OM_perc[, 1]
+# Gait_perc <- Gait_perc[, 1]
+# FallsPI_perc <- FallsPI_perc[, 1]
+
+# # #Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
+# List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, AxialRigidity_perc, Slowness_perc, OM_perc, Gait_perc, FallsPI_perc)
+
+
+# } #end of loop
+
+# # To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
+# print(List[[1]])
+# print(List[[2]])
+
+# radar.PSPdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
+#      Tremor = c(List[[1]][[1]], List[[2]][[1]]),
+#      Rest = c(List[[1]][[2]], List[[2]][[2]]),
+#      Limb = c(List[[1]][[3]], List[[2]][[3]]),
+#      Axial = c(List[[1]][[4]], List[[2]][[4]]),
+#      Slowness = c(List[[1]][[5]], List[[2]][[5]]),
+#      OM = c(List[[1]][[6]], List[[2]][[6]]),
+#      Gait = c(List[[1]][[7]], List[[2]][[7]]),
+#      Falls = c(List[[1]][[8]], List[[2]][[8]]))
+
+# max_mindf <- data.frame(Tremor= c(100, 0), Rest= c(100, 0), Limb= c(100, 0), Axial=c(100, 0), Slowness = c(100, 0), OM= c(100, 0), Gait= c(100, 0), Falls= c(100, 0))
+# rownames(max_mindf) <- c("Max", "Min")
+
+# # Bind the variable ranges to the data
+# radar.PSPdf2 <- rbind(max_mindf, radar.PSPdf2)
+# radar.PSPdf2
+
+# #Rename some variables for presentation purposes
+# colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Rest")] <- "Rest tremor"
+# colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Limb")] <- "Limb rigidity \n p<0.1"
+# colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Axial")] <- "Axial rigidity"
+# colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "OM")] <- "Oculomotor"
+# colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Falls")] <- "Falls & instability"
+
+
+# # Create the radar charts
+# png(filename ="Fig1d_ver1.png")
+
+# create_beautiful_radarchart(data= radar.PSPdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in PSP")
+# 		# Add an horizontal legend
+# 		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
 
 
 ###################################	SURVIVAL ANALYSES ON THE SEVERE MOTOR DISEASE ###########################################
@@ -1320,8 +1530,8 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 # df2ttau <- subset(df2, logttau!=vec[1]) #remove outlier in logged data
 # boxplot(df2ptau$logttau ~ df2ttau$RTQUIC)$out
 # 	stripchart(logttau ~ RTQUIC, data = df2ttau, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# RTposdf2ttau <- subset(df2ttau, RTQUIC=="SAA positive")
-# RTnegdf2ttau <- subset(df2ttau, RTQUIC=="SAA negative")
+# RTposdf2ttau <- subset(df2ttau, RTQUIC=="aSyn-SAA positive")
+# RTnegdf2ttau <- subset(df2ttau, RTQUIC=="aSyn-SAA negative")
 # shapiro.test(RTposdf2ttau$logttau) #al
 # shapiro.test(RTnegdf2ttau$logttau) #al
 # #Run aov model
@@ -1725,3 +1935,4 @@ cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http:/
 	# fisher.test(table(PSPdf2$AD_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
 	# 	table(PSPdf2$AD_binary, PSPdf2$RTQUIC)
 	# cramerV(table(PSPdf2$AD_binary, PSPdf2$RTQUIC))
+
