@@ -324,6 +324,9 @@ df <- df %>%
                                     anyPPA == "PPA" ~ "Yes",
                                     TRUE ~ as.character(anyPPA))) %>%
 
+          ##DXRTQUIC: combines RTQUIC and DX_APD strings
+          mutate(DXRTQUIC = as.factor(paste(DX_APD, RTQUIC, sep="_"))) %>%
+
           data.frame() #Convert to dataframe to facilitate operations.
 
 ###############################################################################################################################

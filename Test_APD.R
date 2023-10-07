@@ -610,6 +610,8 @@ cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http:/
 #Analysis of AD*RTQUIC association in the young cohort
 # df2young <- subset(df2, 65>=Onset)
 # nrow(df2young)
+# df2young %>% count(AD_binary)
+# table(df2young$AD_binary, df2young$RTQUIC)
 # fisher.test(table(df2young$AD_binary, df2young$RTQUIC)) # Expected count is <5 for one cell
 	# cramerV(table(df2young$AD_binary, df2young$RTQUIC))
 	# table(df2young$AD_binary, df2young$RTQUIC)
@@ -619,6 +621,9 @@ cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http:/
 # #TXT: RTQUIC CHISQUARE WITH AD IN LOD ONLY
 # df2old <- subset(df2, Onset>65)
 # nrow(df2old)
+# df2old %>% count(AD_binary)
+# table(df2old$AD_binary, df2old$RTQUIC)
+
 # fisher.test(table(df2old$AD_binary, df2old$RTQUIC)) # Expected count is <5 for one cell
 	# cramerV(table(df2old$AD_binary, df2old$RTQUIC))
 # phi(table(df2old$AD_binary, df2old$RTQUIC), digits=6)
@@ -643,7 +648,7 @@ cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http:/
 		# stripchart(logabeta ~ RTQUIC, data = RTposdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 	# boxplot(logabeta ~ RTQUIC, data= RTnegdf2, col = "white")$out #create vector with outlier values (from AD-negative group)
 		# stripchart(logabeta ~ RTQUIC, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	df2abeta <- df2 #No positive outlier
+	# df2abeta <- df2 #No positive outlier
 	# df2$abeta
 	# nrow(df2abeta)
 	# head(df2abeta)
@@ -695,8 +700,8 @@ cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http:/
 
 
 #Model
-mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, df2abeta) 
-summary(mlr)
+# mlr <- lm(logabeta ~ Onset*RTQUIC + DX_APD + NFL, df2abeta) 
+# summary(mlr)
 
 
 	# Diagnostics of the model run
@@ -737,8 +742,8 @@ summary(mlr)
 
 
 # MODEL SCALING THE CONTINUOUS VARIABLES FOR 
-stdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), df2abeta) 
-summary(stdmlr)
+# stdmlr <- lm(logabeta ~ scale(Onset)*RTQUIC + DX_APD + scale(NFL), df2abeta) 
+# summary(stdmlr)
 
 
 	# Diagnostics of the model run
@@ -776,11 +781,11 @@ summary(stdmlr)
 	# car::vif(stdmlr) #no multicollinearity at all
 
 # Simple slopes for onset: 
-emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset")
+# emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset")
 
 #Main effects: 
-emmeans(stdmlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
-emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
+# emmeans(stdmlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
+# emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
 
 	# FIG1A: ABETA42 over time from the real datapoints
 	##Create df for the figure based on the actual model
@@ -794,7 +799,7 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
     # label2 <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
     #Change name of variable RTQUIC
-	# fig1a_ver1 <- ggplot(data=figdf, aes(x=Onset,y=yvar, color=RTQUIC)) + #yvar is Abeta42 logged 	#Ggplot figure basic layout
+	# fig1b_ver1 <- ggplot(data=figdf, aes(x=Onset,y=yvar, color=RTQUIC)) + #yvar is Abeta42 logged 	#Ggplot figure basic layout
 
 
 					# Add the actual trend/slopes + CI around it
@@ -804,9 +809,10 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 					#Fix legends
 					# scale_fill_manual(values=cbPalette_RTQUIC) +
 					# scale_color_manual(values=cbPalette_RTQUIC, name= "ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+					# scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
 
 					#Add actual data
-					# geom_point(data=df2abeta, aes(x=Onset, y=logabeta), size=4) + #Actual datapoints 
+					# geom_point(data=df2abeta, aes(x=Onset, y=logabeta, shape=DX_APD), size=4) + #Actual datapoints 
 
 					#Annotate:
 					# stat_regline_equation(label.x=37, label.y=c(7.4, 7.2), size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
@@ -827,9 +833,9 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 					# theme(plot.subtitle = element_text(size=14, hjust=0.5)) +
 			    	# theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
 			    	# theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
-	# fig1a_ver1
+	# fig1b_ver1
 
-	# ggsave(fig1a_ver1, filename = "Fig1a_ver1.png", bg= "transparent", width=9, height=10)
+	# ggsave(fig1b_ver1, filename = "Fig1b_ver1.png", bg= "transparent", width=9, height=10)
 
 
 ###################################	BINARY LOGISTIC REGRESSION INCLUDING CLINICAL ###########################################
@@ -923,33 +929,53 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 
 #TXT: NFL COMPARISON BETWEEN ASYN+ VS ASYN- 
 		
-		# sum(is.na(df2$logNFL)==TRUE)
+		sum(is.na(df2$logNFL)==FALSE)
+		summary(df2$DXRTQUIC)
 
+		#IDENTIFY OUTLIERS IN DX:
 		# Even if it is just a descriptive analysis, remove outlier to better represent the data
-			# boxplot <- boxplot(logNFL ~ DX_APD, data= RTposdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-				# stripchart(logNFL ~ DX_APD, data = RTposdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-			# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-		# threshold <- min(max(RTposdf2$logNFL,na.rm=T), as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-		# df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL")] 
-		# df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
+		boxplot(logNFL ~ DX_APD, data= df2)$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+		boxplot(logNFL ~ DX_APD, data= df2)$out #[1,] lower whisker, [3,] median, [5,] upper whisker
 
-			# boxplot <- boxplot(logNFL ~ DX_APD, data= RTnegdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-			# 	stripchart(logNFL ~ DX_APD, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-			# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-		# threshold <- min(max(RTnegdf2$logNFL,na.rm=T), as.numeric(quantile(RTnegdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdf2$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-		# df2nfl[!((df2nfl$logNFL<threshold & df2nfl$RTQUIC=="aSyn-SAA negative")| (df2nfl$RTQUIC=="aSyn-SAA positive")), c("ID", "NFL")] 
-		# df2nfl <- subset(df2nfl, (logNFL<threshold & RTQUIC=="aSyn-SAA negative") | (RTQUIC=="aSyn-SAA positive"))
+		#IDENTIFY OUTLIERS IN RTQUIC:
+		boxplot(logNFL ~ RTQUIC, data= df2)$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+		boxplot(logNFL ~ DX_APD, data= df2)$out #[1,] lower whisker, [3,] median, [5,] upper whisker
 
-			# nrow(df2nfl)
-			# boxplot(NFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-				# stripchart(NFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-			# boxplot(NFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-				# stripchart(NFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+		# vec.outliers <- boxplot(logNFL ~ DXRTQUIC, data= df2)$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+		# df2nfl<- df2[!(df2$logNFL %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
+		# df2nfl <- df2nfl %>% drop_na("logNFL")
 
-			# boxplot(logNFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-				# stripchart(logNFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-			# boxplot(logNFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-				# stripchart(logNFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+										# IQR1.5value <- as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*1.5)) #reports the value of first point that is above Q3+ IQR*3 (3 is very tolerant threshold)
+										# maxvalue <- max(RTposdf2$logNFL,na.rm=T)
+										# threshold <- min(IQR1.5value, maxvalue)
+										# df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL", "logNFL")] 
+										# df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
+
+											# boxplot <- boxplot(logNFL ~ DX_APD, data= RTnegdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+												# stripchart(logNFL ~ DX_APD, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+											# boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
+										# threshold <- min(max(RTnegdf2$logNFL,na.rm=T), as.numeric(quantile(RTnegdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdf2$logNFL)*1.5))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+										# df2nfl[!((df2nfl$logNFL<threshold & df2nfl$RTQUIC=="aSyn-SAA negative")| (df2nfl$RTQUIC=="aSyn-SAA positive")), c("ID", "NFL", "logNFL")] 
+										# df2nfl <- subset(df2nfl, (logNFL<threshold & RTQUIC=="aSyn-SAA negative") | (RTQUIC=="aSyn-SAA positive"))
+
+										#REMOVE OUTLIERS BASED ON DIAGNOSIS
+										# threshold <- min(max(RTposdf2$logNFL,na.rm=T), as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*1.5))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+										# df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL", "logNFL")] 
+										# df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
+
+		# nrow(df2nfl)
+		# df2nfl[, c("ID", "NFL", "logNFL")]
+		# sort(df2nfl$NFL)
+
+									# boxplot(NFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+										# stripchart(NFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+									# boxplot(NFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+										# stripchart(NFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+									# boxplot(logNFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+										# stripchart(logNFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+									# boxplot(logNFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+										# stripchart(logNFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
 		# RTposdf2nfl <- subset(df2nfl, RTQUIC=="aSyn-SAA positive") #for the main results on RT+/-
 		# RTnegdf2nfl <- subset(df2nfl, RTQUIC=="aSyn-SAA negative") #for the main results on RT+/-
@@ -983,7 +1009,7 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 		# summary(lm(df2nfl$logNFL ~ df2nfl$ttau)) #no linear relationship
 
 #Model
-# stdmlr <- lm(logNFL ~ RTQUIC + DX_APD + scale(abeta), df2nfl) 
+# stdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta), df2nfl) 
 # summary(stdmlr) 
 
 # Diagnostics of the model run
@@ -991,20 +1017,19 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 	# autoplot(stdmlr, which = 1:6) #All plots including scale location plot
 
 		#Visualize the values for each of the IDs that are indexed on above plots
-		# df2nfl[8, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+		# df2nfl[27, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
 		# df2nfl[34, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
-		# df2nfl[37, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
 		# df2nfl[57, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
 		
 		#for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
-		# vecIDs <- df2nfl[c(8,34,37,57), "ID"] #Create vector of each ID
+			# vecIDs <- df2nfl[c(8,34,37,57), "ID"] #Create vector of each ID. For 3*IQR outlier threshold
+		# vecIDs <- df2nfl[c(27,34,53), "ID"] #Create vector of each ID. For 1.5*IQR outlier threshold
 		# for (i in vecIDs) {
-			# test <- subset(df2nfl, ID!=i) #for some analysis, need to exclude the potential false negative too
-			# teststdmlr <- lm(logNFL ~ RTQUIC + DX_APD + scale(abeta), test) 
-			# print(summary(teststdmlr))
+		# 	test <- subset(df2nfl, ID!=i) #for some analysis, need to exclude the potential false negative too
+		# 	teststdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta), test) 
+		# 	print(summary(teststdmlr))
 		# }
 
-		# plot(stdmlr, which = 3) # 3 = Scale-Location plot. Variance of residuals
 	# bptest(stdmlr) #Ok variance of residulas. Breusch-Pagan test for heterodasticity.
 	# durbinWatsonTest(stdmlr) #Ok autocorrelation of residuals	
 
@@ -1019,12 +1044,12 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 	# car::vif(stdmlr) #no multicollinearity at all
 
 	# Main effects: 
-	# emmeans(stdmlr, ~ RTQUIC) #adjusted means. NS anyway. 
-	# emmeans(stdmlr, ~ DX_APD) #adjusted means. NS anyway. 
-        
+	# emmeans(stdmlr, ~ RTQUIC:DX_APD) #adjusted means.  
+    # pairs(emmeans(stdmlr, ~ RTQUIC:DX_APD)) #adjusted means.  
 
-# FIG1B: NFL: not different between DX, RTQUIC, but linearly related to Abeta42. Option 1: Plot Abeta42 by NFL relationship and add colors for DX and shapes for RTQUIC. 
-##Option 2: Plot boxplot between RTQUIC status. 
+
+# FIG1D: NFL: not different between DX, RTQUIC, but linearly related to Abeta42. Option 1: Plot Abeta42 by NFL relationship and add colors for DX and shapes for RTQUIC. 
+##Option 2: Plot boxplot between RTQUIC status (see below this figure)
 
 	#Create dataframe usable for plotting (ie kick out the scale())
 	# plotmlr <- lm(logNFL ~ RTQUIC + DX_APD + abeta, df2nfl) 
@@ -1033,7 +1058,7 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 	# label <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
 	#General layout of the plot: x and y + stats_smooth for linear relationship
-	# fig1b_ver1 <- ggplot(df2nfl, aes(x=abeta, y=logNFL)) + #No need for color or fill 
+	# fig1d_ver1 <- ggplot(df2nfl, aes(x=abeta, y=logNFL)) + #No need for color or fill 
 
 				#Add actual datapoints
 				# geom_point(aes(color=RTQUIC, shape=DX_APD), size=4) + 
@@ -1061,11 +1086,56 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 				# theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
 				# theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
 	
-	# fig1b_ver1
+	# fig1d_ver1
 
-	# ggsave(fig1b_ver1, filename = "Fig1b_ver1.png", bg= "transparent", width=9, height=10)
+	# ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
 
 
+# FIG1Dversion2: NFL: not different between DX, RTQUIC, show boxplots only.
+##Option 2: Plot boxplot between RTQUIC status. 
+
+#General layout of the plot: boxplot by diagnosis where diagnosis is sig, within diagnosis rtquic groups are not sig
+
+	# fig1d_ver2 <- ggplot(df2, aes(x=DX_APD, y=logNFL, color=RTQUIC))+ #No need for color or fill 
+
+				# #Add actual datapoints
+				# geom_boxplot() +
+				# geom_jitter(aes(color=RTQUIC), position=position_jitterdodge()) +
+ 
+				#Fix legends and set up the appearance of the points
+				# scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+				# scale_fill_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+				# scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
+
+				#Fix labs
+				# labs(title="ASyn-SAA does not affect NfL levels",
+				# 	subtitle="",
+				# 	# x=expression(bold("AD status")),
+					# y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+
+				#Annotate:
+				# stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
+				
+	# 			# annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
+
+	# 			#Aesthetic only
+				# theme_classic() +
+				# theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
+				# theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
+				# theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
+	
+	# fig1d_ver2
+
+	# ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
+
+# boxplot1<- boxplot(logNFL ~ RTQUIC, data= CBSdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+# 		stripchart(logNFL ~ RTQUIC, data = CBSdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+		
+# boxplot2<-boxplot(logNFL ~ RTQUIC, data= PSPdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+# 		stripchart(logNFL ~ RTQUIC, data = PSPdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+# boxplot1$out
+# boxplot2$out
 
 ############################	TABLE 2 ASYN POSITIVITY AND MOTOR/AUTONOMIC/PD SYMPTOMS   ####################################
 #############################################################################################################################
