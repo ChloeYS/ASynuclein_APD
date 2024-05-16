@@ -57,41 +57,53 @@ df.num <- sapply(df.num, as.numeric) #Apply as.numeric to all the values that sh
 cols <- names(df) %in% num.vars #Find the names of the columns that are numerical. "Cols" is a class logical: it says whether or not the name of each df column is within the num.vars vector. 
 df.nonnum <- df[!cols] #dataframe without the numerical variables. 
 
-df <- cbind(df, df.num)
+df <- cbind(df.nonnum, df.num)
 
-# ###############################################################################################################################
-# #CREATE NEW VARIABLES: AGES AND DURATIONS
-# ###############################################################################################################################
+cat("Check potential issues when using cbind:", "\n",
+	"1- duplicate column names;",  "\n",
+	"2- different row numbers, etc.", "\n")
 
-#       df <- df %>%
+print(nrow(df.nonnum))
+print(nrow(df.num))
+print(nrow(df))
 
-#           #age, for which defensive coding is implemented below
-#           mutate(Age= (as.numeric(Date - DOB))/365) %>%
-#           mutate(Age_SanityCheck= Age - ID_Age_TXT) %>%
+print(names(df))
 
-#           mutate(Followup_duration= (as.numeric(Last_Visit- First_Visit))/365) %>%  #Followup duration for tables of demographic
 
-#           mutate(LP2_Disease_Duration= Age - Onset) %>% #Disease duration by the time of LP
-#           mutate(LP2_Park_duration= Park_onset - Onset) %>% #Disease duration by the time of LP
+###############################################################################################################################
+#CREATE NEW VARIABLES: AGES AND DURATIONS
+###############################################################################################################################
 
-#           #Survival analysis variables: First, calculate age at onset of severe motor impairment. Then calculate duration of disease without severe impairment. 
-#           mutate(Severe_onset_age= (as.numeric(Severe_Motor_onset - DOB))/365) %>%
-#           mutate(Severe_onset_diff = Severe_onset_age - Onset) %>% #This is necessary as a variable that is later used to determine survival: ie, time without having yet severe disease
-          
-#           #To know how long the subject was followed after onset of disease: can be useful for survival analysis (although rn already accountd for in form of Severe_Motor_Status variable)
-#           mutate(Age_at_last_visit= (as.numeric(Last_Visit- DOB))/365) %>%  #Age at the last visit, in order to determine how long each person was followed in total, for the survival analysis
-#           mutate(Duration_last_visit= (Age_at_last_visit - Onset)) %>%  #Duration between disease onset and last age checked up on
+df <- df %>%
 
-#           data.frame() #Convert to dataframe to facilitate operations
+#"Start with "Age", for which defensive coding is implemented below
+mutate(Age= (as.numeric(Date - DOB))/365) %>%
+mutate(Age_Calculation_SanityCheck= Age - ID_Age_TXT) %>%
+mutate(Age_cbind_SanityCheck= Age - ID_Age) %>%
 
-#           #DEFENSIVE CODING TO MAKE SURE NO ONE HAS ABERRANT AGE VALUES
-#           vec<- rep(1.1, nrow(df))
-#           vec2<- rep(-1.1, nrow(df))
-#           test <- df[df$Age_SanityCheck>vec | df$Age_SanityCheck<vec2,]
-#           if (nrow(test)>0) {
-#             print(test)
-#             print("Check ages carefully as there seems to be a discrepancy")
-#           }
+mutate(Followup_duration= (as.numeric(Last_Visit- First_Visit))/365) %>%  #Followup duration for tables of demographic
+
+mutate(LP2_Disease_Duration= Age - Onset_age) %>% #Disease duration by the time of LP
+mutate(LP2_Park_duration= Park_onset - Onset_age) %>% #Disease duration by the time of LP
+
+#To know how long the subject was followed after onset of disease: can be useful for survival analysis (although rn already accountd for in form of Severe_Motor_Status variable)
+mutate(Age_at_last_visit= (as.numeric(Last_Visit- DOB))/365) %>%  #Age at the last visit, in order to determine how long each person was followed in total, for the survival analysis
+mutate(Duration_last_visit= (Age_at_last_visit - Onset_age)) %>%  #Duration between disease onset and last age checked up on
+
+data.frame() #Convert to dataframe to facilitate operations
+
+# DEFENSIVE CODING TO MAKE SURE NO ONE HAS ABERRANT AGE VALUES
+
+##Below is for the comparison of the age calculated from DOB vs age entered in excel spreadsheet after dataframe subsetting + cbind call above
+vec<- rep(1.1, nrow(df))
+vec2<- rep(-1.1, nrow(df))
+test <- df[df$Age_Calculation_SanityCheck>vec | df$Age_Calculation_SanityCheck<vec2,]
+test2 <- df[df$Age_cbind_SanityCheck>vec | df$Age_cbind_SanityCheck<vec2,]
+if (nrow(test)>0 | nrow(test2)>0) {
+	print(test)
+	print(test2)
+    print("Check ages carefully as there seems to be a discrepancy")
+    }
 
 
 # ###############################################################################################################################
