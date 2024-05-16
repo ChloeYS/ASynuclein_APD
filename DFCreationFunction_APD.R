@@ -1,7 +1,10 @@
 # FILENAME: DFCreationFunction_APD.R
 
 #Last updated 16 May 2024
-##var.func.1 creates the APD dataset that is used in the manuscript
+##var.func.1 creates the APD dataset that is used in the manuscript. It performs basic QC and formatting of the data. 
+## The function is shared for informative purposes regarding format of the data/later analyses.
+## The dataframe resulting of the var.func.1() call was saved as a cvs, which is the document that would be shared upon request. 
+## The original datasheet cannot be shared due to containing potentially sensitive information. 
 
 
 
@@ -50,7 +53,9 @@ date.vars <- df[, c("DOB_dd.mmmm.yy", "RTQUIC_2_Date_dd.mmmm.yy", "First_Visit_D
 # Make sure that numeric variables are indeed numeric. Usually issues arise in NFL values due to format. Reformatting original data in Excel may be required.
 
 df$ID_Age <- as.numeric(df$ID_Age) #Manually change so doesnt need to be included in code below (will use it to compare to ID_Age_TXT after to make sure all is good)
-num.vars <- c("Education", "ID_Age_TXT", "Onset_age", "Park_onset", "ptau_2", "ttau_2", "abeta_2", "ATI_2", "NFL_2", "LP2_Cognitive_Z.score", "LP2_MOCA_Z.score", "LP2_MOCA_total", "Lag_hours", "ThTmax") #Doesnt include Age so i can compare it later. 
+num.vars <- c("Education", "ID_Age_TXT", "Onset_age", "Park_onset", "ptau_2",
+				"ttau_2", "abeta_2", "ATI_2", "NFL_2", "LP2_Cognitive_Z.score",
+				"LP2_MOCA_Z.score", "LP2_MOCA_total", "Lag_hours", "ThTmax") #Doesnt include Age so i can compare it later. 
 df.num <- df[, num.vars] #dataframe with the numerical variables only
 df.num <- sapply(df.num, as.numeric) #Apply as.numeric to all the values that should be numeric. This introduces NAs. 
 
@@ -59,7 +64,8 @@ df.nonnum <- df[!cols] #dataframe without the numerical variables.
 
 df <- cbind(df.nonnum, df.num)
 
-cat("Check potential issues when using cbind:", "\n",
+cat("as.numeric() call:", "\n",
+	"Check potential issues when using cbind:", "\n",
 	"1- duplicate column names;",  "\n",
 	"2- different row numbers, etc.", "\n")
 
@@ -106,111 +112,37 @@ if (nrow(test)>0 | nrow(test2)>0) {
     }
 
 
-# ###############################################################################################################################
-# #CHECK CATEGORICAL VALUES ARE IN THE PROPER FORMAT         LP2_Orthostatism_plus_other LP2_Bowel_Incontinence  LP2_RBD_plus_other
-# ###############################################################################################################################
+###############################################################################################################################
+#CHECK CATEGORICAL VALUES ARE IN THE PROPER FORMAT        
+###############################################################################################################################
 
-# # Make sure that numeric variables are indeed numeric. Usually issues arise in NFL values due to format. Reformatting original data in Excel may be required.
-#  cat.vars <- df[, c("Sex", "Onset_type", "RTQUIC_lifetime", "AD_lifetime_ATHENA", "AD_2_ATHENA", 
-#                     "AD_2_LITERATURE", "AD_2_BRINK", "DX_Jabbari", "DX_Lifetime", "DX_APD", #AD_2_Abeta
-#                     "DX_FTLD", "DX_pathol","LP2_auton_signs", "LP2_Dysphagia", "LP2_Sexual_dysfunction",
-#                     "LP2_Constipation", "LP2_Urinary","LP2_Bowel_Incontinence", "LP2_Hyperhidrosis_Thermoregulatory_plus_other","LP2_Orthostatism_plus_other",
-#                     "LP2_RBD_plus_other", "LP2_Anosmia","APOEe4_alleles", "Stroke_TIA", "HeartAttack_CardiacArrest",
-#                     "Cardiovascular_other","Smoking","DIAB","HYT", "HYPERCHOL",
-#                     "TBI", "Seizure_baseline","Arthritis","Medical_other", "LP2_Delusions", 
-#                     "Lifetime_Hallucinations","LP2_gait", "LP2_falls_PI","LP2_retropulsion","LP2_tremor",
-#                     "LP2_slowness", "LP2_oculomotor", "Lifetime_oculomotor", "LP2_rigidity","LP2_dystonia", 
-#                     "LP2_apraxia","Lifetime_apraxia", "LP2_myoclonus", "LP2_alien_limb","LP2_hypomimia",
-#                     "Medication_1_anx","Medication_2_antidep", "Medication_3_ACheL","Medication_4_memantine","Medication_5_AP",
-#                     "Medication_6_Mood", "Medication_7_Stim", "Medication_8_Vasc","Medication_9_Sleep","Medication_10_Mov",
-#                     "Lifetime_Dopa","Lifetime_Dopa_responder_true", "Severe_Motor_onset_status_12")]
+df$ID.factor <- as.factor(df$ID) #Manually change so doesnt need to be included in code below (will use it to compare to ID after to make sure all is good)
+cat.vars <- c("Sex", "PPA", "Onset_type", "DX_APD", "Race_ethnicity",
+			  "RTQUIC_lifetime", "AD_lifetime_ATHENA", "LP2_RBD_plus_other", "LP2_Anosmia","APOEe4_alleles",
+			  "LP2_gait", "LP2_falls_PI","LP2_retropulsion","LP2_tremor","LP2_slowness",
+			  "LP2_oculomotor", "Lifetime_oculomotor", "LP2_rigidity", "LP2_apraxia","Lifetime_apraxia",
+             "Lifetime_Dopa","Lifetime_Dopa_responder_true")
 
-#       if(sum(sapply(cat.vars, is.factor)) != 63) {
+df.cat <- df[, cat.vars] #dataframe with the categorical variables only
+df.cat <- sapply(df.cat, as.factor) #Apply as.numeric to all the values that should be numeric. This introduces NAs. 
 
-# #COULD BE A FOR-LOOP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+cols <- names(df) %in% cat.vars #Find the names of the columns that are numerical. "Cols" is a class logical: it says whether or not the name of each df column is within the num.vars vector. 
+df.noncat <- df[!cols] #dataframe without the numerical variables. 
 
-#         #Demographics
-#         df$Sex <- as.factor(df$Sex)
-#         df$DX_Jabbari <- as.factor(df$DX_Jabbari)
-#         df$DX_Lifetime <- as.factor(df$DX_Lifetime)
-#         df$DX_APD <- as.factor(df$DX_APD)
-#         df$DX_FTLD <- as.factor(df$DX_FTLD)
-#         df$DX_pathol <- as.factor(df$DX_pathol)
-#         df$APOEe4 <- as.factor(df$APOEe4_alleles)
-#         df$Onset_type <- as.factor(df$Onset_type)
-#         df$Severe_status <- as.factor(df$Severe_Motor_onset_status_12)
+df <- cbind(df.noncat, df.cat)
 
-#         #Biomarkers
-#         df$RTQUIC <- as.factor(df$RTQUIC_lifetime)
-#         df$Lifetime_AD <- as.factor(df$AD_lifetime_ATHENA)
-#         df$AD <- as.factor(df$AD_2_ATHENA)
-#         df$AD_lit <- as.factor(df$AD_2_LITERATURE)
-#         df$AD_Brink <- as.factor(df$AD_2_BRINK)
+cat("as.factor() call:", "\n",
+	"Check potential issues when using cbind:", "\n",
+	"1- duplicate column names;",  "\n",
+	"2- different row numbers, etc.", "\n")
 
-#         #Autonomic or PD-related non motor
-#         df$Auton_binarized <- as.factor(df$LP2_auton_signs)
-#         df$Dysphagia <- as.factor(df$LP2_Dysphagia) #Cannot be used as is
-#         df$Sexual <- as.factor(df$LP2_Sexual_dysfunction)
-#         df$Constipation <- as.factor(df$LP2_Constipation)
-#         df$Urinary <- as.factor(df$LP2_Urinary)
-#         df$Bowel <- as.factor(df$LP2_Bowel_Incontinence)
-#         df$Thermoregulatory <- as.factor(df$LP2_Hyperhidrosis_Thermoregulatory_plus_other) #Cannot be used as is
-#         df$Orthostatism <- as.factor(df$LP2_Orthostatism_plus_other) #Cannot be used as is
-#         df$RBD_plus <- as.factor(df$LP2_RBD_plus_other) #Cannot be used as is
-#         df$Anosmia <- as.factor(df$LP2_Anosmia)
-        
-#         #Vascular RF
-#         df$Stroke_TIA <- as.factor(df$Stroke_TIA)
-#         df$HeartAttack_CardiacArrest <- as.factor(df$HeartAttack_CardiacArrest)
-#         df$Cardiovascular_other <- as.factor(df$Cardiovascular_other)
-#         df$Smoking <- as.factor(df$Smoking)
-#         df$DIAB <- as.factor(df$DIAB)
-#         df$HYT <- as.factor(df$HYT)
-#         df$HYPERCHOL <- as.factor(df$HYPERCHOL)
+print(nrow(df.noncat))
+print(nrow(df.cat))
+print(nrow(df))
 
-#         #Neurological/psych history
-#         df$TBI <- as.factor(df$TBI)
-#         df$Seizure_baseline <- as.factor(df$Seizure_baseline)
-#         df$Delusions <- as.factor(df$LP2_Delusions)
-#         df$Lifetime_Hallucinations <- as.factor(df$Lifetime_Hallucinations)
+print(names(df))
 
-#         #Other history
-#         df$Arthritis <- as.factor(df$Arthritis)
-#         df$Medical_other <- as.factor(df$Medical_other)
 
-#         #Motor
-#         df$Gait <- as.factor(df$LP2_gait)
-#         df$Falls_PI <- as.factor(df$LP2_falls_PI)
-#         df$Retropulsion <- as.factor(df$LP2_retropulsion)
-#         df$Tremor <- as.factor(df$LP2_tremor)
-#         df$Slowness <- as.factor(df$LP2_slowness)
-#         df$OM <- as.factor(df$LP2_oculomotor)
-#         df$Lifetime_OM <- as.factor(df$Lifetime_oculomotor)
-#         df$Rigidity <- as.factor(df$LP2_rigidity)
-#         df$Dystonia <- as.factor(df$LP2_dystonia)
-#         df$Apraxia <- as.factor(df$LP2_apraxia)
-#         df$Lifetime_apraxia <- as.factor(df$Lifetime_apraxia)
-#         df$Myoclonus <- as.factor(df$LP2_myoclonus)
-#         df$Alien <- as.factor(df$LP2_alien_limb)
-#         df$Hypomimia <- as.factor(df$LP2_hypomimia)
-
-#         #Medication
-#         df$Medication_1_anx <- as.factor(df$Medication_1_anx)
-#         df$Medication_2_antidep <- as.factor(df$Medication_2_antidep)
-#         df$Medication_3_ACheL <- as.factor(df$Medication_3_ACheL)
-#         df$Medication_4_memantine <- as.factor(df$Medication_4_memantine)
-#         df$Medication_5_AP <- as.factor(df$Medication_5_AP)
-#         df$Medication_6_Mood <- as.factor(df$Medication_6_Mood)
-#         df$Medication_7_Stim <- as.factor(df$Medication_7_Stim)
-#         df$Medication_8_Vasc <- as.factor(df$Medication_8_Vasc)
-#         df$Medication_9_Sleep <- as.factor(df$Medication_9_Sleep)
-#         df$Medication_10_Mov <- as.factor(df$Medication_10_Mov)
-#         df$Lifetime_Dopa <- as.factor(df$Lifetime_Dopa)
-#         df$Lifetime_Dopa_responder_true <- as.factor(df$Lifetime_Dopa_responder_true)
-
-#         # sapply(cat.vars, is.factor) #In case of failure of as.factor, may need to check the specific variable failing to convert properly
-
-#       }
 
 
 # ###############################################################################################################################
