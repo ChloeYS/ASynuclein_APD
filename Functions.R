@@ -1,57 +1,11 @@
+# FILENAME: Functions.R
+
 #Last updated 16 May 2024
 ##Only kept functions useful for the APD manuscript
 
 
-# LIBRARIES #
-
-## DATAFRAME MANIPULATION ##
+# USEFUL LIBRARIES #
 library(tidyverse) #https://tidyverse.tidyverse.org/
-  # library(dplyr) #part of tidyverse
-  # library(forcats) # for factors (categorical data) #part of tidyverse
-  # library(lubridate)#part of tidyverse
-
-#library(janitor) #https://www.rdocumentation.org/packages/janitor/versions/2.1.0
-# library(skimr) #Has function skim() which gives overview of data
-# library(DataExplorer) # for plot_str
-# library(GGally) #generates plots for the whole dataframe to give to quick overview of relationships in data
-# library(lubridate) #for is.Date
-
-## TABLES ##
-#library(formattable)
-#library(data.table)
-# library(tableone) # for descriptive stats table one
-# library(broom) #prints results of statistical tests in dataframe
-
-## STATISTICAL TESTS ##
-# library(car) #Anova() #Levene's test
-# library(lme4)
-# library(onewaytests) #Bartlett-Forsythe test
-library(emmeans) #allows pairwise comparison for post hoc of ANCOVA
-
-## FITTING MODELS ##
-# library(boot)
-# library(perm)
-
-## POSTHOC TESTS ##
-# library(multcomp) #multiple comparisons
-# library(FSA) #Dunn's test with bonferroni correction
-# library(pwr) #for power analysis
-# library(rstatix) #wrapper for anova/ancova
-
-
-## FIGURES ##
-library(ggpubr) # for ggplot themes
-ibrary(ggplot2) #part of tidyverse
-# library(grid) #for arranging figures
-# library(gridExtra) #for arranging figures
-
-
-## REPORTS IN R ##
-# library(knitr) #https://hbctraining.github.io/Training-modules/Rmarkdown/lesson.html
-# library("webshot")
-# webshot::install_phantomjs() #install once in order to export the formattable object
-# library("htmltools")
-
 
 
 # DEFINE REFERENCES LISTS #
