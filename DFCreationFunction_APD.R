@@ -69,6 +69,7 @@ cat("as.numeric() call:", "\n",
 	"1- duplicate column names;",  "\n",
 	"2- different row numbers, etc.", "\n")
 
+# SANITY CHECK
 print(nrow(df.nonnum))
 print(nrow(df.num))
 print(nrow(df))
@@ -98,7 +99,7 @@ mutate(Duration_last_visit= (Age_at_last_visit - Onset_age)) %>%  #Duration betw
 
 data.frame() #Convert to dataframe to facilitate operations
 
-# DEFENSIVE CODING TO MAKE SURE NO ONE HAS ABERRANT AGE VALUES
+# DEFENSE
 
 ##Below is for the comparison of the age calculated from DOB vs age entered in excel spreadsheet after dataframe subsetting + cbind call above
 vec<- rep(1.1, nrow(df))
@@ -118,10 +119,11 @@ if (nrow(test)>0 | nrow(test2)>0) {
 
 df$ID.factor <- as.factor(df$ID) #Manually change so doesnt need to be included in code below (will use it to compare to ID after to make sure all is good)
 cat.vars <- c("Sex", "PPA", "Onset_type", "DX_APD", "Race_ethnicity",
-			  "RTQUIC_lifetime", "AD_lifetime_ATHENA", "LP2_RBD_plus_other", "LP2_Anosmia","APOEe4_alleles",
+			  "RTQUIC_lifetime", "AD_lifetime_ATHENA", "LP2_auton_signs", "LP2_RBD_plus_other", "LP2_Anosmia",
+			  "LP2_Sexual_dysfunction", "LP2_Constipation", "LP2_Urinary", "LP2_Bowel_Incontinence","APOEe4_alleles",
 			  "LP2_gait", "LP2_falls_PI","LP2_retropulsion","LP2_tremor","LP2_slowness",
 			  "LP2_oculomotor", "Lifetime_oculomotor", "LP2_rigidity", "LP2_apraxia","Lifetime_apraxia",
-             "Lifetime_Dopa","Lifetime_Dopa_responder_true")
+			  "Lifetime_Dopa","Lifetime_Dopa_responder_true")
 
 df.cat <- df[, cat.vars] #dataframe with the categorical variables only
 df.cat <- sapply(df.cat, as.factor) #Apply as.numeric to all the values that should be numeric. This introduces NAs. 
@@ -136,6 +138,7 @@ cat("as.factor() call:", "\n",
 	"1- duplicate column names;",  "\n",
 	"2- different row numbers, etc.", "\n")
 
+# SANITY CHECK
 print(nrow(df.noncat))
 print(nrow(df.cat))
 print(nrow(df))
@@ -143,65 +146,59 @@ print(nrow(df))
 print(names(df))
 
 
+# DEFENSE
+if (sum(df$ID.factor == df$ID) != 67) {
+	n <- sum(df$ID.factor != df$ID)
+	cat("WARNING: Possible error when re-merging dataframe after as.numeric or as.factor call. There are at least: ",
+		n, " potential errors when merging using cbind(). Consider other sources of error too.", "\n")
+	}
 
 
-# ###############################################################################################################################
-# # CREATE NEW VARIABLES: BINARY STRINGS
-# ##WARNING: BE VERY CAREFUL WITH NAS OR NON-BINARY VARS. IT WILL BINARIZE THE DATA AND LUMP ANY NA WITH THE NON-REF LEVEL
-# ###############################################################################################################################
+###############################################################################################################################
+# CREATE NEW VARIABLES: BINARY STRINGS
+##WARNING: BE VERY CAREFUL WITH NAs OR NON-BINARY VARS. IT WILL BINARIZE THE DATA AND LUMP ANY NA WITH THE NON-REF LEVEL
+###############################################################################################################################
 
-#       ##Demographics
-#       df <-string.var(df, "DX_Lifetime", "genetic", "GeneticFTLD")
-#       df <-string.var(df, "Onset_type", "Parkinsonism", "Parkinsonian_onset")
-#       df <-string.var(df, "Onset_type", "Cognitive", "Cognitive_onset")
-#       df <-string.var(df, "Onset_type", "Language", "Language_onset")
+      ##Demographics
+      df <-string.var(df, "Onset_type", "Parkinsonism", "Parkinsonian_onset")
+      df <-string.var(df, "Onset_type", "Cognitive", "Cognitive_onset")
+      df <-string.var(df, "Onset_type", "Language", "Language_onset")
 
-#       ##Biomarkers
-#       df <-string.var(df, "Lifetime_AD", "Positive", "Lifetime_AD_binary") 
-#       df <-string.var(df, "AD_lit", "Positive", "AD_lit_binary") 
-#       df <-string.var(df, "AD", "Positive", "AD_binary") 
-#       df <-string.var(df, "AD_Brink", "Positive", "AD_Brink_binary") 
+      ##Biomarkers
+      df <-string.var(df, "AD_lifetime_ATHENA", "Positive", "AD") 
 
-#       ##Autonomic or PD-related non motor
-#       df <-string.var(df, "Dysphagia", "Yes", "Dysphagia_binary")
-#       df <-string.var(df, "Thermoregulatory", "Yes", "Thermoregulatory_binary")
-#       df <-string.var(df, "Orthostatism", "Yes", "Orthostatism_binary")
-#       df <-string.var(df, "RBD_plus", "Yes", "RBD_binary")
-#       df <-string.var(df, "RBD_plus", "RLS", "RLS_binary")
-#       df <-string.var(df, "Anosmia", "Yes", "Anosmia_binary") 
-#       df <-string.var(df, "Sexual", "Yes", "Sexual_binary") 
-#       df <-string.var(df, "Constipation", "Yes", "Constipation_binary") 
-#       df <-string.var(df, "Urinary", "Yes", "Urinary_binary") 
-#       df <-string.var(df, "Bowel", "Yes", "Bowel_binary") 
+      ##Autonomic or PD-related non motor
+      df <-string.var(df, "LP2_RBD_plus_other", "Yes", "RBD_binary")
+      df <-string.var(df, "LP2_Anosmia", "Yes", "Anosmia_binary") 
+      df <-string.var(df, "LP2_Sexual_dysfunction", "Yes", "Sexual_binary") 
+      df <-string.var(df, "LP2_Constipation", "Yes", "Constipation_binary") 
+      df <-string.var(df, "LP2_Urinary", "Yes", "Urinary_binary") 
+      df <-string.var(df, "LP2_Bowel_Incontinence", "Yes", "Bowel_binary") 
 
-#       ##Neurological/psych history
-#       df <-string.var(df, "Lifetime_Hallucinations", "Yes", "Lifetime_Hallucinations_binary")            
-#       df <-string.var(df, "Lifetime_Hallucinations", "Visual", "Lifetime_VisualHallucinations_binary")
+      ##Neurological/psych history
+      df <-string.var(df, "Lifetime_Hallucinations", "Yes", "Lifetime_Hallucinations_binary")            
+      df <-string.var(df, "Lifetime_Hallucinations", "Visual", "Lifetime_VisualHallucinations_binary")
 
-#       ##Medication
-#       df <-string.var(df, "Lifetime_Dopa", "Yes", "Lifetime_Dopa_binary")
+      ##Medication
+      df <-string.var(df, "Lifetime_Dopa", "Yes", "Lifetime_Dopa_binary")
 
-#       #Motor
-#       df <-string.var(df, "Tremor", "Yes", "Tremor_binary")
-#       df <-string.var(df, "Tremor", "action", "ActionTremor")
-#       df <-string.var(df, "Tremor", "rest", "RestTremor")
+      #Motor
+      df <-string.var(df, "LP2_tremor", "Yes", "Tremor_binary")
+      df <-string.var(df, "LP2_tremor", "action", "ActionTremor")
+      df <-string.var(df, "LP2_tremor", "rest", "RestTremor")
 
-#       df <-string.var(df, "Slowness", "Yes", "Slowness_binary")
+      df <-string.var(df, "LP2_slowness", "Yes", "Slowness_binary")
 
-#       df <-string.var(df, "OM", "Yes", "OM_binary")
-#       df <-string.var(df, "OM", "vertical", "VerticalOM")
-#       df <-string.var(df, "Lifetime_OM", "vertical", "Lifetime_VerticalOM")
+      df <-string.var(df, "LP2_oculomotor", "Yes", "OM_binary")
+      df <-string.var(df, "LP2_oculomotor", "vertical", "VerticalOM")
+      df <-string.var(df, "Lifetime_oculomotor", "vertical", "Lifetime_VerticalOM")
 
-#       df <-string.var(df, "Rigidity", "Yes", "Rigidity_binary")
-#       df <-string.var(df, "Rigidity", "axial", "AxialRigidity")
-#       df <-string.var(df, "Rigidity", "limb", "LimbRigidity")
+      df <-string.var(df, "LP2_rigidity", "Yes", "Rigidity_binary")
+      df <-string.var(df, "LP2_rigidity", "axial", "AxialRigidity")
+      df <-string.var(df, "LP2_rigidity", "limb", "LimbRigidity")
 
-#       df <-string.var(df, "Dystonia", "Yes", "Dystonia_binary")
-#       df <-string.var(df, "Dystonia", "limb", "LimbDystonia")
 
-#       df <-string.var(df, "Lifetime_apraxia", "Yes", "Lifetime_apraxia_binary")
-
-#       df <-string.var(df, "Hypomimia", "Yes", "Hypomimia_binary") #Counts poker face as no hypomimia
+      df <-string.var(df, "Lifetime_apraxia", "Yes", "Lifetime_apraxia_binary")
 
 
 # ###############################################################################################################################
