@@ -13,7 +13,7 @@ source('Functions.R') #Source the functions from file in same repository (for no
 	#tidyverse() loaded in Functions.R
 
 
-library(lubridate) #Practical for is.Date()
+library(lubridate) #for is.Date()
 
 
 ###############################################################################################################################
@@ -32,7 +32,7 @@ var.func.1 <- function(df) {
 
  #Make sure that date variables are indeed dates. Usually issues arise in DOB values due to format. Reformatting original data in Excel may be required.
 
-  date.vars <- df[, c("DOB_dd.mmmm.yy", "RTQUIC_2_Date_dd.mmmm.yy", "First_Visit_Date_dd.mmmm.yy", "Last_Visit_Date_dd.mmmm.yy")]
+date.vars <- df[, c("DOB_dd.mmmm.yy", "RTQUIC_2_Date_dd.mmmm.yy", "First_Visit_Date_dd.mmmm.yy", "Last_Visit_Date_dd.mmmm.yy")]
     if(sum(sapply(date.vars, is.Date)) != 4) {
       df$DOB <- as.Date(as.character(df$DOB_dd.mmmm.yy), format="%Y-%m-%d")
       df$Date <- as.Date(as.character(df$RTQUIC_2_Date_dd.mmmm.yy), format="%Y-%m-%d") #Dates used for clinical tp
@@ -43,71 +43,21 @@ var.func.1 <- function(df) {
     }
 
 
-# ###############################################################################################################################
-# #CHECK NUMERIC VALUES ARE IN THE PROPER FORMAT
-# ###############################################################################################################################
+###############################################################################################################################
+#CHECK NUMERIC VALUES ARE IN THE PROPER FORMAT
+###############################################################################################################################
 
-# # Make sure that numeric variables are indeed numeric. Usually issues arise in NFL values due to format. Reformatting original data in Excel may be required.
-#  num.vars <- df[, c("Education", "ID_Age_TXT", "Onset_age", "Park_onset", "Death_age",
-#                     "ptau_2", "ttau_2", "abeta_2", "ATI_2", "NFL_2", 
-#                     "YKL40_2","LP2_Cognitive_Z.score", "LP2_MOCA_Z.score", "LP2_MOCA_total", "LP2_MOCA_VS",
-#                     "LP2_MOCA_Language","LP2_MOCA_delayed","LP2_Orientation", "LP2_Fwd_correct", "LP2_Backwd_correct",
-#                     "LP2_Fluency_category_animals","LP2_TMTA","LP2_TMTB", "LP2_Craft_immediate_z.score","LP2_Craft_delayed_z.score",
-#                     "LP2_Benson_recall", "LP2_CDR_SOB","LP2_CDR_Total", "LP2_CVLT_10min_delay_correct", "LP2_IRI_ECS",
-#                     "LP2_IRI_PT", "LP2_BIS_Total", "LP2_RSMS_Total", "LP2_PSPRS", "LP2_auton_signs_n")] #"LP2_Conf_Naming",
-#       if(sum(sapply(num.vars, is.numeric)) != 35) {
+# Make sure that numeric variables are indeed numeric. Usually issues arise in NFL values due to format. Reformatting original data in Excel may be required.
 
-# #COULD BE A FOR-LOOP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+df$ID_Age <- as.numeric(df$ID_Age) #Manually change so doesnt need to be included in code below (will use it to compare to ID_Age_TXT after to make sure all is good)
+num.vars <- c("Education", "ID_Age_TXT", "Onset_age", "Park_onset", "ptau_2", "ttau_2", "abeta_2", "ATI_2", "NFL_2", "LP2_Cognitive_Z.score", "LP2_MOCA_Z.score", "LP2_MOCA_total", "Lag_hours", "ThTmax") #Doesnt include Age so i can compare it later. 
+df.num <- df[, num.vars] #dataframe with the numerical variables only
+df.num <- sapply(df.num, as.numeric) #Apply as.numeric to all the values that should be numeric. This introduces NAs. 
 
-#         #Demographics & clinic
-#         df$Education <- as.numeric(df$Education)
-#         df$ID_Age_TXT <- as.numeric(df$ID_Age_TXT)
-#         df$Onset <- as.numeric(df$Onset_age)
-#         df$Park_onset <- as.numeric(df$Park_onset)
-#         df$Death_age <- as.numeric(df$Death_age)
+cols <- names(df) %in% num.vars #Find the names of the columns that are numerical. "Cols" is a class logical: it says whether or not the name of each df column is within the num.vars vector. 
+df.nonnum <- df[!cols] #dataframe without the numerical variables. 
 
-#         #Biomarkers
-#         df$ptau <- as.numeric(df$ptau_2)
-#         df$ttau <- as.numeric(df$ttau_2)
-#         df$abeta <- as.numeric(df$abeta_2)
-#         df$ATI <- as.numeric(df$ATI_2)
-#         df$NFL <- as.numeric(df$NFL_2)
-#         df$YKL <- as.numeric(df$YKL40_2)
-
-#         #Neuropsych  
-#         df$Cognitive_Z <- as.numeric(df$LP2_Cognitive_Z.score)
-#         df$MOCA_Z <- as.numeric(df$LP2_MOCA_Z.score)
-#         df$MOCA_total <- as.numeric(df$LP2_MOCA_total_corrected)
-#         df$MOCA_VS <- as.numeric(df$LP2_MOCA_VS)
-#         df$MOCA_Language <- as.numeric(df$LP2_MOCA_Language)
-#         df$MOCA_delayed <- as.numeric(df$LP2_MOCA_delayed)
-#         df$Orientation <- as.numeric(df$LP2_Orientation) #NEEDS TO BE REFORMATTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#         df$Fwd <- as.numeric(df$LP2_Fwd_correct)
-#         df$Backwd <- as.numeric(df$LP2_Backwd_correct)
-#         df$Fluency <- as.numeric(df$LP2_Fluency_category_animals)
-#         df$TMTA <- as.numeric(df$LP2_TMTA)
-#         df$TMTB <- as.numeric(df$LP2_TMTB)
-#         df$Craft_immediate <- as.numeric(df$LP2_Craft_immediate_z.score)
-#         df$Craft_delayed <- as.numeric(df$LP2_Craft_delayed_z.score)
-#         df$Benson_recall <- as.numeric(df$LP2_Benson_recall)
-#         # df$LP2_Conf_Naming <- as.numeric(df$LP2_Conf_Naming) #NEEDS TO BE CREATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#         df$CDR_SOB <- as.numeric(df$LP2_CDR_SOB)
-#         df$CDR_Total <- as.numeric(df$LP2_CDR_Total)
-#         df$CVLT <- as.numeric(df$LP2_CVLT_10min_delay_correct)
-#         df$IRI_ECS <- as.numeric(df$LP2_IRI_ECS)
-#         df$IRI_PT <- as.numeric(df$LP2_IRI_PT)
-#         df$BIS <- as.numeric(df$LP2_BIS_Total)
-#         df$RSMS <- as.numeric(df$LP2_RSMS_Total)
-
-#         #Motor tests
-#         df$PSPRS <- as.numeric(df$LP2_PSPRS)
-
-#         #Clinic
-#         df$Auton_n <- as.numeric(df$LP2_auton_signs_n)
-
-#         # sapply(num.vars, is.numeric) #In case of failure of as.numeric, may need to check the specific variable failing to convert properly
-#       }
-
+df <- cbind(df, df.num)
 
 # ###############################################################################################################################
 # #CREATE NEW VARIABLES: AGES AND DURATIONS
