@@ -7,6 +7,7 @@
 ## The original datasheet cannot be shared due to containing potentially sensitive information. 
 
 
+#Usage: gets sourced by other files.
 
 ###############################################################################################################################
 #SOURCE PACKAGES AND FUNCTIONS
@@ -362,6 +363,14 @@ df <- df %>%
 
 # SANITY CHECK
 print(df[, c("Onset_age", "Early_onset")])
+
+
+###############################################################################################################################
+# REMOVE NAMES OR ANY OTHER COLUMN THAT SHOULD BE DELETED
+##############################################################################################################################
+
+cols <- names(df) %in% c("Name") #Select "name" column. "Cols" is a class logical: it says whether or not the name of each df column is within the num.vars vector. 
+df <- df[!cols] #dataframe without the names 
 
 ###############################################################################################################################
 # SAVE DATAFRAME
