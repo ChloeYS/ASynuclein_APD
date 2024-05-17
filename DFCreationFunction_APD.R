@@ -373,11 +373,11 @@ df <- df %>%
     mutate(RTQUIC_survived= RTQUIC) %>%
     mutate(RTQUIC_survived = case_when(RTQUIC_survived == "aSyn-SAA positive" ~ 1,
                                       TRUE ~ 0)) %>%
-    mutate(RTQUIC_survived= as.factor(RTQUIC_survived)) %>%
+    mutate(RTQUIC_survived= as.numeric(RTQUIC_survived)) %>% #Needs to be as.numeric for survdiff() and ggsurvfit()
 
     # 2: Create new variable that is indicating the length of survival: 
     mutate(RTQUIC_survival_hours= Lag_hours) %>%
-    mutate(RTQUIC_survival_hours = case_when(RTQUIC_survived== 0 ~ 40,
+    mutate(RTQUIC_survival_hours = case_when(RTQUIC_survived== 0 ~ 48,
                                             TRUE ~ as.numeric(RTQUIC_survival_hours))) %>%
     mutate(RTQUIC_survival_hours= as.numeric(RTQUIC_survival_hours)) %>%
 
@@ -385,7 +385,7 @@ df <- df %>%
 
 
 # DEFENSE
-testdf <- subset(df, RTQUIC=="Negative" |  RTQUIC_survived==0 |  RTQUIC_survival_hours==40)
+testdf <- subset(df, RTQUIC=="Negative" |  RTQUIC_survived==0 |  RTQUIC_survival_hours==48)
 print(testdf[, c("RTQUIC", "RTQUIC_survived", "RTQUIC_survival_hours")])
 
 if (nrow(testdf)!= 45) {
