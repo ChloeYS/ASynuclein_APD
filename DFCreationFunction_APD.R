@@ -201,199 +201,167 @@ if (sum(df$ID.factor == df$ID) != 67) {
       df <-string.var(df, "Lifetime_apraxia", "Yes", "Lifetime_apraxia_binary")
 
 
-# ###############################################################################################################################
-# # CREATE NEW VARIABLES: COMBINE VARIABLES BASED ON STRINGS
-# ##############################################################################################################################
+###############################################################################################################################
+# CREATE NEW VARIABLES: COMBINE VARIABLES BASED ON STRINGS
+##############################################################################################################################
 
-# df <- df %>%
+df <- df %>%
 
-#           ##Onset_type_simplified: multiple domains instead of "Cognitive, Language" etc
-#           mutate(Onset_type_simplified= Onset_type) %>%
-#           mutate(Onset_type_simplified= case_when(grepl(",", Onset_type_simplified) ~ "Multiple domains",
-#                                                   TRUE ~ as.character(Onset_type_simplified))) %>% #TRUE in this case captures all the values excluded from previous conditions,
-#                                                                                                     #in which case case_when applies the new value, which is actually the original value.
+          ##Onset_type_simplified: multiple domains instead of "Cognitive, Language" etc
+          mutate(Onset_type_simplified= Onset_type) %>%
+          mutate(Onset_type_simplified= case_when(grepl(",", Onset_type_simplified) ~ "Multiple domains",
+                                                  TRUE ~ as.character(Onset_type_simplified))) %>% #TRUE in this case captures all the values excluded from previous conditions,
+                                                                                                    #in which case case_when applies the new value, which is actually the original value.
           
-#           ##PPA: whether a PPA was diagnosed or not
-#           mutate(anyPPA= PPA) %>%
-#           mutate(anyPPA = case_when(anyPPA == "svPPA" ~ "Yes",
-#                                     anyPPA == "PNFA" ~ "Yes",
-#                                     anyPPA == "lvPPA" ~ "Yes",
-#                                     anyPPA == "PPA" ~ "Yes",
-#                                     TRUE ~ as.character(anyPPA))) %>%
+          ##PPA: whether a PPA was diagnosed or not
+          mutate(anyPPA= PPA) %>%
+          mutate(anyPPA = case_when(anyPPA == "svPPA" ~ "Yes",
+                                    anyPPA == "PNFA" ~ "Yes",
+                                    anyPPA == "lvPPA" ~ "Yes",
+                                    anyPPA == "PPA" ~ "Yes",
+                                    TRUE ~ as.character(anyPPA))) %>%
 
-#           ##DXRTQUIC: combines RTQUIC and DX_APD strings
-#           mutate(DXRTQUIC = as.factor(paste(DX_APD, RTQUIC, sep="_"))) %>%
+          ##DXRTQUIC: combines RTQUIC and DX_APD strings
+          mutate(DXRTQUIC = as.factor(paste(DX_APD, RTQUIC_lifetime, sep="_"))) %>%
 
-#           data.frame() #Convert to dataframe to facilitate operations.
+          data.frame() #Convert to dataframe to facilitate operations.
 
-# ###############################################################################################################################
-# # CREATE NEW VARIABLES: CREATE RATIO AND LOGS
-# ##############################################################################################################################
-# #http://www.sthda.com/english/wiki/survival-analysis-basics
-# df <- df %>%     
-#           mutate(tauratio= ptau/ttau) %>%
-#           mutate(logNFL= log(NFL)) %>%
-#           mutate(logptau= log(ptau)) %>%
-#           mutate(logabeta= log(abeta)) %>%
-#           mutate(logttau= log(ttau)) %>%
-#           mutate(logtauratio= log(tauratio)) %>%
 
-#           data.frame() #Convert to dataframe to facilitate operations.
+###############################################################################################################################
+# CREATE NEW VARIABLES: CREATE RATIO AND LOGS
+##############################################################################################################################
+df <- df %>%     
+          mutate(tauratio= ptau_2/ttau_2) %>%
+          mutate(logNFL= log(NFL_2)) %>% 
+          mutate(logptau= log(ptau_2)) %>%
+          mutate(logabeta= log(abeta_2)) %>%
+          mutate(logttau= log(ttau_2)) %>%
 
-# ###############################################################################################################################
-# # CREATE NEW VARIABLES: CHANGE LEVELS OF CATEGORICAL VARS FOR TABLES
-# ##############################################################################################################################
+          data.frame() #Convert to dataframe to facilitate operations.
+
+
+
+###############################################################################################################################
+# CREATE NEW VARIABLES: CHANGE LEVELS OF CATEGORICAL VARS FOR TABLES
+##############################################################################################################################
   
-# df <- df %>%     
 
-#           ##GeneticFTLD: Instead of TRUE and False have yes and no
-#           mutate(GeneticFTLD= GeneticFTLD) %>%
-#           mutate(GeneticFTLD = case_when(GeneticFTLD == TRUE ~ "Yes",
-#                                           GeneticFTLD == FALSE ~ "No")) %>%
+df <- df %>%     
 
-#           ##APOEe4: Instead of TRUE and False have Positive and Negative
-#           mutate(APOEe4= APOEe4) %>%
-#           mutate(APOEe4 = case_when(APOEe4 == "Yes" ~ "Positive",
-#                                     APOEe4 == "No" ~ "Negative")) %>%
-#           mutate(APOEe4= as.factor(APOEe4)) %>%
+ 
+    ##APOEe4: Instead of TRUE and False have Positive and Negative
+    mutate(APOEe4= APOEe4_alleles) %>%
+   	mutate(APOEe4 = case_when(APOEe4 == "Yes" ~ "Positive",
+                              APOEe4 == "No" ~ "Negative")) %>%
+    mutate(APOEe4= as.factor(APOEe4)) %>%
 
-#           ##Parkinsonism_onset: Instead of TRUE and False have Positive and Negative
-#           mutate(Parkinsonian_onset= Parkinsonian_onset) %>%
-#           mutate(Parkinsonian_onset = case_when(Parkinsonian_onset == TRUE ~ "Yes",
-#                                               Parkinsonian_onset == FALSE ~ "No")) %>%
+    ##Parkinsonism_onset: Instead of TRUE and False have Positive and Negative
+    mutate(Parkinsonian_onset= Parkinsonian_onset) %>%
+    mutate(Parkinsonian_onset = case_when(Parkinsonian_onset == TRUE ~ "Yes",
+                                          Parkinsonian_onset == FALSE ~ "No")) %>%
 
-#           ##Cognitive_onset: Instead of TRUE and False have Positive and Negative
-#           mutate(Cognitive_onset= Cognitive_onset) %>%
-#           mutate(Cognitive_onset = case_when(Cognitive_onset == TRUE ~ "Yes",
-#                                               Cognitive_onset == FALSE ~ "No")) %>%
+    ##Cognitive_onset: Instead of TRUE and False have Positive and Negative
+    mutate(Cognitive_onset= Cognitive_onset) %>%
+    mutate(Cognitive_onset = case_when(Cognitive_onset == TRUE ~ "Yes",
+                                       Cognitive_onset == FALSE ~ "No")) %>%
 
-#           ##Language_onset: Instead of TRUE and False have Positive and Negative
-#           mutate(Language_onset= Language_onset) %>%
-#           mutate(Language_onset = case_when(Language_onset == TRUE ~ "Yes",
-#                                               Language_onset == FALSE ~ "No")) %>%
+   ##Language_onset: Instead of TRUE and False have Positive and Negative
+    mutate(Language_onset= Language_onset) %>%
+    mutate(Language_onset = case_when(Language_onset == TRUE ~ "Yes",
+                                              Language_onset == FALSE ~ "No")) %>%
 
-#           ##Dysphagia_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Dysphagia_binary= Dysphagia_binary) %>%
-#           mutate(Dysphagia_binary = case_when(Dysphagia_binary == TRUE ~ "Yes",
-#                                              Dysphagia_binary == FALSE ~ "No")) %>%
+    ##LP2_tremor_binary: Instead of TRUE and False have Positive and Negative
+    mutate(Tremor_binary= Tremor_binary) %>%
+    mutate(Tremor_binary = case_when(Tremor_binary == TRUE ~ "Yes",
+                                     Tremor_binary == FALSE ~ "No")) %>%
 
+    ##LP2_resttremor_binary: Instead of TRUE and False have Positive and Negative
+    mutate(RestTremor= RestTremor) %>%
+    mutate(RestTremor = case_when(RestTremor == TRUE ~ "Yes",
+                                        RestTremor == FALSE ~ "No")) %>%
 
-#           ##Thermoregulatory_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Thermoregulatory_binary= Thermoregulatory_binary) %>%
-#           mutate(Thermoregulatory_binary = case_when(Thermoregulatory_binary == TRUE ~ "Yes",
-#                                                      Thermoregulatory_binary == FALSE ~ "No")) %>%
+    ##LP2_slowness_binary: Instead of TRUE and False have Positive and Negative
+    mutate(Slowness_binary= Slowness_binary) %>%
+    mutate(Slowness_binary = case_when(Slowness_binary == TRUE ~ "Yes",
+                                       Slowness_binary == FALSE ~ "No")) %>%
 
+    ##LP2_rigidity_binary: Instead of TRUE and False have Positive and Negative
+    mutate(Rigidity_binary= Rigidity_binary) %>%
+    mutate(Rigidity_binary = case_when(Rigidity_binary == TRUE ~ "Yes",
+                                       Rigidity_binary == FALSE ~ "No")) %>%
 
-#           ##Orthostatism_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Orthostatism_binary= Orthostatism_binary) %>%
-#           mutate(Orthostatism_binary = case_when(Orthostatism_binary == TRUE ~ "Yes",
-#                                                 Orthostatism_binary == FALSE ~ "No")) %>%
+    ##LP2_limbrigidity_binary: Instead of TRUE and False have Positive and Negative
+    mutate(LimbRigidity= LimbRigidity) %>%
+    mutate(LimbRigidity = case_when(LimbRigidity == TRUE ~ "Yes",
+                                          LimbRigidity == FALSE ~ "No")) %>%
 
+    ##LP2_axialrigidity_binary: Instead of TRUE and False have Positive and Negative
+    mutate(AxialRigidity= AxialRigidity) %>%
+    mutate(AxialRigidity = case_when(AxialRigidity == TRUE ~ "Yes",
+                                          AxialRigidity == FALSE ~ "No")) %>%
 
-#           ##LP2_tremor_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Tremor_binary= Tremor_binary) %>%
-#           mutate(Tremor_binary = case_when(Tremor_binary == TRUE ~ "Yes",
-#                                           Tremor_binary == FALSE ~ "No")) %>%
+    ##LP2_verticaloculomotor_binary: Instead of TRUE and False have Positive and Negative
+    mutate(VerticalOM= VerticalOM) %>%
+    mutate(VerticalOM = case_when(VerticalOM == TRUE ~ "Yes",
+                                        VerticalOM == FALSE ~ "No")) %>%
 
-#           ##LP2_resttremor_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(RestTremor= RestTremor) %>%
-#           mutate(RestTremor = case_when(RestTremor == TRUE ~ "Yes",
-#                                         RestTremor == FALSE ~ "No")) %>%
-
-#           ##LP2_slowness_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Slowness_binary= Slowness_binary) %>%
-#           mutate(Slowness_binary = case_when(Slowness_binary == TRUE ~ "Yes",
-#                                             Slowness_binary == FALSE ~ "No")) %>%
-
-#           ##LP2_rigidity_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Rigidity_binary= Rigidity_binary) %>%
-#           mutate(Rigidity_binary = case_when(Rigidity_binary == TRUE ~ "Yes",
-#                                             Rigidity_binary == FALSE ~ "No")) %>%
-
-#           ##LP2_limbrigidity_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(LimbRigidity= LimbRigidity) %>%
-#           mutate(LimbRigidity = case_when(LimbRigidity == TRUE ~ "Yes",
-#                                           LimbRigidity == FALSE ~ "No")) %>%
-
-#           ##LP2_axialrigidity_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(AxialRigidity= AxialRigidity) %>%
-#           mutate(AxialRigidity = case_when(AxialRigidity == TRUE ~ "Yes",
-#                                           AxialRigidity == FALSE ~ "No")) %>%
-
-#           ##LP2_verticaloculomotor_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(VerticalOM= VerticalOM) %>%
-#           mutate(VerticalOM = case_when(VerticalOM == TRUE ~ "Yes",
-#                                         VerticalOM == FALSE ~ "No")) %>%
-
-#           ##Lifetime_VerticalOM: Instead of TRUE and False have Positive and Negative
-#           mutate(Lifetime_VerticalOM= Lifetime_VerticalOM) %>%
-#           mutate(Lifetime_VerticalOM = case_when(Lifetime_VerticalOM == TRUE ~ "Yes",
-#                                                  Lifetime_VerticalOM == FALSE ~ "No")) %>%
+    ##Lifetime_VerticalOM: Instead of TRUE and False have Positive and Negative
+    mutate(Lifetime_VerticalOM= Lifetime_VerticalOM) %>%
+    mutate(Lifetime_VerticalOM = case_when(Lifetime_VerticalOM == TRUE ~ "Yes",
+                                                 Lifetime_VerticalOM == FALSE ~ "No")) %>%
 
 
-#           ##Dystonia_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Dystonia_binary= Dystonia_binary) %>%
-#           mutate(Dystonia_binary = case_when(Dystonia_binary == TRUE ~ "Yes",
-#                                             Dystonia_binary == FALSE ~ "No")) %>%
+    ##Lifetime_apraxia_binary: Instead of TRUE and False have Positive and Negative
+    mutate(Lifetime_apraxia_binary= Lifetime_apraxia_binary) %>%
+    mutate(Lifetime_apraxia_binary = case_when(Lifetime_apraxia_binary == TRUE ~ "Yes",
+                                                 Lifetime_apraxia_binary == FALSE ~ "No")) %>%
 
-#           ##LimbDystonia: Instead of TRUE and False have Positive and Negative
-#           mutate(LimbDystonia= LimbDystonia) %>%
-#           mutate(LimbDystonia = case_when(LimbDystonia == TRUE ~ "Yes",
-#                                           LimbDystonia == FALSE ~ "No")) %>%
+    ##Lifetime_RBD_binary: Instead of TRUE and False have Positive and Negative
+    mutate(RBD_binary= RBD_binary) %>%
+    mutate(RBD_binary = case_when(RBD_binary == TRUE ~ "Yes",
+                                        RBD_binary == FALSE ~ "No")) %>%
 
-#           ##Lifetime_apraxia_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Lifetime_apraxia_binary= Lifetime_apraxia_binary) %>%
-#           mutate(Lifetime_apraxia_binary = case_when(Lifetime_apraxia_binary == TRUE ~ "Yes",
-#                                                  Lifetime_apraxia_binary == FALSE ~ "No")) %>%
+   	##AD_binary: Instead of TRUE and False have Positive and Negative
+    mutate(AD= AD) %>%
+    mutate(AD = case_when(AD == TRUE ~ "AD Positive",
+                          AD == FALSE ~ "AD Negative")) %>%
 
-#           ##Hypomimia_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Hypomimia_binary= Hypomimia_binary) %>%
-#           mutate(Hypomimia_binary = case_when(Hypomimia_binary == TRUE ~ "Yes",
-#                                               Hypomimia_binary == FALSE ~ "No")) %>%
+   	##RTQUIC_lifetime: Instead of TRUE and False have Positive and Negative
+    mutate(RTQUIC= RTQUIC_lifetime) %>%
+    mutate(RTQUIC = case_when(RTQUIC == "Positive" ~ "aSyn-SAA positive", #paste("\U03B1","Syn-SAA+") fails at plot level. expression(alpha*) is incompatible with case_when
+                              RTQUIC == "Negative" ~ "aSyn-SAA negative")) %>%
+    mutate(RTQUIC= as.factor(RTQUIC)) %>%
 
-#           ##Lifetime_RBD_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(RBD_binary= RBD_binary) %>%
-#           mutate(RBD_binary = case_when(RBD_binary == TRUE ~ "Yes",
-#                                         RBD_binary == FALSE ~ "No")) %>%
+  	##Lifetime_VisualHallucinations_binary: Instead of TRUE and False have Positive and Negative
+    mutate(Lifetime_VisualHallucinations_binary= Lifetime_VisualHallucinations_binary) %>%
+    mutate(Lifetime_VisualHallucinations_binary = case_when(Lifetime_VisualHallucinations_binary == TRUE ~ "Yes",
+                                                                  Lifetime_VisualHallucinations_binary == FALSE ~ "No")) %>%
 
-#           ##RLS_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(RLS_binary= RLS_binary) %>%
-#           mutate(RLS_binary = case_when(RLS_binary == TRUE ~ "Yes",
-#                                         RLS_binary == FALSE ~ "No")) %>%
+    ##Lifetime_Dopa_binary: Instead of TRUE and False have Positive and Negative
+   	mutate(Lifetime_Dopa_binary= Lifetime_Dopa_binary) %>%
+    mutate(Lifetime_Dopa_binary = case_when(Lifetime_Dopa_binary == TRUE ~ "Yes",
+                                             Lifetime_Dopa_binary == FALSE ~ "No")) %>%
 
-#           ##AD_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(AD_binary= AD_binary) %>%
-#           mutate(AD_binary = case_when(AD_binary == TRUE ~ "AD Positive",
-#                                         AD_binary == FALSE ~ "AD Negative")) %>%
+   	data.frame() #Convert to dataframe to facilitate operations.
 
-#           ##AD_Brink_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(AD_Brink_binary= AD_Brink_binary) %>%
-#           mutate(AD_Brink_binary = case_when(AD_Brink_binary == TRUE ~ "AD Positive",
-#                                         AD_Brink_binary == FALSE ~ "AD Negative")) %>%
 
-#           ##AD_Brink_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Lifetime_AD_binary= Lifetime_AD_binary) %>%
-#           mutate(Lifetime_AD_binary = case_when(Lifetime_AD_binary == TRUE ~ "AD Positive",
-#                                                 Lifetime_AD_binary == FALSE ~ "AD Negative")) %>%
+###############################################################################################################################
+# CREATE NEW VARIABLES: CREATE NEW VARS BASED ON VALUE OF VAR
+##############################################################################################################################
+  
 
-#           ##RTQUIC_lifetime: Instead of TRUE and False have Positive and Negative
-#           mutate(RTQUIC= RTQUIC) %>%
-#           mutate(RTQUIC = case_when(RTQUIC == "Positive" ~ "aSyn-SAA positive", #paste("\U03B1","Syn-SAA+") fails at plot level. expression(alpha*) is incompatible with case_when
-#                                     RTQUIC == "Negative" ~ "aSyn-SAA negative")) %>%
-#           mutate(RTQUIC= as.factor(RTQUIC)) %>%
+df <- df %>%     
 
-#           ##Lifetime_VisualHallucinations_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Lifetime_VisualHallucinations_binary= Lifetime_VisualHallucinations_binary) %>%
-#           mutate(Lifetime_VisualHallucinations_binary = case_when(Lifetime_VisualHallucinations_binary == TRUE ~ "Yes",
-#                                                                   Lifetime_VisualHallucinations_binary == FALSE ~ "No")) %>%
+    ##Onset: dichotomize between <65 vs >=65 years old at onset
+    mutate(Early_onset= Onset_age) %>%
+   	mutate(Early_onset = case_when(Early_onset < 65 ~ "Early-onset",
+                              Early_onset >= 65 ~ "Late-onset")) %>%
+    mutate(Early_onset= as.factor(Early_onset)) %>%
 
-#           ##Lifetime_Dopa_binary: Instead of TRUE and False have Positive and Negative
-#           mutate(Lifetime_Dopa_binary= Lifetime_Dopa_binary) %>%
-#           mutate(Lifetime_Dopa_binary = case_when(Lifetime_Dopa_binary == TRUE ~ "Yes",
-#                                               Lifetime_Dopa_binary == FALSE ~ "No")) %>%
+   	data.frame() #Convert to dataframe to facilitate operations.
 
-#           data.frame() #Convert to dataframe to facilitate operations.
-
+# SANITY CHECK
+print(df[, c("Onset_age", "Early_onset")])
 
 ###############################################################################################################################
 # SAVE DATAFRAME
