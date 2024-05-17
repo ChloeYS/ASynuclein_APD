@@ -351,9 +351,9 @@ df <- df %>%
 ##############################################################################################################################
   
 
+##Onset: dichotomize between <65 vs >=65 years old at onset
 df <- df %>%     
 
-    ##Onset: dichotomize between <65 vs >=65 years old at onset
     mutate(Early_onset= Onset_age) %>%
    	mutate(Early_onset = case_when(Early_onset < 65 ~ "Early-onset",
                               Early_onset >= 65 ~ "Late-onset")) %>%
@@ -363,6 +363,34 @@ df <- df %>%
 
 # SANITY CHECK
 print(df[, c("Onset_age", "Early_onset")])
+
+
+##Lag: make suitable for survival data:
+df <- df %>%     
+
+    ##Lag: make suitable for survival data:
+    # 1: Create new variable based on RT-QUIC+ vs RT-QUIC-: binary, met threshold vs not. Essentially, kept exactly the values of RT-QuIC
+    mutate(RTQUIC_survived= RTQUIC) %>%
+    mutate(RTQUIC_survived = case_when(RTQUIC_survived == "aSyn-SAA positive" ~ 1,
+                                      TRUE ~ 0)) %>%
+    mutate(RTQUIC_survived= as.factor(RTQUIC_survived)) %>%
+
+    # 2: Create new variable that is indicating the length of survival: 
+    mutate(RTQUIC_survival_hours= Lag_hours) %>%
+    mutate(RTQUIC_survival_hours = case_when(RTQUIC_survived== 0 ~ 40,
+                                            TRUE ~ as.numeric(RTQUIC_survival_hours))) %>%
+    mutate(RTQUIC_survival_hours= as.numeric(RTQUIC_survival_hours)) %>%
+
+    data.frame() #Convert to dataframe to facilitate operations.
+
+
+# DEFENSE
+testdf <- subset(df, RTQUIC=="Negative" |  RTQUIC_survived==0 |  RTQUIC_survival_hours==40)
+print(testdf[, c("RTQUIC", "RTQUIC_survived", "RTQUIC_survival_hours")])
+
+if (nrow(testdf)!= 45) {
+  cat("Check potential issues when creating the survival variables RTQUIC_survived and RTQUIC_survival_hours", "\n")
+  }
 
 
 ###############################################################################################################################
