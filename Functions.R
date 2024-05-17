@@ -12,9 +12,9 @@ library(tidyverse) #https://tidyverse.tidyverse.org/
 
 #http://sape.inf.usi.ch/quick-reference/ggplot2/colour
 #https://www.colorhexa.com/999999
-cbPalette <- c("gray46", "orangered1", "purple1", "green4", "blue") 
-cbPalette2 <- c("blue", "hotpink", "slateblue1", "darkgoldenrod1", "chocolate4")
-cbPalette3 <- c("blue", "slateblue1")
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+cbPalette_RTQUIC <- c("#E69F00", "#999999") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+cbPalette_DX_APD <- c("#56B4E9", "#CC79A7") #colorblind-friendly palette. http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
 
 
 
@@ -43,89 +43,5 @@ string.var <- function(df, working.col, string, new.var.name) {
   return(df)
 }
 
-
-## VARIANCE.FUNC() ##
-##We first check that variance is equal between the groups. Based on the results
-# from our normality assessment, we choose the Levene test which is robust enough
-#to departure from normality but doesnt assume complete departure.
-variance.func <- function (DV, IV, test=2) { #test can be Bartlett, Levene, or Brown-Forsythe
-  if (test=="1") { #then perform the Bartlett's test
-   cat("Performing Bartlett's test for homoscedasticity.\n")
-   bart <- bartlett.test(DV ~ IV) #object of type list
-   return(bart) #Returns the p-value of the test of homogeneity of variance. p=bart[[3]]
- } else {
-    if (test=="2") { #then perform Levene's test
-     cat("Performing Levene's test for homoscedasticity.\n")
-     library(car) #needed for leveneTest
-     lev <- leveneTest(DV ~ IV) #object of type list
-     return(lev) #p=lev[[3]]
-   } else {
-      if (test=="3") {
-       library(onewaytests)
-       cat("Performing Brown-forsythe's F test for homoscedasticity.\n")
-       brown <- bf.test(DV ~ IV) #object of type list
-       return(brown) #p=brown[[4]])
-      }
-   }
-  }
-}
-
-
-## TTEST_ASSUMPTIONS() ##
-
-##We first check that variance is equal between the groups. Based on the results
-ttest_assumptions <- function(df, col1, col2) {
-                     DV <- df[, col1]
-                     IV <- df[, col2]
-                     norm <- shapiro.test(DV)
-                      if (norm[[2]] <= 0.05) { #If Shapiro-Wilk's test is significant
-                          var <- variance.func(DV, IV) #Do Levene's test by default, robust to normality deviation
-                          if (var$Pr[1] <= 0.05) { #If Levene's test is significant
-                            cat("Normality & homoscedasticity of ", col1, " violated. T-tests should not be run. Use Mann-Whitney-Wilcoxon instead. \n")
-                            cat("Normality: Shapiro Wilk's test significant with:  \n")
-                            print(norm)
-                            cat("Homoscedasticity: Levene's test significant with:  \n")
-                            print(var)
-                            return("MWU")
-                          } else cat("Only normality of ", col1, " violated. T-tests should not be run. \n")
-                                 cat("Normality: Shapiro Wilk's test significant with with:  \n")
-                                 print(norm)
-                                 cat("Homoscedasticity: Levene's test not significant with:  \n")
-                                 print(var)
-                                 return("MWU")
-                        } else var <- variance.func(DV, IV, 1) #whole test #Do Bartlett's test if Shapiro-wilks is not significant
-                             # variance.func(DV, IV, 3) #need to fix Brown-Forsythe
-                             if (var[[3]] <= 0.05) { #If Bartlett's test is significant
-                                cat("Only homoscedasticity of ", col1, " violated. Welch's t-test can be run with the Satterthwaite/Welch's method.\n")
-                                cat("Normality: Shapiro Wilk's test not significant with:  \n")
-                                print(norm)
-                                cat("Homoscedasticity: Bartlett's test significant with:  \n")
-                                print(var)
-                                return("welch")
-                              } else cat("All assumptions of ", col1, " respected. Student's t-test can be run without concern using the pooled variance. \n")
-                                      cat("Normality: Shapiro Wilk's test not significant with:  \n")
-                                      print(norm)
-                                      cat("Homoscedasticity: Bartlett's test not significant with:  \n")
-                                      print(var)
-                                      return("student")
-                      }
-
-## TTEST.FUNC() ##
-ttest.func <- function(var, vec, df) { #3 arguments: value of IV, vector of DV, df
-for (value in vec) { #for-loop that tests each variable
-  cat("Performing t-tests or MWU assumption testing and analysis on", value ,"in ", var, "\n")
-  test <- ttest_assumptions(df, value, var)
-  DV <- df[, value]
-  IV <- df[, var]
-    if (test=="student") {
-        cat("Perform Student's t-test with pooled variance \n")
-        print(t.test(DV ~ IV, var.equal=T))
-    } else if (test=="welch") {
-            cat("Perform Welch's adaptation of the Student's t-test with Welch's/Satterthwaite estimate of the df  \n")
-            print(t.test(DV ~ IV, var.equal=F))
-        } else cat("Perform MWU \n")
-               print(wilcox.test(DV ~ IV, exact=F)) #Exact=F is necessary to deal with the possible ties in ranking of the pairs
-} #for-loop
-}#function
-
+                
 
