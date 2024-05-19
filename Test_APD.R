@@ -248,10 +248,10 @@ leveneTest(logabeta ~ DX_APD, data = df) #homoscedasticity
 # Abeta42 STATISTICS: SUMMARY
 df %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
 df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
-sd(CBSdf$abeta_2)
-sd(PSPdf$abeta_2)
+sd(CBSdf$abeta_2, na.rm=T)
+sd(PSPdf$abeta_2, na.rm=T)
 
-# Abeta42 STATISTICS: ANOVA
+# Abeta42 STATISTICS: ANCOVA
 t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) 
 aov <- aov(logabeta ~ Age + DX_APD, df) 
 Anova(aov, type="II") #Compare with type III
@@ -277,39 +277,183 @@ leveneTest(logptau ~ DX_APD, data = df) #homoscedasticity
 # PTAU181 STATISTICS: SUMMARY
 df %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
 df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
-sd(CBSdf$ptau_2)
-sd(PSPdf$ptau_2)
+sd(CBSdf$ptau_2, na.rm=T)
+sd(PSPdf$ptau_2, na.rm=T)
 
-# PTAU181 STATISTICS: ANOVA
+# PTAU181 STATISTICS: ANCOVA
 t.test(df$logptau ~ df$DX_APD, var.equal=TRUE) 
 aov <- aov(logptau ~ Age + DX_APD, df) 
 Anova(aov, type="II") #Compare with type III
 	check_normality(aov)
 
 
-
-#############################################			SEX	  		###########################################################
-###############################################################################################################################
-
-# # SEX STATISTICS: SUMMARY
-# cat("1.1. TOTAL NUMBER + SEX: \n")
-# cat("Prior to subject exclusion, the total number of subjects in the dataset is: \n")
-# df %>% count(DX_APD)
-# cat("Sex distribution in the dataset is: \n")
-# df %>% group_by(DX_APD) %>% count(Sex) 
+cat("\n\n######################################################################################################\n",
+	   "################################              BIOMARKERS: TTAU                 ########################\n",
+	   "#######################################################################################################\n")
 
 
-# # SEX STATISTICS: PERCENTAGES
-# totalmatrix <- df %>% count(DX_APD)
-# sexmatrix <- df %>% group_by(DX_APD) %>% count(Sex) 
+# T-TAU STATISTICS: DISTRIBUTION
+# Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
+# If removed, give value in the table
+boxplot(ttau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ttau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(ttau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ttau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-# cat("Proportion of females in CBS is: \n")
-# (as.numeric(sexmatrix$n[1]) + as.numeric(sexmatrix$n[3]))/(as.numeric(totalmatrix$n[1]) + as.numeric(totalmatrix$n[2]))
-# cat("Proportion of females in CBS is:")
-# as.numeric(sexmatrix$n[1])/as.numeric(totalmatrix$n[1])
-# cat("Proportion of females in PSP is:")
-# as.numeric(sexmatrix$n[3])/as.numeric(totalmatrix$n[2])
+shapiro.test(CBSdf$logttau) #normal
+shapiro.test(PSPdf$logttau) #normal
+leveneTest(logttau ~ DX_APD, data = df) #homoscedasticity
 
-# # SEX STATISTICS: CHI-SQUARE
-# table(df$Sex, df$DX_APD)
-# chisq.test(table(df$Sex, df$DX_APD), correct=F)
+# TAU STATISTICS: SUMMARY
+# Chose mean because ran ANCOVA. 
+df %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdf$ttau_2, na.rm=T)
+sd(PSPdf$ttau_2, na.rm=T)
+
+# TAU STATISTICS: ANCOVA
+t.test(df$logttau ~ df$DX_APD, var.equal=TRUE) 
+aov <- aov(logttau ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+cat("\n\n######################################################################################################\n",
+	   "################################              BIOMARKERS: ATI                 #########################\n",
+	   "#######################################################################################################\n")
+
+
+# ATI STATISTICS: DISTRIBUTION
+# Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
+# If removed, give value in the table
+boxplot(ATI_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ATI_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(ATI_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ATI_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(CBSdf$ATI_2) #non-normal
+shapiro.test(PSPdf$ATI_2) #non-normal
+leveneTest(ATI_2 ~ DX_APD, data = df) #homoscedasticity
+hist(df$ATI_2)
+
+# ATI STATISTICS: SUMMARY
+# Chose mean because ran ANCOVA. 
+df %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdf$ATI_2, na.rm=T)
+sd(PSPdf$ATI_2, na.rm=T)
+
+# ATI STATISTICS: ANCOVA
+wilcox.test(df$ATI_2 ~ df$DX_APD, paired=F)
+aov <- aov(ATI_2 ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              BIOMARKERS: NFL                 #########################\n",
+	   "#######################################################################################################\n")
+
+# NFL STATISTICS: DISTRIBUTION
+# For NFL the outliers are really impactful. Is best to remove them and report their value. However, will only remove outliers of whole dataset and not per diagnosis. 
+# Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
+# This is because in FTLD population, the data can be very right-skewed. 
+threshold <- min(max(df$logNFL,na.rm=T), as.numeric(quantile(df$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (df$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+threshold
+sort(df$logNFL)
+subset(df, !(logNFL<threshold))$ID
+subset(df, !(logNFL<threshold))$NFL
+dfnfl <- subset(df, (logNFL<threshold))
+
+
+CBSdfnfl <- subset(dfnfl, DX_APD=="CBS")
+PSPdfnfl <- subset(dfnfl, DX_APD=="PSP")
+shapiro.test(CBSdfnfl$logNFL) #normal
+shapiro.test(PSPdfnfl$logNFL) #normal
+shapiro.test(dfnfl$logNFL) #normal
+leveneTest(logNFL ~ DX_APD, data = dfnfl) #homoscedasticity
+
+# NFL STATISTICS: SUMMARY
+dfnfl %>% summarize(count=n(), format(round(mean(NFL_2, na.rm=T),2),2), sd=sd(NFL_2, na.rm=T)) #Rounds up the sd for some reason
+dfnfl %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(NFL_2, na.rm=T),2),2), sd=sd(NFL_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdfnfl$NFL_2)
+sd(PSPdfnfl$NFL_2)
+
+
+# NFL STATISTICS: ANCOVA
+t.test(dfnfl$logNFL ~ dfnfl$DX_APD, var.equal=TRUE) 
+aov <- aov(logNFL ~ Age + DX_APD, dfnfl) 
+Anova(aov, type="II")
+check_normality(aov)
+
+
+
+cat("\n\n#######################################################################################################\n",
+	"                                    COHORT CHARACTERISTICS: CATEGORICAL VARIABLES\n",
+	    "#######################################################################################################\n")
+
+cat("\n\n######################################################################################################\n",
+	   "################################              SEX                         #############################\n",
+	   "#######################################################################################################\n")
+
+# SEX STATISTICS: SUMMARY
+cat("1.1. TOTAL NUMBER + SEX: \n")
+cat("Prior to subject exclusion, the total number of subjects in the dataset is: \n")
+df %>% count(DX_APD)
+cat("Sex distribution in the dataset is: \n")
+df %>% group_by(DX_APD) %>% count(Sex) 
+
+
+# SEX STATISTICS: PERCENTAGES
+totalmatrix <- df %>% count(DX_APD)
+sexmatrix <- df %>% group_by(DX_APD) %>% count(Sex) 
+
+cat("Proportion of females in CBS is: \n")
+(as.numeric(sexmatrix$n[1]) + as.numeric(sexmatrix$n[3]))/(as.numeric(totalmatrix$n[1]) + as.numeric(totalmatrix$n[2]))
+cat("Proportion of females in CBS is:")
+as.numeric(sexmatrix$n[1])/as.numeric(totalmatrix$n[1])
+cat("Proportion of females in PSP is:")
+as.numeric(sexmatrix$n[3])/as.numeric(totalmatrix$n[2])
+
+# SEX STATISTICS: CHI-SQUARE
+table(df$Sex, df$DX_APD)
+chisq.test(table(df$Sex, df$DX_APD), correct=F)
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              APOE                         #############################\n",
+	   "#######################################################################################################\n")
+
+# APOE STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% count(APOEe4)
+table(df$APOEe4, df$DX_APD)
+
+
+# APOE STATISTICS: CHI-SQUARE
+chisq.test(table(df$APOEe4, df$DX_APD), correct=F)
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              AD                         ##############################\n",
+	   "#######################################################################################################\n")
+
+# AD STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% count(AD_lifetime_ATHENA)
+table(df$DX_APD, df$AD_lifetime_ATHENA)
+
+# AD STATISTICS: CHI-SQUARE
+chisq.test(table(df$AD_lifetime_ATHENA, df$DX_APD), correct=F)
+
+
+
+cat("\n\n\n\n###########################################################################################################\n",
+		   "ASYN-SAA+ & DEMOGRAPHICS\n",
+	 	   "##########################################################################################################\n\n")
+
+cat("\n\n#######################################################################################################\n",
+	"                                    COHORT CHARACTERISTICS: CATEGORICAL VARIABLES\n",
+	    "#######################################################################################################\n")
+
+
+
+
