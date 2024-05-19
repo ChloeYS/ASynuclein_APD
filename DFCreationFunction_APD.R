@@ -65,7 +65,7 @@ df.nonnum <- df[!cols] #dataframe without the numerical variables.
 
 df <- cbind(df.nonnum, df.num)
 
-cat("as.numeric() call:", "\n",
+cat("This is not a warning. as.numeric() call:", "\n",
 	"Check potential issues when using cbind:", "\n",
 	"1- duplicate column names;",  "\n",
 	"2- different row numbers, etc.", "\n")
@@ -361,8 +361,9 @@ df <- df %>%
 
    	data.frame() #Convert to dataframe to facilitate operations.
 
-# SANITY CHECK
-print(df[, c("Onset_age", "Early_onset")])
+# SANITY CHECK. REPLACE BY DEFENSE
+  #For myself, visual check:
+  #print(df[, c("Onset_age", "Early_onset")])
 
 
 ##Lag: make suitable for survival data:
@@ -386,7 +387,8 @@ df <- df %>%
 
 # DEFENSE
 testdf <- subset(df, RTQUIC=="Negative" |  RTQUIC_survived==0 |  RTQUIC_survival_hours==48)
-print(testdf[, c("RTQUIC", "RTQUIC_survived", "RTQUIC_survival_hours")])
+  #For myself, visual check:
+  # print(testdf[, c("RTQUIC", "RTQUIC_survived", "RTQUIC_survival_hours")])
 
 if (nrow(testdf)!= 45) {
   cat("Check potential issues when creating the survival variables RTQUIC_survived and RTQUIC_survival_hours", "\n")

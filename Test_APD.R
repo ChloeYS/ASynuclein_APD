@@ -7,9 +7,9 @@
 
 
 
-###############################################################################################################################
-#SOURCE PACKAGES AND FUNCTIONS
-###############################################################################################################################
+cat("\n\n\n\n###############################################################################################\n",
+            "SOURCE PACKAGES AND FUNCTIONS\n",
+            "###############################################################################################\n\n\n")
 
 arg.vec <- commandArgs(trailingOnly = T) #Defines a vector of arguments. In this case, it is only one argument.  
 
@@ -31,6 +31,7 @@ library(ggplot2) #plot figures with stats
 library(ggpubr) #ggscatter
 library(ggsurvfit) #survival analysis
 library(survival) #survival analysis: survdiff() 
+library(performance) #check_normality
 
 
 # Consider removing if not used: 
@@ -39,16 +40,15 @@ library(survival) #survival analysis: survdiff()
 # library(ggpmisc) #annotate figures
 # library(modelbased) #extract some parameters and estimates from a model
 # library(psych)
-# library(performance) #check_normality
 # library(rcompanion) #Cramer's V
 # library(ggstatsplot) #plot figures
 # library(fmsb) #radar plot
 
 
 
-###############################################################################################################################
-#DATAFRAME LOADING
-###############################################################################################################################
+cat("\n\n\n\n###############################################################################################\n",
+            "DATAFRAME LOADING\n",
+            "###############################################################################################\n\n\n")
 
 #Loading the QCed dataframe created from the raw data by the function var.func.1
 
@@ -59,9 +59,10 @@ write.csv(df, "dataframe.csv") #a copy of object created at the time of submissi
 
 
 
-###############################################################################################################################
-#CREATE SUBSETS FOR ASSUMPTION TESTING 
-###############################################################################################################################
+cat("\n\n\n\n###############################################################################################\n",
+            "SUBSET DF FOR ASSUMPTION TESTING\n",
+            "###############################################################################################\n\n\n")
+
 
 ##CREATE SOME OF THE SUBSETS USED LATER (MOSTLY FOR OUTLIER IDENTIFICATION)
 #Not very efficient - update later if occasion to
@@ -84,58 +85,36 @@ if (sum(c(nrow(CBSdf), nrow(PSPdf), nrow(RTposdf), nrow(RTnegdf), nrow(ADposdf),
 }
 
 
-###############################################################################################################################
-												# COHORT CHARACTERISTICS
-###############################################################################################################################
+cat("\n\n\n\n###########################################################################################################\n",
+		   "COHORT CHARACTERISTICS\n",
+	 	   "##########################################################################################################\n\n")
 
-cat("1. COMPARISONS OF DEMOGRAPHICS FOR DX: \n")
+
+cat("COMPARISONS OF DEMOGRAPHICS FOR DX: \n")
 df %>% count(DX_APD)
 
-##############################################################################################################################
+
+cat("\n\n#######################################################################################################\n",
+	"                                    COHORT CHARACTERISTICS: NUMERICAL VARIABLES\n",
+	    "#######################################################################################################\n")
+
+cat("\n\n#######################################################################################################\n",
+	    "########################################              AGE                     #########################\n",
+	    "#######################################################################################################\n")
 
 
-#############################################			SEX	  		###########################################################
-###############################################################################################################################
+# AGE STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Age) #normal
+shapiro.test(PSPdf$Age) #normal
+var.test(Age ~ DX_APD, data = df) #homoscedasticity
 
-# STATISTICS: SUMMARY
-cat("1.1. TOTAL NUMBER + SEX: \n")
-cat("Prior to subject exclusion, the total number of subjects in the dataset is: \n")
-df %>% count(DX_APD)
-cat("Sex distribution in the dataset is: \n")
-df %>% group_by(DX_APD) %>% count(Sex) 
-
-
-# STATISTICS: PERCENTAGES
-totalmatrix <- df %>% count(DX_APD)
-sexmatrix <- df %>% group_by(DX_APD) %>% count(Sex) 
-
-cat("Proportion of females in CBS is: \n")
-(as.numeric(sexmatrix$n[1]) + as.numeric(sexmatrix$n[3]))/(as.numeric(totalmatrix$n[1]) + as.numeric(totalmatrix$n[2]))
-cat("Proportion of females in CBS is:")
-as.numeric(sexmatrix$n[1])/as.numeric(totalmatrix$n[1])
-cat("Proportion of females in PSP is:")
-as.numeric(sexmatrix$n[3])/as.numeric(totalmatrix$n[2])
-
-# STATISTICS: CHI-SQUARE
-table(df$Sex, df$DX_APD)
-chisq.test(table(df$Sex, df$DX_APD), correct=F)
-
-
-
-#############################################			AGE	  		###########################################################
-###############################################################################################################################
-
-
-# STATISTICS: SUMMARY
-cat("1.2. AGE AT LP: \n")
+# AGE STATISTICS: SUMMARY
+cat("MEAN AGE AT LP (FOR TABLE): \n")
 df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
 
 
-# STATISTICS: TTEST
-shapiro.test(CBSdf$Age) #normal
-shapiro.test(PSPdf$Age) #normal
-var.test(Age ~ DX_APD, data = df) #homoscedasticity
+# AGE STATISTICS: TTEST
 t.test <-t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
 	if (t.test[3] <= 0.05) {
 		cat("There is a significant difference in age at LP between CBS and PSP. p-value:", t.test[3][[1]], "\n")
@@ -143,69 +122,194 @@ t.test <-t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
 	} else cat("There is no significant difference in age at LP between CBS and PSP. \n")
 
 
-#############################################		EDUCATION	  		#######################################################
+
+cat("\n\n#######################################################################################################\n",
+	   "#####################################              EDUCATION                  #########################\n",
+	   "#######################################################################################################\n")
+
+
+# EDUCATION STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Education) #not normal
+shapiro.test(PSPdf$Education) #not normal
+leveneTest(Education ~ DX_APD, data = df) #homoscedasticity
+
+# EDUCATION STATISTICS: SUMMARY
+cat("MEDIAN EDUCATION (FOR TABLE): \n")
+df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+
+cat("MEAN EDUCATION (FOR REF ONLY): \n")
+df %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
+
+
+# EDUCATION STATISTICS: WILCOX
+wilcox.test(df$Education ~ df$DX_APD, paired=F)
+
+
+cat("\n\n#######################################################################################################\n",
+	   "################################              ONSET & DURATION                  #######################\n",
+	   "#######################################################################################################\n")
+
+# ONSET STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Onset_age) #normal
+shapiro.test(PSPdf$Onset_age) #normal
+leveneTest(Onset_age ~ DX_APD, data = df) #homoscedasticity
+
+# ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
+df %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
+
+# ONSET STATISTICS: TTEST
+t.test(df$Onset_age ~ df$DX_APD, var.equal=TRUE) 
+		
+
+# PARK ONSET STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Park_onset) #borderline
+shapiro.test(PSPdf$Park_onset) #borderline
+leveneTest(Park_onset ~ DX_APD, data = df) #homoscedasticity
+
+# PARK ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
+# ONSET STATISTICS: TTEST
+t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
+
+
+# DURATION STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
+shapiro.test(PSPdf$LP2_Disease_Duration) #not normal
+leveneTest(LP2_Disease_Duration ~ DX_APD, data = df) #homoscedasticity but borderline
+
+
+# DURATION STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+
+
+# DURATION STATISTICS: WILCOX
+wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
+		
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              COGNITIVE Z-SCORES                 ######################\n",
+	   "#######################################################################################################\n")
+
+
+# MoCA Z-SCORE STATISTICS: DISTRIBUTION
+boxplot(LP2_MOCA_Z.score ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(LP2_MOCA_Z.score ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(CBSdf$LP2_MOCA_Z.score) #normal
+shapiro.test(PSPdf$LP2_MOCA_Z.score) #not normal
+hist(df$LP2_MOCA_Z.score)
+hist(CBSdf$LP2_MOCA_Z.score)
+hist(PSPdf$LP2_MOCA_Z.score)
+leveneTest(LP2_MOCA_Z.score ~ DX_APD, data = df) #heterodasticity
+
+
+# MoCA Z-SCORE STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
+df %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
+
+# MoCA Z-SCORE STATISTICS: WILCOX
+wilcox.test(df$LP2_MOCA_Z.score ~ df$DX_APD, paired=F) #Since looking at z-score, no need to correct by age for this comparison
+
+	# ALL COGNITIVE SCORES DISTRIBUTION/SUMMARY/STATISTICS: NO NEED IN TABLE 1 (REDUNDANT)
+	shapiro.test(CBSdf$LP2_Cognitive_Z.score) #not al
+	shapiro.test(PSPdf$LP2_Cognitive_Z.score) #not al
+	leveneTest(LP2_Cognitive_Z.score ~ DX_APD, data = df) #heterodasticity
+	wilcox.test(df$LP2_Cognitive_Z.score ~ df$DX_APD, paired=F)
+	df %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+	df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              BIOMARKERS: ABETA42                 #####################\n",
+	   "#######################################################################################################\n")
+
+
+# Abeta42 STATISTICS: DISTRIBUTION
+# Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
+# If removed, give value in the table
+boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(abeta_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(abeta_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(CBSdf$logabeta) #normal
+shapiro.test(PSPdf$logabeta) #normal
+leveneTest(logabeta ~ DX_APD, data = df) #homoscedasticity
+
+# Abeta42 STATISTICS: SUMMARY
+df %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdf$abeta_2)
+sd(PSPdf$abeta_2)
+
+# Abeta42 STATISTICS: ANOVA
+t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) 
+aov <- aov(logabeta ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              BIOMARKERS: PTAU181                 #####################\n",
+	   "#######################################################################################################\n")
+
+# PTAU181 STATISTICS: DISTRIBUTION
+# Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
+# If removed, give value in the table
+boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ptau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ptau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(CBSdf$logptau) #normal
+shapiro.test(PSPdf$logptau) #normal
+leveneTest(logptau ~ DX_APD, data = df) #homoscedasticity
+
+# PTAU181 STATISTICS: SUMMARY
+df %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdf$ptau_2)
+sd(PSPdf$ptau_2)
+
+# PTAU181 STATISTICS: ANOVA
+t.test(df$logptau ~ df$DX_APD, var.equal=TRUE) 
+aov <- aov(logptau ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+
+#############################################			SEX	  		###########################################################
 ###############################################################################################################################
 
-## ADD LATER ALL THE EDUCATION, BIOMARKERS, ETC. 
+# # SEX STATISTICS: SUMMARY
+# cat("1.1. TOTAL NUMBER + SEX: \n")
+# cat("Prior to subject exclusion, the total number of subjects in the dataset is: \n")
+# df %>% count(DX_APD)
+# cat("Sex distribution in the dataset is: \n")
+# df %>% group_by(DX_APD) %>% count(Sex) 
 
 
+# # SEX STATISTICS: PERCENTAGES
+# totalmatrix <- df %>% count(DX_APD)
+# sexmatrix <- df %>% group_by(DX_APD) %>% count(Sex) 
 
+# cat("Proportion of females in CBS is: \n")
+# (as.numeric(sexmatrix$n[1]) + as.numeric(sexmatrix$n[3]))/(as.numeric(totalmatrix$n[1]) + as.numeric(totalmatrix$n[2]))
+# cat("Proportion of females in CBS is:")
+# as.numeric(sexmatrix$n[1])/as.numeric(totalmatrix$n[1])
+# cat("Proportion of females in PSP is:")
+# as.numeric(sexmatrix$n[3])/as.numeric(totalmatrix$n[2])
 
-###############################################	 LAG HOURS	  		###########################################################
-###############################################################################################################################
-
-cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
-cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
-df %>% count(RTQUIC) 
-
-
-# STATISTICS: SUMMARY
-
-## 1. We want to have a column: Negative vs Positive
-## 2. We want to have a column: lag hours max or 40
-
-Surv(df$RTQUIC_survival_hours, df$RTQUIC_survived)
-s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df) #uses the survival() package
-
-
-
-# STATISTICS: KAPLAN-MEIER CURVE FOR WHOLE DATASET
-# Uses survfit2() in ggsurvfit() package:
-survfit2(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df)  %>% 
-    ggsurvfit() + add_confidence_interval() +
-  add_risktable() #Summary of events vs nonevents
-
-summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df), times = 24)
-summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df), times = 13)
-summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df), times = 48)
-
-
-
-# STATISTICS: LOG-RANK TESTS FOR GROUP COMPARISONS
-# Uses survival() package
-survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ DX_APD, data = df)
-survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ AD, data = df)
-survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #p=.05
-cat("Differences in overall survival (ie never crossing threshold) between the subjects who have an early vs late-onset are seen. \n")
-
-# SANITY CHECK:
-survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ RTQUIC, data = df)
-
-
-# # STATISTICS: COX REGRESSION
-# ## CHECK ASSUMPTIONS. NOT SURE IF APPROPRIATE. 
-# # Uses survival() package
-# coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ DX_APD, data = df)
-# coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ AD, data = df)
-# coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df)
-
-
-#############################################		THT FLUO	  		#######################################################
-###############################################################################################################################
-
-cat("THT max is the max fluorescent signal reached after 48 hours of monitoring of the assay. \n")
-# STATISTICS: SUMMARY
-
-
-
-
+# # SEX STATISTICS: CHI-SQUARE
+# table(df$Sex, df$DX_APD)
+# chisq.test(table(df$Sex, df$DX_APD), correct=F)
