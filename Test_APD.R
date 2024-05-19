@@ -397,9 +397,6 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 # SEX STATISTICS: SUMMARY
-cat("1.1. TOTAL NUMBER + SEX: \n")
-cat("Prior to subject exclusion, the total number of subjects in the dataset is: \n")
-df %>% count(DX_APD)
 cat("Sex distribution in the dataset is: \n")
 df %>% group_by(DX_APD) %>% count(Sex) 
 
@@ -438,11 +435,11 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 # AD STATISTICS: SUMMARY
-df %>% group_by(DX_APD) %>% count(AD_lifetime_ATHENA)
-table(df$DX_APD, df$AD_lifetime_ATHENA)
+df %>% group_by(DX_APD) %>% count(AD)
+table(df$DX_APD, df$AD)
 
 # AD STATISTICS: CHI-SQUARE
-chisq.test(table(df$AD_lifetime_ATHENA, df$DX_APD), correct=F)
+chisq.test(table(df$AD, df$DX_APD), correct=F)
 
 
 
@@ -451,9 +448,132 @@ cat("\n\n\n\n###################################################################
 	 	   "##########################################################################################################\n\n")
 
 cat("\n\n#######################################################################################################\n",
-	"                                    COHORT CHARACTERISTICS: CATEGORICAL VARIABLES\n",
-	    "#######################################################################################################\n")
+	"                                    COHORT CHARACTERISTICS: ASYN-SAA+ TOTAL NUMBER & DX\n",
+	   "#######################################################################################################\n")
+
+df %>% group_by(RTQUIC) %>% count(DX_APD)
+sum(df$DX_APD=="CBS" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="M")
+sum(df$DX_APD=="PSP" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="M")
+
+cat("\n\n#######################################################################################################\n",
+	"                                    COHORT CHARACTERISTICS: ASYN-SAA+ TOTAL NUMBER & AGE & ONSET \n",
+	   "#######################################################################################################\n")
+
+
+#BONFERRONI CALCULATION FOR AGE/ONSET AGE/PARKINSONISM AGE COMPARISONS ATTRIBUTABLE TO RTQUIC
+#Looking at three similar tests: Difference in mean age at LP, onset, and Parkinsonism onset, in RT-QUIC+ vs RT-QUIC-
+0.05/3 #0.01666667
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              RTQUIC*AGE                  #############################\n",
+	   "#######################################################################################################\n")
+
+# RTQUIC*AGE STATISTICS: DISTRIBUTION
+shapiro.test(RTposdf$Age) #normal
+shapiro.test(RTnegdf$Age) #normal
+var.test(Age ~ RTQUIC, data = df) #homoscedasticity
+
+
+# RTQUIC*AGE STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Age, na.rm=T), sd=sd(Age, na.rm=T))
+
+# RTQUIC*AGE STATISTICS: ANCOVA
+t.test(df$Age ~ df$RTQUIC, var.equal=TRUE)
+aov <- aov(Age ~ DX_APD*RTQUIC, df)  
+Anova(aov, type="III")
 
 
 
+cat("\n\n######################################################################################################\n",
+	   "################################              RTQUIC*ONSET                #############################\n",
+	   "#######################################################################################################\n")
 
+# RTQUIC*ONSET STATISTICS: DISTRIBUTION
+shapiro.test(RTposdf$Onset_age) #normal
+shapiro.test(RTnegdf$Onset_age) #normal
+var.test(Onset_age ~ RTQUIC, data = df) #homoscedasticity
+
+
+# RTQUIC*ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Onset_age, na.rm=T), sd=sd(Onset_age, na.rm=T))
+
+# RTQUIC*ONSET STATISTICS: ANCOVA
+t.test(df$Onset_age ~ df$RTQUIC, var.equal=TRUE)
+aov <- aov(Onset_age ~ DX_APD*RTQUIC, df)  
+Anova(aov, type="III")
+
+
+
+cat("Below are the values for the creation of Fig 1.A: \n")
+cat("Lower left quadrant: \n")
+n1 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC+ and young-onset and AD+: ", n1, "\n")
+n2 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and young-onset and AD+: ", n2, "\n")
+n3 <-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC- and young-onset and AD+: ", n3, "\n")
+n4 <-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and young-onset and AD+: ", n4, "\n\n")
+
+
+cat("Upper left quadrant: \n")
+n5 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC+ and young-onset and AD-: ", n5, "\n")
+n6 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and young-onset and AD-: ", n6, "\n")
+
+n7<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC- and young-onset and AD-: ", n7, "\n")
+n8<-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and young-onset and AD-: ", n8, "\n\n")
+
+cat("Lower right quadrant: \n")
+n9<-nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC+ and late-onset and AD+: ", n9, "\n")
+n10<- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and late-onset and AD+: ", n10, "\n")
+
+n11<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC- and late-onset and AD+: ", n11, "\n")
+n12<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC- and late-onset and AD+: ", n12, "\n\n")
+
+cat("Upper right quadrant: \n")
+n13<- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC+ and late-onset and AD-: ", n13, "\n")
+n14<-nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC+ and late-onset and AD-: ", n14, "\n")
+
+n15<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
+cat("CBS subjects who are RTQUIC- and late-onset and AD-: ", n15, "\n")
+n16<-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
+cat("PSP subjects who are RTQUIC- and late-onset and AD-: ", n16, "\n\n")
+
+if (n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+n13+n14+n15+n16 != 67) {
+	cat("Issue when calculating the values for Figure 1A. Check that there was no error in condition setup. \n")
+	cat(n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+n13+n14+n15+n16)
+}
+
+
+cat("\n\n######################################################################################################\n",
+	   "################################              RTQUIC*PARK_ONSET           #############################\n",
+	   "#######################################################################################################\n")
+
+# RTQUIC*PARK_ONSET STATISTICS: DISTRIBUTION
+shapiro.test(RTposdf$Park_onset) #normal
+shapiro.test(RTnegdf$Park_onset) #normal
+var.test(Park_onset ~ RTQUIC, data = df) #homoscedasticity
+
+
+# RTQUIC*PARK_ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), mean=mean(Park_onset, na.rm=T), sd=sd(Park_onset, na.rm=T))
+
+# RTQUIC*PARK_ONSET STATISTICS: ANCOVA
+t.test(df$Park_onset ~ df$RTQUIC, var.equal=TRUE)
+aov <- aov(Park_onset ~ DX_APD*RTQUIC, df)  
+Anova(aov, type="III")
+
+# cat("\n\n#######################################################################################################\n",
+# 	"                                    COHORT CHARACTERISTICS: ASYN-SAA+ TOTAL NUMBER & AGE & ONSET \n",
+# 	   "#######################################################################################################\n")
