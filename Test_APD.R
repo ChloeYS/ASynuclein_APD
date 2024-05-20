@@ -506,7 +506,7 @@ Anova(aov, type="III")
 
 
 cat("Below are the values for the creation of Fig 1.A: \n")
-cat("Lower left quadrant: \n")
+cat("Lower left quadrant: AD+ and young-onset \n")
 n1 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
 cat("CBS subjects who are RTQUIC+ and young-onset and AD+: ", n1, "\n")
 n2 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
@@ -517,12 +517,11 @@ n4 <-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") 
 cat("PSP subjects who are RTQUIC+ and young-onset and AD+: ", n4, "\n\n")
 
 
-cat("Upper left quadrant: \n")
+cat("Upper left quadrant: AD- and young-onset\n")
 n5 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
 cat("CBS subjects who are RTQUIC+ and young-onset and AD-: ", n5, "\n")
 n6 <- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
 cat("PSP subjects who are RTQUIC+ and young-onset and AD-: ", n6, "\n")
-
 n7<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
 cat("CBS subjects who are RTQUIC- and young-onset and AD-: ", n7, "\n")
 n8<-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
@@ -533,10 +532,9 @@ n9<-nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & 
 cat("CBS subjects who are RTQUIC+ and late-onset and AD+: ", n9, "\n")
 n10<- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
 cat("PSP subjects who are RTQUIC+ and late-onset and AD+: ", n10, "\n")
-
-n11<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
+n11<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Positive") & (df$DX_APD=="CBS"),])
 cat("CBS subjects who are RTQUIC- and late-onset and AD+: ", n11, "\n")
-n12<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Early-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
+n12<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Positive") & (df$DX_APD=="PSP"),])
 cat("PSP subjects who are RTQUIC- and late-onset and AD+: ", n12, "\n\n")
 
 cat("Upper right quadrant: \n")
@@ -544,16 +542,40 @@ n13<- nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") 
 cat("CBS subjects who are RTQUIC+ and late-onset and AD-: ", n13, "\n")
 n14<-nrow(df[(df$RTQUIC=="aSyn-SAA positive") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
 cat("PSP subjects who are RTQUIC+ and late-onset and AD-: ", n14, "\n")
-
 n15<- nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="CBS"),])
 cat("CBS subjects who are RTQUIC- and late-onset and AD-: ", n15, "\n")
 n16<-nrow(df[(df$RTQUIC=="aSyn-SAA negative") & (df$Early_onset=="Late-onset") & (df$AD=="AD Negative") & (df$DX_APD=="PSP"),])
 cat("PSP subjects who are RTQUIC- and late-onset and AD-: ", n16, "\n\n")
 
+
+# DEFENSE
 if (n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+n13+n14+n15+n16 != 67) {
 	cat("Issue when calculating the values for Figure 1A. Check that there was no error in condition setup. \n")
 	cat(n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+n13+n14+n15+n16)
 }
+
+if (n1+n2+n3+n4 != 9) {cat("Issue in lower left quadrant: AD+ and young-onset. \n", n1, n2, n3, n4, "ie ", n1+n2+n3+n4, "instead of 9\n")}
+if (n5+n6+n7+n8 != 26) {cat("Issue in upper left quadrant: AD- and young-onset. \n", n5, n6, n7, n8, "ie ", n5+n6+n7+n8, "instead of 26\n")}
+if (n9+n10+n11+n12 != 6) {cat("Issue in lower right quadrant: AD+ and late-onset. \n", n9, n10, n11, n12,"ie ", n9+n10+n11+n12,  "instead of 6\n")}
+if (n13+n14+n15+n16 != 26) {cat("Issue in upper right quadrant: AD- and late-onset. \n", n13, n14, n15, n16, "ie ", n13+n14+n15+n16, "instead of 26\n")}
+
+
+	# If there is an issue, check below the dfs: 
+	# df[(df$AD=="AD Positive") & (df$Early_onset=="Early-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")]
+	# nrow(df[(df$AD=="AD Positive") & (df$Early_onset=="Early-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+	# nrow(df[(df$AD=="AD Positive") & (df$Early_onset=="Early-onset") & (df$RTQUIC=="aSyn-SAA positive"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+
+	# df[(df$AD=="AD Negative") & (df$Early_onset=="Early-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")]
+	# nrow(df[(df$AD=="AD Negative") & (df$Early_onset=="Early-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+	# nrow(df[(df$AD=="AD Negative") & (df$Early_onset=="Early-onset") & (df$RTQUIC=="aSyn-SAA positive"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+
+	# df[(df$AD=="AD Positive") & (df$Early_onset=="Late-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")]
+	# nrow(df[(df$AD=="AD Positive") & (df$Early_onset=="Late-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+	# nrow(df[(df$AD=="AD Positive") & (df$Early_onset=="Late-onset") & (df$RTQUIC=="aSyn-SAA positive"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+
+	# df[(df$AD=="AD Negative") & (df$Early_onset=="Late-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")]
+	# nrow(df[(df$AD=="AD Negative") & (df$Early_onset=="Late-onset"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
+	# nrow(df[(df$AD=="AD Negative") & (df$Early_onset=="Late-onset") & (df$RTQUIC=="aSyn-SAA positive"), c("ID", "RTQUIC", "DX_APD", "AD", "AD_lifetime_ATHENA", "Onset_age", "Early_onset")])
 
 
 cat("\n\n######################################################################################################\n",
@@ -577,3 +599,4 @@ Anova(aov, type="III")
 # cat("\n\n#######################################################################################################\n",
 # 	"                                    COHORT CHARACTERISTICS: ASYN-SAA+ TOTAL NUMBER & AGE & ONSET \n",
 # 	   "#######################################################################################################\n")
+
