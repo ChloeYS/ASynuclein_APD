@@ -31,6 +31,7 @@ library(ggplot2) #plot figures with stats
 library(ggpubr) #ggscatter
 library(ggsurvfit) #survival analysis
 library(survival) #survival analysis: survdiff() 
+library(survminer) #ggsurvplot
 library(performance) #check_normality
 
 
@@ -596,7 +597,174 @@ t.test(df$Park_onset ~ df$RTQUIC, var.equal=TRUE)
 aov <- aov(Park_onset ~ DX_APD*RTQUIC, df)  
 Anova(aov, type="III")
 
-# cat("\n\n#######################################################################################################\n",
-# 	"                                    COHORT CHARACTERISTICS: ASYN-SAA+ TOTAL NUMBER & AGE & ONSET \n",
-# 	   "#######################################################################################################\n")
+
+###############################################	 LAG HOURS	  		###########################################################
+###############################################################################################################################
+
+# cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
+# cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
+# df %>% count(RTQUIC) 
+
+
+
+## 1. We want to have a column: Negative vs Positive
+## 2. We want to have a column: lag hours max or 40
+
+# LAG STATISTICS: DISTRIBUTION
+hist(df$RTQUIC_survival_hours)  
+hist(RTposdf$RTQUIC_survival_hours)  
+shapiro.test(df[RTposdf$DX_APD =="CBS", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$DX_APD =="PSP", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$Early_onset =="Early-onset", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$AD =="AD Positive", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$AD =="AD Negative", ]$RTQUIC_survival_hours) #nonnormal
+leveneTest(RTQUIC_survival_hours ~ DX_APD, data = RTposdf) #homoscedasticity  
+leveneTest(RTQUIC_survival_hours ~ Early_onset, data = RTposdf) #homoscedasticity  
+leveneTest(RTQUIC_survival_hours ~ AD, data = RTposdf) #homoscedasticity  
+
+
+# LAG STATISTICS: SUMMARY
+RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+
+RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+
+RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+
+
+# LAG STATISTICS: CORRELATIONS
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Onset_age, method="spearman") #correlated
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Age, method="spearman") 
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logabeta, method="spearman") 
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logNFL, method="spearman")
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logptau, method="spearman")
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logttau, method="spearman")  
+cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$ATI_2, method="spearman") 
+
+# LAG STATISTICS: CORRELATIONS
+ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD",
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with age at onset",
+		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+
+ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD",
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with logged amyloid beta 42",
+		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD",
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with logged ptau181",
+		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+  
+
+ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD",
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with logged t-tau",
+		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD",https://www.facebook.com/photo?fbid=10159531068156876&set=pcb.3597966813754060
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with logged NFL",
+		xlab="NFL (pg/mL)", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD",
+		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+		title="Correlation of lag with ATI",
+		xlab="ATI_2", ylab = "Lag (hours)") 
+ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+
+#> `geom_smooth()` using formula 'y ~ x'
+# # LAG STATISTICS: LOG-RANK TEST
+# s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df) #uses the survival() package
+# s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ DX_APD, data = df) #uses the survival() package
+# s2 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ AD, data = df) #uses the survival() package
+# s3 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #uses the survival() package
+# ggsurvplot(s1, data = df, pval = TRUE)
+# ggsurvplot(s2, data = df, pval = TRUE)
+# ggsurvplot(s3, data = df, pval = TRUE)
+
+
+# survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #p=.05
+# summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df), times = 24)
+
+
+# # LAG STATISTICS: KAPLAN-MEIER CURVE FOR WHOLE DATASET
+# # Uses survfit2() in ggsurvfit() package:
+# survfit2(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df)  %>% 
+#     ggsurvfit() + add_confidence_interval() + labs(x="Lag (hours)", "Survival probability") #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+
+# # LAG STATISTICS: ANALYSES ON ONLY THE RT-QUIC SUBJECTS
+# # Fit a Cox proportional hazards model
+# # Redundant with the fisher analyses already shown above
+# fit.coxph <- coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset + AD, data = df)
+# ggforest(fit.coxph, data = df)
+
+
+
+
+#############################################		THT FLUO	  		#######################################################
+###############################################################################################################################
+
+# # cat("THT max is the max fluorescent signal reached after 48 hours of monitoring of the assay. \n")
+# # STATISTICS: SUMMARY
+
+# # THT STATISTICS: DISTRIBUTION
+# hist(RTposdf$ThTmax)  
+# shapiro.test(df[RTposdf$DX_APD =="CBS", ]$ThTmax) #nonnormal
+# shapiro.test(df[RTposdf$DX_APD =="PSP", ]$ThTmax) #nonnormal
+# shapiro.test(df[RTposdf$Early_onset =="Early-onset", ]$ThTmax) #nonnormal
+# shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$ThTmax) #nonnormal
+# shapiro.test(df[RTposdf$AD =="AD Positive", ]$ThTmax) #nonnormal
+# shapiro.test(df[RTposdf$AD =="AD Negative", ]$ThTmax) #nonnormal
+# leveneTest(ThTmax ~ DX_APD, data = RTposdf) #homoscedasticity  
+# leveneTest(ThTmax ~ Early_onset, data = RTposdf) #homoscedasticity  
+# leveneTest(ThTmax ~ AD, data = RTposdf) #homoscedasticity  
+
+
+# # THT STATISTICS: SUMMARY
+# # ONSET STATISTICS: SUMMARY
+# RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# RTposdf %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+
+# # ONSET STATISTICS: TTEST
+# t.test(RTposdf$ThTmax ~ RTposdf$DX_APD, var.equal=TRUE) 
+
+
+# # THT STATISTICS: ANCOVA
+# aov <- aov(ThTmax ~  DX_APD + Onset_age + AD, RTposdf) 
+# Anova(aov, type="II") #Compare with type III
+# check_normality(aov)
+
+
 
