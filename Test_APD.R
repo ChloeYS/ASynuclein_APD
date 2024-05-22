@@ -20,7 +20,7 @@ source('DFCreationFunction_APD.R') #Source the function taht creates the new dat
 	#lubridate() loaded in DFCreationFunction_APD.R
 
 
-##LOAD LIBRARIES
+## LOAD LIBRARIES
 library(car) #very useful for Anova(), Levene, etc. Please note that base R anova() and car:Anova() differ for:
 	##contrast option already set as c("contr.sum", "contr.poly") for car::Anova(). Also, car::Anova() does type II SS
 	##method as default, whereas base R anova() does type I SS method (same results as summary(aov))
@@ -33,6 +33,8 @@ library(ggsurvfit) #survival analysis
 library(survival) #survival analysis: survdiff() 
 library(survminer) #ggsurvplot
 library(performance) #check_normality
+library(rcompanion) #Cramer's V
+library(janitor) #remove empty rows
 
 
 # Consider removing if not used: 
@@ -41,7 +43,6 @@ library(performance) #check_normality
 # library(ggpmisc) #annotate figures
 # library(modelbased) #extract some parameters and estimates from a model
 # library(psych)
-# library(rcompanion) #Cramer's V
 # library(ggstatsplot) #plot figures
 # library(fmsb) #radar plot
 
@@ -86,316 +87,325 @@ if (sum(c(nrow(CBSdf), nrow(PSPdf), nrow(RTposdf), nrow(RTnegdf), nrow(ADposdf),
 }
 
 
-# cat("\n\n\n\n####################################################################################################\n",
-# 		   "4. COHORT CHARACTERISTICS\n",
-# 	 	   "#####################################################################################################\n\n")
+cat("\n\n\n\n####################################################################################################\n",
+		   "4. COHORT CHARACTERISTICS\n",
+	 	   "#####################################################################################################\n\n")
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
-# cat("COMPARISONS OF DEMOGRAPHICS FOR DX: \n")
-# df %>% count(DX_APD)
-
-
-# cat("\n\n#######################################################################################################\n",
-# 	"                                    4.1. COHORT CHARACTERISTICS: NUMERICAL VARIABLES\n",
-# 	    "#######################################################################################################\n")
-
-# cat("\n\n#######################################################################################################\n",
-# 	    "####################################             4.1.1. AGE                   #########################\n",
-# 	    "#######################################################################################################\n")
-
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
-
-# # AGE STATISTICS: DISTRIBUTION
-# shapiro.test(CBSdf$Age) #normal
-# shapiro.test(PSPdf$Age) #normal
-# var.test(Age ~ DX_APD, data = df) #homoscedasticity
-
-# # AGE STATISTICS: SUMMARY
-# cat("MEAN AGE AT LP (FOR TABLE): \n")
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-# df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+cat("COMPARISONS OF DEMOGRAPHICS FOR DX: \n")
+df %>% count(DX_APD)
 
 
-# # AGE STATISTICS: TTEST
-# t.test <-t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
-# 	if (t.test[3] <= 0.05) {
-# 		cat("There is a significant difference in age at LP between CBS and PSP. p-value:", t.test[3][[1]], "\n")
-# 		cat(t.test[3][[1]])
-# 	} else cat("There is no significant difference in age at LP between CBS and PSP. \n")
+cat("\n\n#######################################################################################################\n",
+	"                                    4.1. COHORT CHARACTERISTICS: NUMERICAL VARIABLES\n",
+	    "#######################################################################################################\n")
+
+cat("\n\n#######################################################################################################\n",
+	    "####################################             4.1.1. AGE                   #########################\n",
+	    "#######################################################################################################\n")
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+
+# AGE STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Age) #normal
+shapiro.test(PSPdf$Age) #normal
+var.test(Age ~ DX_APD, data = df) #homoscedasticity
+
+# AGE STATISTICS: SUMMARY
+cat("MEAN AGE AT LP (FOR TABLE): \n")
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+df %>% summarize(count=n(), format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+
+
+# AGE STATISTICS: TTEST
+t.test <-t.test(df$Age ~ df$DX_APD, var.equal=TRUE)
+	if (t.test[3] <= 0.05) {
+		cat("There is a significant difference in age at LP between CBS and PSP. p-value:", t.test[3][[1]], "\n")
+		cat(t.test[3][[1]])
+	} else cat("There is no significant difference in age at LP between CBS and PSP. \n")
 
 
 
-# cat("\n\n#######################################################################################################\n",
-# 	   "##################################              4.1.2. EDUCATION              #########################\n",
-# 	   "#######################################################################################################\n")
+cat("\n\n#######################################################################################################\n",
+	   "##################################              4.1.2. EDUCATION              #########################\n",
+	   "#######################################################################################################\n\n")
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
-# # EDUCATION STATISTICS: DISTRIBUTION
-# shapiro.test(CBSdf$Education) #not normal
-# shapiro.test(PSPdf$Education) #not normal
-# leveneTest(Education ~ DX_APD, data = df) #homoscedasticity
+# EDUCATION STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Education) #not normal
+shapiro.test(PSPdf$Education) #not normal
+leveneTest(Education ~ DX_APD, data = df) #homoscedasticity
 
-# # EDUCATION STATISTICS: SUMMARY
-# cat("MEDIAN EDUCATION (FOR TABLE): \n")
-# df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+# EDUCATION STATISTICS: SUMMARY
+cat("MEDIAN EDUCATION (FOR TABLE): \n")
+df %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Education, na.rm=T),2),2), IQR=IQR(Education, na.rm=T), min=min(Education, na.rm=T), max=max(Education, na.rm=T))
 
-# cat("MEAN EDUCATION (FOR REF ONLY): \n")
-# df %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Education, na.rm=T),2),2), sd=sd(Education, na.rm=T))
-
-
-# # EDUCATION STATISTICS: WILCOX
-# wilcox.test(df$Education ~ df$DX_APD, paired=F)
+# EDUCATION STATISTICS: WILCOX
+wilcox.test(df$Education ~ df$DX_APD, paired=F)
 
 
-# cat("\n\n#######################################################################################################\n",
-# 	   "###########################            4.1.3. ONSET & DURATION                  #######################\n",
-# 	   "#######################################################################################################\n")
+cat("\n\n#######################################################################################################\n",
+	   "###########################            4.1.3. ONSET & DURATION                  #######################\n",
+	   "#######################################################################################################\n\n")
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
-# # ONSET STATISTICS: DISTRIBUTION
-# shapiro.test(CBSdf$Onset_age) #normal
-# shapiro.test(PSPdf$Onset_age) #normal
-# leveneTest(Onset_age ~ DX_APD, data = df) #homoscedasticity
+# ONSET STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Onset_age) #normal
+shapiro.test(PSPdf$Onset_age) #normal
+leveneTest(Onset_age ~ DX_APD, data = df) #homoscedasticity
 
-# # ONSET STATISTICS: SUMMARY
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
-# df %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
+# ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
+df %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
 
-# # ONSET STATISTICS: TTEST
-# t.test(df$Onset_age ~ df$DX_APD, var.equal=TRUE) 
+# ONSET STATISTICS: TTEST
+t.test(df$Onset_age ~ df$DX_APD, var.equal=TRUE) 
 		
 
-# # PARK ONSET STATISTICS: DISTRIBUTION
-# shapiro.test(CBSdf$Park_onset) #borderline
-# shapiro.test(PSPdf$Park_onset) #borderline
-# leveneTest(Park_onset ~ DX_APD, data = df) #homoscedasticity
+# PARK ONSET STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$Park_onset) #borderline
+shapiro.test(PSPdf$Park_onset) #borderline
+leveneTest(Park_onset ~ DX_APD, data = df) #homoscedasticity
 
-# # PARK ONSET STATISTICS: SUMMARY
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
-# df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+# PARK ONSET STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+df %>% summarize(count=n(), format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
 
-# # ONSET STATISTICS: TTEST
-# t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
-
-
-# # DURATION STATISTICS: DISTRIBUTION
-# shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
-# shapiro.test(PSPdf$LP2_Disease_Duration) #not normal
-# leveneTest(LP2_Disease_Duration ~ DX_APD, data = df) #homoscedasticity but borderline
+# PARK ONSET STATISTICS: TTEST
+t.test(df$Park_onset ~ df$DX_APD, var.equal=TRUE) 
 
 
-# # DURATION STATISTICS: SUMMARY
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+# DURATION STATISTICS: DISTRIBUTION
+shapiro.test(CBSdf$LP2_Disease_Duration) #not normal
+shapiro.test(PSPdf$LP2_Disease_Duration) #not normal
+leveneTest(LP2_Disease_Duration ~ DX_APD, data = df) #homoscedasticity but borderline
 
 
-# # DURATION STATISTICS: WILCOX
-# wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
+# DURATION STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2),2), IQR=IQR(LP2_Disease_Duration, na.rm=T), min=min(LP2_Disease_Duration, na.rm=T), max=max(LP2_Disease_Duration, na.rm=T))
+
+
+# DURATION STATISTICS: WILCOX
+wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
 		
 
 
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.4. COGNITIVE Z-SCORES                 ######################\n",
-# 	   "#######################################################################################################\n")
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.4. COGNITIVE Z-SCORES                 ######################\n",
+	   "#######################################################################################################\n\n")
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
-# # MoCA Z-SCORE STATISTICS: DISTRIBUTION
-# boxplot(LP2_MOCA_Z.score ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-# 	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot(LP2_MOCA_Z.score ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-# 	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# MoCA Z-SCORE STATISTICS: DISTRIBUTION
+boxplot(LP2_MOCA_Z.score ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(LP2_MOCA_Z.score ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(LP2_MOCA_Z.score ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-# shapiro.test(CBSdf$LP2_MOCA_Z.score) #normal
-# shapiro.test(PSPdf$LP2_MOCA_Z.score) #not normal
-# hist(df$LP2_MOCA_Z.score)
-# hist(CBSdf$LP2_MOCA_Z.score)
-# hist(PSPdf$LP2_MOCA_Z.score)
-# leveneTest(LP2_MOCA_Z.score ~ DX_APD, data = df) #heterodasticity
-
-
-# # MoCA Z-SCORE STATISTICS: SUMMARY
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
-# df %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
-
-# # MoCA Z-SCORE STATISTICS: WILCOX
-# wilcox.test(df$LP2_MOCA_Z.score ~ df$DX_APD, paired=F) #Since looking at z-score, no need to correct by age for this comparison
-
-# 	# ALL COGNITIVE SCORES DISTRIBUTION/SUMMARY/STATISTICS: NO NEED IN TABLE 1 (REDUNDANT)
-# 	shapiro.test(CBSdf$LP2_Cognitive_Z.score) #not al
-# 	shapiro.test(PSPdf$LP2_Cognitive_Z.score) #not al
-# 	leveneTest(LP2_Cognitive_Z.score ~ DX_APD, data = df) #heterodasticity
-# 	wilcox.test(df$LP2_Cognitive_Z.score ~ df$DX_APD, paired=F)
-# 	df %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
-# 	df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+shapiro.test(CBSdf$LP2_MOCA_Z.score) #normal
+shapiro.test(PSPdf$LP2_MOCA_Z.score) #not normal
+hist(df$LP2_MOCA_Z.score)
+hist(CBSdf$LP2_MOCA_Z.score)
+hist(PSPdf$LP2_MOCA_Z.score)
+leveneTest(LP2_MOCA_Z.score ~ DX_APD, data = df) #heterodasticity
 
 
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.5. BIOMARKERS: ABETA42                 #####################\n",
-# 	   "#######################################################################################################\n")
+# MoCA Z-SCORE STATISTICS: SUMMARY
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
+df %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+# MoCA Z-SCORE STATISTICS: WILCOX
+wilcox.test(df$LP2_MOCA_Z.score ~ df$DX_APD, paired=F) #Since looking at z-score, no need to correct by age for this comparison
 
-
-# # Abeta42 STATISTICS: DISTRIBUTION
-# # Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
-# # If removed, give value in the table
-# boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-# 	stripchart(abeta_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-# 	stripchart(abeta_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-# shapiro.test(CBSdf$logabeta) #normal
-# shapiro.test(PSPdf$logabeta) #normal
-# leveneTest(logabeta ~ DX_APD, data = df) #homoscedasticity
-
-# # Abeta42 STATISTICS: SUMMARY
-# df %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
-# sd(CBSdf$abeta_2, na.rm=T)
-# sd(PSPdf$abeta_2, na.rm=T)
-
-# # Abeta42 STATISTICS: ANCOVA
-# t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) 
-# aov <- aov(logabeta ~ Age + DX_APD, df) 
-# Anova(aov, type="II") #Compare with type III
-# 	check_normality(aov)
-
-
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.6. BIOMARKERS: PTAU181                 #####################\n",
-# 	   "#######################################################################################################\n")
-
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
-
-# # PTAU181 STATISTICS: DISTRIBUTION
-# # Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
-# # If removed, give value in the table
-# boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-# 	stripchart(ptau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-# 	stripchart(ptau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-# shapiro.test(CBSdf$logptau) #normal
-# shapiro.test(PSPdf$logptau) #normal
-# leveneTest(logptau ~ DX_APD, data = df) #homoscedasticity
-
-# # PTAU181 STATISTICS: SUMMARY
-# df %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
-# sd(CBSdf$ptau_2, na.rm=T)
-# sd(PSPdf$ptau_2, na.rm=T)
-
-# # PTAU181 STATISTICS: ANCOVA
-# t.test(df$logptau ~ df$DX_APD, var.equal=TRUE) 
-# aov <- aov(logptau ~ Age + DX_APD, df) 
-# Anova(aov, type="II") #Compare with type III
-# 	check_normality(aov)
-
-
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.7. BIOMARKERS: TTAU                 ########################\n",
-# 	   "#######################################################################################################\n")
-
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
-
-
-# # T-TAU STATISTICS: DISTRIBUTION
-# # Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
-# # If removed, give value in the table
-# boxplot(ttau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-# 	stripchart(ttau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot(ttau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-# 	stripchart(ttau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-# shapiro.test(CBSdf$logttau) #normal
-# shapiro.test(PSPdf$logttau) #normal
-# leveneTest(logttau ~ DX_APD, data = df) #homoscedasticity
-
-# # TAU STATISTICS: SUMMARY
-# # Chose mean because ran ANCOVA. 
-# df %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
-# sd(CBSdf$ttau_2, na.rm=T)
-# sd(PSPdf$ttau_2, na.rm=T)
-
-# # TAU STATISTICS: ANCOVA
-# t.test(df$logttau ~ df$DX_APD, var.equal=TRUE) 
-# aov <- aov(logttau ~ Age + DX_APD, df) 
-# Anova(aov, type="II") #Compare with type III
-# 	check_normality(aov)
-
-
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.8. BIOMARKERS: ATI                 #########################\n",
-# 	   "#######################################################################################################\n")
-
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
-
-
-# # ATI STATISTICS: DISTRIBUTION
-# # Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
-# # If removed, give value in the table
-# boxplot(ATI_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-# 	stripchart(ATI_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-# boxplot(ATI_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-# 	stripchart(ATI_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-# shapiro.test(CBSdf$ATI_2) #non-normal
-# shapiro.test(PSPdf$ATI_2) #non-normal
-# leveneTest(ATI_2 ~ DX_APD, data = df) #homoscedasticity
-# hist(df$ATI_2)
-
-# # ATI STATISTICS: SUMMARY
-# # Chose mean because ran ANCOVA. 
-# df %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
-# df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
-# sd(CBSdf$ATI_2, na.rm=T)
-# sd(PSPdf$ATI_2, na.rm=T)
-
-# # ATI STATISTICS: ANCOVA
-# wilcox.test(df$ATI_2 ~ df$DX_APD, paired=F)
-# aov <- aov(ATI_2 ~ Age + DX_APD, df) 
-# Anova(aov, type="II") #Compare with type III
-# 	check_normality(aov)
+	# ALL COGNITIVE SCORES DISTRIBUTION/SUMMARY/STATISTICS: NO NEED IN TABLE 1 (REDUNDANT)
+	shapiro.test(CBSdf$LP2_Cognitive_Z.score) #not normal
+	shapiro.test(PSPdf$LP2_Cognitive_Z.score) #not normal
+	leveneTest(LP2_Cognitive_Z.score ~ DX_APD, data = df) #heterodasticity
+	wilcox.test(df$LP2_Cognitive_Z.score ~ df$DX_APD, paired=F)
+	df %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+	df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
 
 
 
-# cat("\n\n######################################################################################################\n",
-# 	   "#########################              4.1.9. BIOMARKERS: NFL                 #########################\n",
-# 	   "#######################################################################################################\n")
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.5. BIOMARKERS: ABETA42                 #####################\n",
+	   "#######################################################################################################\n")
 
-# cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+
+
+# Abeta42 STATISTICS: DISTRIBUTION
+# If outlier removed, give value in the table
+boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(abeta_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	vec.outliers <- boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	dfabeta<- df[!(df$abeta_2 %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
+	cat("Removed ", vec.outliers, " from CBS subset. \n")
+boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(abeta_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(dfabeta[(dfabeta$DX_APD == "CBS"), ]$logabeta) #normal
+shapiro.test(PSPdf$logabeta) #normal
+leveneTest(logabeta ~ DX_APD, data = df) #homoscedasticity
+
+# Abeta42 STATISTICS: SUMMARY
+dfabeta %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
+dfabeta %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(abeta_2, na.rm=T),2),2), sd=sd(abeta_2, na.rm=T)) #Rounds up the sd for some reason
+sd(dfabeta[(dfabeta$DX_APD == "CBS"), ]$abeta_2, na.rm=T)
+sd(PSPdf$abeta_2, na.rm=T)
+
+# Abeta42 STATISTICS: ANCOVA
+t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) 
+aov <- aov(logabeta ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.6. BIOMARKERS: PTAU181                 #####################\n",
+	   "#######################################################################################################\n")
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+
+# PTAU181 STATISTICS: DISTRIBUTION
+# If outlier removed, give value in the table
+boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ptau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	vec.outliers <- boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	dfptau<- df[!(df$ptau_2 %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
+	cat("Removed ", vec.outliers, " from CBS subset. \n")
+boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ptau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(dfptau[(dfptau$DX_APD == "CBS"), ]$logptau) #normal
+shapiro.test(PSPdf$logptau) #normal
+leveneTest(logptau ~ DX_APD, data = df) #homoscedasticity
+
+# PTAU181 STATISTICS: SUMMARY
+dfptau %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
+dfptau %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ptau_2, na.rm=T),2),2), sd=sd(ptau_2, na.rm=T)) #Rounds up the sd for some reason
+sd(dfptau[(dfptau$DX_APD == "CBS"), ]$ptau_2, na.rm=T)
+sd(PSPdf$ptau_2, na.rm=T)
+
+# PTAU181 STATISTICS: ANCOVA
+t.test(dfptau$logptau ~ dfptau$DX_APD, var.equal=TRUE) 
+aov <- aov(logptau ~ Age + DX_APD, dfptau) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.7. BIOMARKERS: TTAU                 ########################\n",
+	   "#######################################################################################################\n")
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+
+
+# T-TAU STATISTICS: DISTRIBUTION
+boxplot(ttau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ttau_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	vec.outliers <- boxplot(ttau_2 ~ DX_APD, data= CBSdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	dfttau<- df[!(df$ttau_2 %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
+	cat("Removed ", vec.outliers, " from CBS subset. \n")
+boxplot(ttau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ttau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+	vec.outliers <- boxplot(ttau_2 ~ DX_APD, data= PSPdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	dfttau<- dfttau[!(dfttau$ttau_2 %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
+	cat("Removed ", vec.outliers, " from [PSP] subset. \n")
+
+shapiro.test(dfttau[(dfttau$DX_APD == "CBS"), ]$logptau) #normal
+shapiro.test(dfttau[(dfttau$DX_APD == "PSP"), ]$logptau) #normal
+leveneTest(logttau ~ DX_APD, data = df) #homoscedasticity
+
+# TAU STATISTICS: SUMMARY
+# Chose mean because ran ANCOVA. 
+dfttau %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
+dfttau %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ttau_2, na.rm=T),2),2), sd=sd(ttau_2, na.rm=T)) #Rounds up the sd for some reason
+sd(dfttau[(dfttau$DX_APD == "CBS"), ]$ttau_2, na.rm=T)
+sd(dfttau[(dfttau$DX_APD == "PSP"), ]$ttau_2, na.rm=T)
+
+# TAU STATISTICS: ANCOVA
+t.test(df$logttau ~ df$DX_APD, var.equal=TRUE) 
+aov <- aov(logttau ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.8. BIOMARKERS: ATI                 #########################\n",
+	   "#######################################################################################################\n")
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+
+
+# ATI STATISTICS: DISTRIBUTION
+# Be aware of the outliers but do not remove from descriptive Table 1 unless very problematic
+# If removed, give value in the table
+boxplot(ATI_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(ATI_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(ATI_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(ATI_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(CBSdf$ATI_2) #non-normal
+shapiro.test(PSPdf$ATI_2) #non-normal
+leveneTest(ATI_2 ~ DX_APD, data = df) #homoscedasticity
+hist(df$ATI_2)
+
+# ATI STATISTICS: SUMMARY
+# Chose mean because ran ANCOVA. 
+df %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ATI_2, na.rm=T),2),2), sd=sd(ATI_2, na.rm=T)) #Rounds up the sd for some reason
+sd(CBSdf$ATI_2, na.rm=T)
+sd(PSPdf$ATI_2, na.rm=T)
+
+# ATI STATISTICS: ANCOVA
+wilcox.test(df$ATI_2 ~ df$DX_APD, paired=F)
+aov <- aov(ATI_2 ~ Age + DX_APD, df) 
+Anova(aov, type="II") #Compare with type III
+	check_normality(aov)
+
+
+
+cat("\n\n######################################################################################################\n",
+	   "#########################              4.1.9. BIOMARKERS: NFL                 #########################\n",
+	   "#######################################################################################################\n")
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
 # # NFL STATISTICS: DISTRIBUTION
+# boxplot(NFL_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+# 	stripchart(NFL_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# boxplot(NFL_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+# 	stripchart(NFL_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
 # # For NFL the outliers are really impactful. Is best to remove them and report their value. However, will only remove outliers of whole dataset and not per diagnosis. 
 # # Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
 # # This is because in FTLD population, the data can be very right-skewed. 
-# threshold <- min(max(df$logNFL,na.rm=T), as.numeric(quantile(df$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (df$logNFL)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-# threshold
-# sort(df$logNFL)
-# subset(df, !(logNFL<threshold))$ID
-# subset(df, !(logNFL<threshold))$NFL
-# dfnfl <- subset(df, (logNFL<threshold))
+# thresholdCBS <- min(max(CBSdf$NFL_2,na.rm=T), as.numeric(quantile(CBSdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+# thresholdPSP <- min(max(PSPdf$NFL_2,na.rm=T), as.numeric(quantile(PSPdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+# cat("Outliers are values above ", thresholdCBS, " in CBS subset. \n")
+# cat("Outliers are values above ", thresholdPSP, " in PSP subset. \n")
 
+# dfnfl<- df[df$DX_APD=="PSP" | df$NFL_2 <= thresholdCBS, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
+# dfnfl<- dfnfl[dfnfl$DX_APD=="CBS" | dfnfl$NFL_2 <= thresholdPSP, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are PSP and either have no NFL value or one over the threshold
 
-# CBSdfnfl <- subset(dfnfl, DX_APD=="CBS")
-# PSPdfnfl <- subset(dfnfl, DX_APD=="PSP")
-# shapiro.test(CBSdfnfl$logNFL) #normal
-# shapiro.test(PSPdfnfl$logNFL) #normal
-# shapiro.test(dfnfl$logNFL) #normal
+# removed <- setdiff(df, dfnfl) 
+# cat("Following values were removed for the descriptive stats on NfL: ", removed$NFL_2, "\n")
+
+# shapiro.test(dfnfl[dfnfl$DX_APD=="CBS",  ]$logNFL) #normal
+# shapiro.test(dfnfl[dfnfl$DX_APD=="PSP",  ]$logNFL) #normal
 # leveneTest(logNFL ~ DX_APD, data = dfnfl) #homoscedasticity
 
 # # NFL STATISTICS: SUMMARY
 # dfnfl %>% summarize(count=n(), format(round(mean(NFL_2, na.rm=T),2),2), sd=sd(NFL_2, na.rm=T)) #Rounds up the sd for some reason
 # dfnfl %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(NFL_2, na.rm=T),2),2), sd=sd(NFL_2, na.rm=T)) #Rounds up the sd for some reason
-# sd(CBSdfnfl$NFL_2)
-# sd(PSPdfnfl$NFL_2)
+# sd(dfnfl[dfnfl$DX_APD=="CBS",  ]$NFL_2)
+# sd(dfnfl[dfnfl$DX_APD=="PSP",  ]$NFL_2)
 
 
 # # NFL STATISTICS: ANCOVA
@@ -867,7 +877,7 @@ if (sum(c(nrow(CBSdf), nrow(PSPdf), nrow(RTposdf), nrow(RTnegdf), nrow(ADposdf),
 # mlr <- lm(logabeta ~ Onset_age*RTQUIC + DX_APD + NFL, df) 
 # summary(mlr)
 
-# stdmlr <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD + scale(NFL), df) 
+# stdmlr <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD + scale(NFL_2), dfabeta) 
 # summary(stdmlr)
 
 
