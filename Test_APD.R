@@ -68,9 +68,7 @@ cat("\n\n\n\n###################################################################
             "###############################################################################################\n\n\n")
 
 
-##CREATE SOME OF THE SUBSETS USED LATER (MOSTLY FOR OUTLIER IDENTIFICATION)
-#Not very efficient - update later if occasion to
-
+## CREATE SOME OF THE SUBSETS USED LATER (MOSTLY FOR OUTLIER IDENTIFICATION)
 CBSdf <- subset(df, DX_APD=="CBS") #for the description of AD+/- cohort
 PSPdf <- subset(df, DX_APD=="PSP") #for the description of AD+/- cohort
 RTposdf <- subset(df, RTQUIC=="aSyn-SAA positive") #for the main results on RT+/-
@@ -94,6 +92,7 @@ cat("\n\n\n\n###################################################################
 	 	   "#####################################################################################################\n\n")
 
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 cat("COMPARISONS OF DEMOGRAPHICS FOR DX: \n")
 df %>% count(DX_APD)
@@ -110,6 +109,7 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # AGE STATISTICS: DISTRIBUTION
 shapiro.test(CBSdf$Age) #normal
@@ -160,6 +160,7 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # ONSET STATISTICS: DISTRIBUTION
 shapiro.test(CBSdf$Onset_age) #normal
@@ -205,13 +206,13 @@ df %>% summarize(count=n(), format(round(median(LP2_Disease_Duration, na.rm=T),2
 wilcox.test(df$LP2_Disease_Duration ~ df$DX_APD, paired=F)
 		
 
-
 cat("\n\n######################################################################################################\n",
 	   "#########################              4.1.4. COGNITIVE Z-SCORES                 ######################\n",
 	   "#######################################################################################################\n\n")
 
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # MoCA Z-SCORE STATISTICS: DISTRIBUTION
 boxplot(LP2_MOCA_Z.score ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
@@ -225,7 +226,6 @@ hist(df$LP2_MOCA_Z.score)
 hist(CBSdf$LP2_MOCA_Z.score)
 hist(PSPdf$LP2_MOCA_Z.score)
 leveneTest(LP2_MOCA_Z.score ~ DX_APD, data = df) #heterodasticity
-
 
 # MoCA Z-SCORE STATISTICS: SUMMARY
 df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
@@ -243,14 +243,22 @@ wilcox.test(df$LP2_MOCA_Z.score ~ df$DX_APD, paired=F) #Since looking at z-score
 	df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
 
 
-
 cat("\n\n######################################################################################################\n",
 	   "#########################              4.1.5. BIOMARKERS: ABETA42                 #####################\n",
 	   "#######################################################################################################\n")
 
-cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
+## Biomarkers: 
+# The goal here is to share data that can be compared to other datasets as reported values for CBS and FTLD can have a wide range. 
+# Therefeore, mean of raw values are presented here, even if analyses are on logged values
+# Mean and sd are calculated after removing outliers, calculated based on Tukey method (Q1 - 1.5IQR or Q3 + 1.5IQR)
+# Exception for NfL which has a strong positive skew so instead the threshold is calculated by 3*IQR (Delaby et al 2020 on similar cohort)
+# Outliers are shown in notes of Tables every time. 
+# Analyses were done without outlier exclusion as they incorporated multiple variables and were complex models so given the heterogeneity of the dataset, 
+## it would lead to groups with small sample sizes being possibly under-represented. Instead, models were run on dataset minus the outlier, 1 outlier at a time. 
+# This allowed us to see how different outliers could affect the results of the main model selected. 
 
-#Biomarkers: if an outlier is removed, give value in the table
+
+cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
 # Abeta42 STATISTICS: OUTLIERS
 # First, display the data points of one group. boxplot() will identify outliers in given df but stripchart function can be funky hence convoluted script. 
@@ -261,7 +269,7 @@ boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in 
 	CBSvec.outliers <- boxplot(abeta_2 ~ DX_APD, data= CBSdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
 boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
 	stripchart(abeta_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	PSPvec.outliers <- boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	PSPvec.outliers <- boxplot(abeta_2 ~ DX_APD, data= PSPdf, col = "white")$out 
 
 dfabeta<- df[!(df$DX_APD=="CBS" & (df$abeta_2 %in% CBSvec.outliers)), ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
 dfabeta<- dfabeta[!(dfabeta$DX_APD=="PSP" & (dfabeta$abeta_2 %in% PSPvec.outliers)), ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
@@ -284,9 +292,9 @@ sd(dfabeta[(dfabeta$DX_APD == "CBS"), ]$abeta_2, na.rm=T)
 sd(PSPdf$abeta_2, na.rm=T)
 
 # Abeta42 STATISTICS: ANCOVA
-t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) 
+t.test(df$logabeta ~ df$DX_APD, var.equal=TRUE) #before moving to more complex model, run simple t-test
 aov <- aov(logabeta ~ Age + DX_APD, df) 
-Anova(aov, type="II") #Compare with type III
+Anova(aov, type="II") #no interaction in the model so choosing type II
 	check_normality(aov)
 
 
@@ -305,7 +313,7 @@ boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in e
 	CBSvec.outliers <- boxplot(ptau_2 ~ DX_APD, data= CBSdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
 boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
 	stripchart(ptau_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-	PSPvec.outliers <- boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
+	PSPvec.outliers <- boxplot(ptau_2 ~ DX_APD, data= PSPdf, col = "white")$out 
 
 dfptau<- df[!(df$DX_APD=="CBS" & (df$ptau_2 %in% CBSvec.outliers)), ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
 dfptau<- dfptau[!(dfptau$DX_APD=="PSP" & (dfptau$ptau_2 %in% PSPvec.outliers)), ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
@@ -330,7 +338,7 @@ sd(PSPdf$ptau_2, na.rm=T)
 # PTAU181 STATISTICS: ANCOVA
 t.test(dfptau$logptau ~ dfptau$DX_APD, var.equal=TRUE) 
 aov <- aov(logptau ~ Age + DX_APD, dfptau) 
-Anova(aov, type="II") #Compare with type III
+Anova(aov, type="II") #no interaction in the model
 	check_normality(aov)
 
 
@@ -339,7 +347,6 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
-
 
 # T-TAU STATISTICS: OUTLIERS
 # First, display the data points of one group. boxplot() will identify outliers in given df but stripchart function can be funky hence convoluted script. 
@@ -375,7 +382,7 @@ sd(dfttau[(dfttau$DX_APD == "PSP"), ]$ttau_2, na.rm=T)
 # TAU STATISTICS: ANCOVA
 t.test(df$logttau ~ df$DX_APD, var.equal=TRUE) 
 aov <- aov(logttau ~ Age + DX_APD, df) 
-Anova(aov, type="II") #Compare with type III
+Anova(aov, type="II") 
 	check_normality(aov)
 
 
@@ -421,7 +428,7 @@ sd(PSPdf$ATI_2, na.rm=T)
 # ATI STATISTICS: ANCOVA
 wilcox.test(df$ATI_2 ~ df$DX_APD, paired=F)
 aov <- aov(ATI_2 ~ Age + DX_APD, df) 
-Anova(aov, type="II") #Compare with type III
+Anova(aov, type="II") 
 	check_normality(aov)
 
 
@@ -432,9 +439,9 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 
 # NFL STATISTICS: OUTLIERS
-# For NFL the outliers are really impactful. Is best to remove them and report their value. However, will only remove outliers of whole dataset and not per diagnosis. 
+# NfL values are typically right skewed especially in FTLD-related diagnoses. Therefore, different approach for outlier identification was chosen.  
 # Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
-# This is because in FTLD population, the data can be very right-skewed - so prefer to have representative data/tolerant threshold in the Demographics table. 
+# For reference, outliers are added to the notes of Tables. 
 boxplot(NFL_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
 	stripchart(NFL_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 boxplot(NFL_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
@@ -465,7 +472,6 @@ dfnfl %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(NFL_2, na.
 sd(dfnfl[dfnfl$DX_APD=="CBS",  ]$NFL_2)
 sd(dfnfl[dfnfl$DX_APD=="PSP",  ]$NFL_2)
 
-
 # NFL STATISTICS: ANCOVA
 t.test(dfnfl$logNFL ~ dfnfl$DX_APD, var.equal=TRUE) 
 aov <- aov(logNFL ~ Age + DX_APD, dfnfl) 
@@ -477,6 +483,9 @@ cat("\n\n#######################################################################
 	"                                    4.2. COHORT CHARACTERISTICS: CATEGORICAL VARIABLES\n",
 	    "#######################################################################################################\n")
 
+# For categorical variables, when an association between 2 variables was tested, the table of contingency was computed,
+## and if the expected count was under 5 for any of the 4 cells, the Fisher test was chosen over the Chi-square. 
+
 cat("\n\n######################################################################################################\n",
 	   "################################            4.2.1. SEX                         ########################\n",
 	   "#######################################################################################################\n")
@@ -484,6 +493,7 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # SEX STATISTICS: SUMMARY
 cat("Sex distribution in the dataset is: \n")
@@ -513,6 +523,7 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # APOE STATISTICS: SUMMARY
 df %>% group_by(DX_APD) %>% count(APOEe4)
@@ -530,6 +541,7 @@ cat("\n\n#######################################################################
 cat("------------------------------------   GOES IN TABLE 1: DEMOGRAPHICS   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 cat("-------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-       ------------------------------------\n")
+cat("---------------------------   GOES IN TEXT - RESULTS - COHORT CHARACTERISTICS  ----------------------------\n")
 
 # AD STATISTICS: SUMMARY
 df %>% group_by(DX_APD) %>% count(AD)
@@ -540,22 +552,24 @@ chisq.test(table(df$AD, df$DX_APD), correct=F)
 
 
 
-
 cat("\n\n\n\n###################################################################################################\n",
 		   "5. ASYN-SAA+ & COHORT CHARACTERISTICS\n",
 	 	   "####################################################################################################\n\n")
 
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 df %>% group_by(RTQUIC) %>% count(DX_APD)
 sum(df$DX_APD=="CBS" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="F")
 sum(df$DX_APD=="PSP" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="F")
+
 
 cat("\n\n#######################################################################################################\n",
 	"                         5.1. ASYN-SAA+ COHORT CHARACTERISTICS: CATEGORICAL VARIABLES  \n",
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN eTABLE 1: ASYN-SAA- vs ASYN-SAA+ ----------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 # SEX STATISTICS: DISTRIBUTION
 table(df$Sex, df$RTQUIC)
@@ -602,6 +616,7 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN eTABLE 1: ASYN-SAA- vs ASYN-SAA+ ----------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 # ASYN-SAA*AGE STATISTICS: DISTRIBUTION
 shapiro.test(RTposdf$Age) #normal
@@ -626,6 +641,7 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN eTABLE 1: ASYN-SAA- vs ASYN-SAA+ ----------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 # ASYN-SAA*ONSET STATISTICS: DISTRIBUTION
 shapiro.test(RTposdf$Onset_age) #normal
@@ -651,6 +667,7 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN eTABLE 1: ASYN-SAA- vs ASYN-SAA+ ----------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 # RTQUIC*PARK_ONSET STATISTICS: DISTRIBUTION
 shapiro.test(RTposdf$Park_onset) #normal
@@ -675,6 +692,7 @@ cat("\n\n\n\n###################################################################
 		   "6. AD+ & COHORT CHARACTERISTICS\n",
 	 	   "####################################################################################################\n\n")
 
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 df %>% group_by(DX_APD) %>% count(AD)
 
 cat("\n\n#######################################################################################################\n",
@@ -770,7 +788,6 @@ cat("\n\n#######################################################################
 
 cat("----------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-     ----------------------------------\n")
 
-
 # SEX STATISTICS: DISTRIBUTION
 table(CBSdf$AD, CBSdf$Sex) 
 
@@ -796,9 +813,10 @@ table(CBSdf$anyPPA, CBSdf$AD)
 fisher.test(table(CBSdf$anyPPA, CBSdf$AD)) # Expected count is <5 for one cell
 
 
+
 cat("\n\n#######################################################################################################\n",
 	"                          6.4. AD+ CBS COHORT CHARACTERISTICS: NUMERICAL VARIABLES \n",
-	   "#######################################################################################################\n")
+	"###########################################################################################################\n")
 
 cat("\n\n######################################################################################################\n",
 	   "#########################        6.4.1. AGE, ONSET, PARK ONSET                #########################\n",
@@ -860,9 +878,9 @@ boxplot(NFL_2 ~ AD, data= CBSdf[CBSdf$AD=="AD Positive", ], col = "white")$out #
 boxplot(NFL_2 ~ AD, data= CBSdf[CBSdf$AD=="AD Negative", ], col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
 	stripchart(NFL_2 ~ AD, data = CBSdf[CBSdf$AD=="AD Negative", ], method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-# For NFL the outliers are really impactful. Is best to remove them and report their value. However, will only remove outliers of whole dataset and not per diagnosis. 
 # Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
 # This is because in FTLD population, the data can be very right-skewed. 
+# Although technically median would still be ok to show in the Table even with outliers, but because it may be of intrest to share these extreme values, I prefer having thenm in the Notes.  
 thresholdAD <- min(max(CBSdf[CBSdf$AD=="AD Positive", ]$NFL_2,na.rm=T), as.numeric(quantile(CBSdf[CBSdf$AD=="AD Positive", ]$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf[CBSdf$AD=="AD Positive", ]$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
 thresholdnonAD <- min(max(CBSdf[CBSdf$AD=="AD Negative", ]$NFL_2,na.rm=T), as.numeric(quantile(CBSdf[CBSdf$AD=="AD Negative", ]$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf[CBSdf$AD=="AD Negative", ]$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
 cat("Outliers are values above ", thresholdAD, " in CBS-AD+ subset. \n")
@@ -886,8 +904,8 @@ IQR(CBSdfnfl[CBSdfnfl$AD=="AD Negative",  ]$NFL_2,  na.rm=T)
 
 
 # NFL STATISTICS: WEIGHTED LEAST-SQUARE REGRESSION
-t.test(CBSdfnfl$logNFL ~ CBSdfnfl$AD, var.equal=FALSE) #Welch t-test
-gls1 <- gls(logNFL ~ Age*AD, CBSdfnfl, weights=varPower()) 
+t.test(CBSdfnfl$logNFL ~ CBSdfnfl$AD, var.equal=FALSE) #Welch t-test, to deal with the heterodasticity
+gls1 <- gls(logNFL ~ Age*AD, CBSdfnfl, weights=varPower())  #to deal with the heterodasticity
 gls2 <- gls(logNFL ~ Age + AD, CBSdfnfl, weights=varPower()) 
 AIC(gls1, gls2) #gls2 better than gls1 
 summary(gls2)
@@ -898,6 +916,12 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN eTABLE 2: CBS-AD+ vs CBS-AD-     ----------------------------------\n")
+
+
+# Of note, while the MoCA scores are z-scored to control for the effect of age, that does not mean there is no effect of age when analyzing them. 
+# MoCA z-scores are worse in younger subjects, since the latter are compared to a population with no cognitive deficit. So even small changes in MoCA score
+## in young subjects trnaslates to very  low z-scores.  
+# Here it doesnt matter as we are just presenting the values in the table to summarize the dataset.
 
 # MOCA Z-SCORE STATISTICS: DISTRIBUTION
 shapiro.test(CBSdf[CBSdf$AD=="AD Positive", ]$LP2_MOCA_Z.score) #normal
@@ -922,6 +946,7 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
 
 sum(df$AD=="AD Positive" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="M")
 sum(df$AD=="AD Positive" & df$RTQUIC=="aSyn-SAA positive" & df$Sex=="F")
@@ -933,7 +958,7 @@ cat("\n\n#######################################################################
 	   "############################              7.1.1.FIGURE 1A           		###########################\n",
 	   "#######################################################################################################\n")
 
-cat("-----------------------   GOES IN FIGURE 1A: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+cat("-----------------------   GOES IN FIGURE 1A: ONSET * AD QUADRANTS   --------------------------------------\n")
 
 cat("Below are the values for the creation of Fig 1.A: \n")
 cat("Lower left quadrant: AD+ and young-onset \n")
@@ -1013,6 +1038,9 @@ cat("\n\n#######################################################################
 	   "########################              7.1.2. FREQUENCY DATA           		###########################\n",
 	   "#######################################################################################################\n")
 
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & AD+  ------------------------------------\n")
+cat("-----------------------   GOES IN FIGURE 1A: ONSET * AD QUADRANTS   --------------------------------------\n")
+
 #BONFERRONI CALCULATION FOR FISHER TESTS USED FOR ASYN/AD RELATIONSHIP IN OVERALL DATASET AND YO DATASET AND LO DATASET
 0.05/3 #0.017
 
@@ -1045,8 +1073,78 @@ table(LODdf$AD, LODdf$RTQUIC)
 
 # LATE-ONSET STATISTICS: FISHER
 fisher.test(table(LODdf$AD, LODdf$RTQUIC)) # Expected count is <5 for one cell
-cramerV(table(LODdf$AD, LODdf$RTQUIC)) # Expected count is <5 for one cell
-phi(table(LODdf$AD, LODdf$RTQUIC), digits=6) # Expected count is <5 for one cell
+cramerV(table(LODdf$AD, LODdf$RTQUIC)) 
+phi(table(LODdf$AD, LODdf$RTQUIC), digits=6) 
+
+
+cat("\n\n######################################################################################################\n",
+	   "########################         7.1.3. FREQUENCY DATA WITHIN DX        	###########################\n",
+	   "#######################################################################################################\n")
+
+cat("-----------------------   GOES IN SUPP TEXT - ASYN-SAA+ & AD+ WITHIN DX ----------------------------------\n")
+
+# 1. TRY TO SEE IF IN CBS, AD AND RTQUIC ARE ASSOCIATED. THEN, SEE IF EFFECT OF AGE. 
+
+# CBS ASSOCIATION OF AD+/RTQUIC+ OVERALL
+table(CBSdf$RTQUIC, CBSdf$AD)
+fisher.test(table(CBSdf$AD, CBSdf$RTQUIC)) # Expected count is <5 for one cell. Gives OR
+cramerV(table(CBSdf$AD, CBSdf$RTQUIC))
+phi(table(CBSdf$AD, CBSdf$RTQUIC), digits=6)
+# There is almost a significant relationship between AD+ and RTQUIC+ in CBS (p<.10)
+
+# CBS ASSOCIATION OF AD+/RTQUIC+ IN YOUNG-ONSET ONLY (25/39 subjects)
+nrow(CBSdf[CBSdf$"Early_onset"=="Young-onset", ])
+table(CBSdf[CBSdf$"Early_onset"=="Young-onset", ]$RTQUIC, CBSdf[CBSdf$"Early_onset"=="Young-onset", ]$AD)
+fisher.test(table(CBSdf[CBSdf$"Early_onset"=="Young-onset", ]$RTQUIC, CBSdf[CBSdf$"Early_onset"=="Young-onset", ]$AD)) # Expected count is <5 for one cell. Gives OR
+# There is almost a significant relationship between AD+ and RTQUIC+ in young-onset CBS (p<.10)
+
+nrow(CBSdf[CBSdf$"Early_onset"=="Late-onset", ])
+table(CBSdf[CBSdf$"Early_onset"=="Late-onset", ]$RTQUIC, CBSdf[CBSdf$"Early_onset"=="Late-onset", ]$AD)
+fisher.test(table(CBSdf[CBSdf$"Early_onset"=="Late-onset", ]$RTQUIC, CBSdf[CBSdf$"Early_onset"=="Late-onset", ]$AD)) # Expected count is <5 for one cell. Gives OR
+
+# From above we can conclude that there is evidence of a potential relationship between AD+ and RTQUIC+ in CBS, but not necessarily affected by age at onset. 
+# Hard to make conclusions regarding late-onset CBS as the sample size is low (14, including 5 who are RTQUIC+) but there is no evidence supporting that AD+ and RTQUIC+
+## are associated in late-onset CBS.
+
+# CBS ASSOCIATION OF RTQUIC+ WITH AGE
+shapiro.test(CBSdf[CBSdf$"RTQUIC"=="aSyn-SAA positive", ]$Onset_age) #normal
+shapiro.test(CBSdf[CBSdf$"RTQUIC"=="aSyn-SAA negative", ]$Onset_age)#normal
+var.test(Onset_age ~ RTQUIC, data = CBSdf) #homoscedasticity
+
+# CBS RTQUIC*ONSET STATISTICS: ANCOVA
+t.test(CBSdf$Onset_age ~ CBSdf$RTQUIC, var.equal=TRUE) #What is reported in eTable 1aov <- aov(scale(Onset_age) ~ AD + RTQUIC, CBSdf) 
+aov <- aov(Onset_age ~ RTQUIC + AD, data=CBSdf)
+summary(aov)
+
+# CBS RTQUIC*AGE STATISTICS: EXTRA
+t.test(CBSdf$Age ~ CBSdf$RTQUIC, var.equal=TRUE) #What is reported in eTable 1aov <- aov(scale(Onset_age) ~ AD + RTQUIC, CBSdf) 
+
+# Conclusion for CBS: There is no evidence of relationship between age and RTQUIC status within the CBS diagnosis.
+## There IS evidence of a relationship between AD+ and RTQUIC+. 
+## These results could be attributable to the low sample size (especially fewer subjects who have late-onset disease. )
+## The same is seen when looking directly at Age instead of Onset age. 
+
+# 2. TRY TO SEE IF IN PSP, THERE IS AN EFFECT OF AGE. 
+
+# PSP ASSOCIATION OF RTQUIC+ WITH AGE: 
+table(PSPdf$RTQUIC, PSPdf$Early_onset)
+fisher.test(table(PSPdf$RTQUIC, PSPdf$Early_onset)) # Expected count is <5 for one cell. Gives OR
+
+shapiro.test(PSPdf[PSPdf$"RTQUIC"=="aSyn-SAA positive", ]$Onset_age) #normal
+shapiro.test(PSPdf[PSPdf$"RTQUIC"=="aSyn-SAA negative", ]$Onset_age)#normal
+var.test(Onset_age ~ RTQUIC, data = PSPdf) #homoscedasticity
+
+# PSP RTQUIC*ONSET STATISTICS: ANCOVA
+t.test(PSPdf$Onset_age ~ PSPdf$RTQUIC, var.equal=TRUE) #What is reported in eTable 1aov <- aov(scale(Onset_age) ~ AD + RTQUIC, CBSdf) 
+aov <- aov(Onset_age ~ RTQUIC, data=PSPdf)
+summary(aov)
+t.test(PSPdf$Age ~ PSPdf$RTQUIC, var.equal=TRUE) #What is reported in eTable 1aov <- aov(scale(Onset_age) ~ AD + RTQUIC, CBSdf) 
+
+# Conclusion for PSP: There is no evidence of relationship between age and RTQUIC status within the PSP diagnosis.
+## However, due to the much smaller size of this group, it is hard to tell whether overall age-related/pathology-specific changes in PSP 
+## are resposnible for alpha-syn misfolding (as PSP subjects overall are older)
+## Of note, among the 8 RTQUCI+ PSP subjects, only 1 has an onset age <65. Given the aSyn-SAA- is balanced between young-onset and late-osnet, 
+## this would suggest that we are simply underpowered. 
 
 
 cat("\n\n#######################################################################################################\n",
@@ -1058,6 +1156,7 @@ cat("\n\n#######################################################################
 	   "#######################################################################################################\n")
 
 cat("----------------------------   GOES IN TABLE 2: MLR MODEL OUTPUT   --------------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & AD+  ------------------------------------\n")
 
 # Due to relative low sample size and heterogeneity of the cohort (especially for RTQUIC+ or young-onset AD+ subjects) for model complexity,
 # preferred approach is to run model on all points then run diagnostic analyses and present different model runs (leaving one outlier out)
@@ -1071,7 +1170,7 @@ shapiro.test(RTposdf$logabeta) #normal
 shapiro.test(RTnegdf$logabeta)  #normal
 shapiro.test(CBSdf$logabeta)  #normal
 shapiro.test(PSPdf$logabeta)  #normal
-leveneTest(logabeta ~ DX_APD*RTQUIC, df) #homo
+leveneTest(logabeta ~ DX_APD*RTQUIC, df) #homoscedasticity
 
 # ABETA STATS: LINEAR REGRESSION MODEL SELECTION
 test1 <- lm(logabeta ~ RTQUIC, df)
@@ -1080,7 +1179,7 @@ test3 <- lm(logabeta ~ RTQUIC + Sex, df) #not adding any value to the model
 anova(test1, test2) 
 anova(test1, test3) 
 
-## Inclusion of Onset as a covariate. Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+# Inclusion of Onset as a covariate. Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
 ggscatter(df, x = "Onset_age", y = "logabeta", add = "reg.line")+ 
 	stat_regline_equation(aes()) 
 ggscatter(df, x = "Onset_age", y = "logabeta", color = "DX_APD", add = "reg.line")+ 
@@ -1105,14 +1204,39 @@ summary(lm(df$logabeta ~ df$LP2_Disease_Duration)) #no linear relationship
 summary(lm(df$logabeta ~ df$ttau_2)) #no linear relationship
 summary(lm(df$logabeta ~ df$ptau_2)) #no linear relationship
 
-# ABETA STATS: MULTIVARIABLE LINEAR REGRESSION MODEL
-mlr <- lm(logabeta ~ Onset_age*RTQUIC + DX_APD + NFL_2, df) 
-summary(mlr)
+## Comparison of complex models
+# For biomarkers, only kept logged value on one side of the model equation
+stdmlr <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD + scale(NFL_2), df) 
+summary(stdmlr)
+AIC(stdmlr) 
 
+stdmlr2 <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD, df) 
+summary(stdmlr2)
+AIC(stdmlr2)
+
+stdmlr3 <- lm(logabeta ~ scale(Onset_age)*RTQUIC, df) 
+summary(stdmlr3)
+AIC(stdmlr3)
+
+stdmlr4 <- lm(logabeta ~ scale(Onset_age)+ RTQUIC, df) 
+summary(stdmlr4)
+AIC(stdmlr4)
+
+stdmlr5 <- lm(logabeta ~ scale(Onset_age)*RTQUIC + scale(NFL_2), df) 
+summary(stdmlr5)
+AIC(stdmlr5)
+
+cat("The model with the lowest AIC is the one including an interaction term of Onset age by aSyn-SAA status as NfL levels. Its AIC is almost identical
+	to the one that incorporates Diagnosis. Diagnosis is an extremely important covariate that is relevant clinically. Therefore, we prefer to report
+	the model with teh lowest AIC taht still includes diagnosis, model stdmlr. Of note, all models have similar AIC and the interaction term  was
+	significant in every model that it was included in. Removing NfL did not affect the results, which is important since NfL outliers were not removed
+	prior to running the analysis. \n")
+
+# ABETA STATS: MULTIVARIABLE LINEAR REGRESSION MODEL
 stdmlr <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD + scale(NFL_2), df) 
 summary(stdmlr)
 
-## Diagnostics of the model run
+# ABETA STATS: MULTIVARIABLE LINEAR REGRESSION MODEL DIAGNOSTICS
 check_normality(stdmlr) #Ok normality of residuals
 autoplot(stdmlr, which = 1:6) #All plots including scale location plot
 
@@ -1124,7 +1248,7 @@ df[37, c("DX_APD", "abeta_2", "logabeta", "Onset_age", "RTQUIC", "NFL_2")]
 df[45, c("DX_APD", "abeta_2", "logabeta", "Onset_age", "RTQUIC", "NFL_2")] 
 df[65, c("DX_APD", "abeta_2", "logabeta", "Onset_age", "RTQUIC", "NFL_2")] 
 		
-## for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
+# for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
 vecIDs <- df[c(5,21,27,37,45,65), "ID"] #Create vector of each ID
 for (i in vecIDs) {
 	test <- subset(df, ID!=i) #for some analysis, need to exclude the potential false negative too
@@ -1136,13 +1260,13 @@ plot(stdmlr, which = 3) # 3 = Scale-Location plot. Variance of residuals
 bptest(stdmlr) #Ok variance of residulas. Breusch-Pagan test for heterodasticity.
 durbinWatsonTest(stdmlr) #Ok autocorrelation of residuals	
 
-## Multicollinearity checks
+# Multicollinearity checks
 car::vif(stdmlr) #no multicollinearity at all
 
-## Simple slopes for onset: 
-emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset_age")
+# Simple slopes for onset: 
+emtrends(stdmlr,pairwise ~  RTQUIC, var="Onset_age") # for intereaction of Onset age by RTQUIC
 
-## Main effects: 
+# Main effects: 
 emmeans(stdmlr, ~ RTQUIC) #adjusted means: cannot be interpreted due to interaction (slopes crossing each other)
 emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction. 
 
@@ -1150,6 +1274,8 @@ emmeans(stdmlr, ~ DX_APD) #adjusted means. Ok because no interaction.
 cat("\n\n######################################################################################################\n",
 	   "###########################                 7.2.2. FIGURE 1.B.         	##############################\n",
 	   "#######################################################################################################\n")
+
+cat("-----------------------   GOES IN FIGURE 1B: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 
 # FIG1B: ABETA42 over time from the real datapoints
 
@@ -1203,6 +1329,7 @@ fig1b_ver1
 ggsave(fig1b_ver1, filename = "Fig1b_ver1.png", bg= "transparent", width=9, height=10)
 
 
+
 cat("\n\n\n\n###################################################################################################\n",
 		   "8. ASYN-SAA+ & ALL VARIABLES\n",
 	 	   "####################################################################################################\n\n")
@@ -1215,841 +1342,834 @@ cat("\n\n#######################################################################
 	   "###########################              8.1.1. NFL MLR        	#######################################\n",
 	   "#######################################################################################################\n")
 
+cat("---------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & NFL  ---------------------------------\n")
 
-# NFL STATS: DISTRIBUTION
-boxplot(logNFL ~ DX_APD, data= df)$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-boxplot(logNFL ~ DX_APD, data= df)$out #[1,] lower whisker, [3,] median, [5,] upper whisker
-boxplot(logNFL ~ RTQUIC, data= df)$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-boxplot(logNFL ~ DX_APD, data= df)$out #[1,] lower whisker, [3,] median, [5,] upper whisker
-vec.outliers <- boxplot(logNFL ~ DXRTQUIC, data= df)$out #list of outlier (Tukey method 1.5 IQR in each RTQUIC_DX combination)
-dfnfl<- df[!(df$logNFL %in% vec.outliers), ] #remove any subjects whose logNFL is exactly equal to the value of these outliers
-dfnfl <- dfnfl %>% drop_na("logNFL")
+# Here the variable of interest is NfL, which is why removing the outliers is importabnt. 
 
+# NFL STATISTICS: OUTLIERS
+# NfL values are typically right skewed especially in FTLD-related diagnoses. Therefore, different approach for outlier identification was chosen.  
+# Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
+# For reference, outliers are added to the notes of Tables. 
+boxplot(NFL_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(NFL_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(NFL_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(NFL_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-IQR1.5value <- as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*1.5)) #reports the value of first point that is above Q3+ IQR*3 (3 is very tolerant threshold)
-maxvalue <- max(RTposdf2$logNFL,na.rm=T)
-threshold <- min(IQR1.5value, maxvalue)
-df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL", "logNFL")] 
-df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
+thresholdCBS <- min(max(CBSdf$NFL_2,na.rm=T), as.numeric(quantile(CBSdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+thresholdPSP <- min(max(PSPdf$NFL_2,na.rm=T), as.numeric(quantile(PSPdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+cat("Outliers are values above ", thresholdCBS, " in CBS subset. \n")
+cat("Outliers are values above ", thresholdPSP, " in PSP subset. \n")
 
-boxplot <- boxplot(logNFL ~ DX_APD, data= RTnegdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	stripchart(logNFL ~ DX_APD, data = RTnegdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-boxplot$stats #[1,] lower whisker, [3,] median, [5,] upper whisker
-	threshold <- min(max(RTnegdf2$logNFL,na.rm=T), as.numeric(quantile(RTnegdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTnegdf2$logNFL)*1.5))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-df2nfl[!((df2nfl$logNFL<threshold & df2nfl$RTQUIC=="aSyn-SAA negative")| (df2nfl$RTQUIC=="aSyn-SAA positive")), c("ID", "NFL", "logNFL")] 
-	df2nfl <- subset(df2nfl, (logNFL<threshold & RTQUIC=="aSyn-SAA negative") | (RTQUIC=="aSyn-SAA positive"))
+dfnfl<- df[df$DX_APD=="PSP" | df$NFL_2 <= thresholdCBS, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
+dfnfl<- dfnfl[dfnfl$DX_APD=="CBS" | dfnfl$NFL_2 <= thresholdPSP, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are PSP and either have no NFL value or one over the threshold
 
-#REMOVE OUTLIERS BASED ON DIAGNOSIS
-threshold <- min(max(RTposdf2$logNFL,na.rm=T), as.numeric(quantile(RTposdf2$logNFL, 0.75, na.rm=T)) + (IQR(na.rm=T, (RTposdf2$logNFL)*1.5))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-df2[!((df2$logNFL<threshold & df2$RTQUIC=="aSyn-SAA positive")| (df2$RTQUIC=="aSyn-SAA negative")), c("ID", "NFL", "logNFL")] 
-df2nfl <- subset(df2, (logNFL<threshold & RTQUIC=="aSyn-SAA positive") | (RTQUIC=="aSyn-SAA negative"))
+removed <- setdiff(df, dfnfl) 
+cat("Following values were removed for the descriptive stats on NfL: ", removed$NFL_2, "\n")
 
-nrow(df2nfl)
-df2nfl[, c("ID", "NFL", "logNFL")]
-sort(df2nfl$NFL)
-
-boxplot(NFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	stripchart(NFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-boxplot(NFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	stripchart(NFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-boxplot(logNFL ~ RTQUIC, data= df2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	stripchart(logNFL ~ RTQUIC, data = df2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-boxplot(logNFL ~ RTQUIC, data= df2nfl, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-	stripchart(logNFL ~ RTQUIC, data = df2nfl, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-shapiro.test(RTposdfnfl$logNFL) #al
-shapiro.test(RTnegdfnfl$logNFL)  #al
-shapiro.test(CBSdfnfl$logNFL)  #al
-shapiro.test(PSPdfnfl$logNFL)  #al
-shapiro.test(ADposdfnfl$logNFL)  #al
-shapiro.test(ADnegdfnfl$logNFL)  #al
-leveneTest(logNFL ~ DX_APD*RTQUIC, dfnfl) #homo
+# NFL STATISTICS: DISTRIBUTION
+shapiro.test(dfnfl[dfnfl$DX_APD=="CBS",  ]$logNFL) #normal
+shapiro.test(dfnfl[dfnfl$DX_APD=="PSP",  ]$logNFL) #normal
+shapiro.test(dfnfl[dfnfl$RTQUIC=="aSyn-SAA positive",  ]$logNFL) #borderline
+shapiro.test(dfnfl[dfnfl$RTQUIC=="aSyn-SAA negative",  ]$logNFL) #normal
+shapiro.test(dfnfl[dfnfl$AD=="AD Positive",  ]$logNFL) #normal
+shapiro.test(dfnfl[dfnfl$AD=="AD Negative",  ]$logNFL) #borderline
+hist(dfnfl[dfnfl$RTQUIC=="aSyn-SAA positive",  ]$logNFL)
+hist(dfnfl[dfnfl$AD=="AD Negative",  ]$logNFL)
+leveneTest(logNFL ~ DX_APD*AD*RTQUIC, data = dfnfl) #homoscedasticity
 
 # NFL STATS: LINEAR REGRESSION MODEL SELECTION
-
 # Compare models with Ftest
-		test1 <- lm(logNFL ~ RTQUIC, df2nfl)
-		test2 <- lm(logNFL ~ DX_APD, df2nfl)
-		test3 <- lm(logNFL ~ Lifetime_AD_binary, df2nfl)
-		test4 <- lm(logNFL ~ RTQUIC + DX_APD, df2nfl) #adding value to the model
-		test5 <- lm(logNFL ~ RTQUIC + Lifetime_AD_binary, df2nfl) #not adding any value to the model
-		anova(test1, test4) 
-		anova(test1, test5) 
+test1 <- lm(logNFL ~ RTQUIC, dfnfl)
+test2 <- lm(logNFL ~ RTQUIC + DX_APD, dfnfl) #adding value to the model
+test3 <- lm(logNFL ~ RTQUIC + AD, dfnfl) #not adding any value to the model
+anova(test1, test2) #models that are nested in each other
+anova(test1, test3) 
 
-		# Inclusion of other variables as covariate:
-		summary(lm(df2nfl$logNFL ~ df2nfl$Age)) #no linear relationship
-		summary(lm(df2nfl$logNFL ~ df2nfl$LP2_Disease_Duration))#no linear relationship 
-		summary(lm(df2nfl$logNFL ~ df2nfl$abeta)) #linear relationship
-		summary(lm(df2nfl$logNFL ~ df2nfl$ptau)) #no linear relationship
-		summary(lm(df2nfl$logNFL ~ df2nfl$ttau)) #no linear relationship
+# Inclusion of other variables as covariate:
+summary(lm(dfnfl$logNFL ~ dfnfl$Age)) #no linear relationship
+summary(lm(dfnfl$logNFL ~ dfnfl$LP2_Disease_Duration))#no linear relationship 
+summary(lm(dfnfl$logNFL ~ dfnfl$abeta_2)) #linear relationship
+summary(lm(dfnfl$logNFL ~ dfnfl$ptau_2)) #no linear relationship
+summary(lm(dfnfl$logNFL ~ dfnfl$ttau_2)) #no linear relationship
 
-# NFL STATS: LINEAR REGRESSION MODEL
-
-stdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta), df2nfl) 
+# NFL STATISTICS: LINEAR REGRESSION MODEL
+stdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta_2), dfnfl) 
 summary(stdmlr) 
 
 # Diagnostics of the model run
 	check_normality(stdmlr) #Ok normality of residuals
 	autoplot(stdmlr, which = 1:6) #All plots including scale location plot
 
-		# Visualize the values for each of the IDs that are indexed on above plots
-		df2nfl[27, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
-		df2nfl[34, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
-		df2nfl[57, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+# Visualize the values for each of the IDs that are indexed on above plots
+df2nfl[27, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+df2nfl[34, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
+df2nfl[57, c("ID", "abeta", "logabeta", "RTQUIC", "NFL")] 
 		
-		for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
-			vecIDs <- df2nfl[c(8,34,37,57), "ID"] #Create vector of each ID. For 3*IQR outlier threshold
-		vecIDs <- df2nfl[c(27,34,53), "ID"] #Create vector of each ID. For 1.5*IQR outlier threshold
-		for (i in vecIDs) {
-			test <- subset(df2nfl, ID!=i) #for some analysis, need to exclude the potential false negative too
-			teststdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta), test) 
-			print(summary(teststdmlr))
-		}
+# # 		for-loop to test the model without each of these values (ie once without outlier 1, then outlier 2, etc)
+# # 			vecIDs <- df2nfl[c(8,34,37,57), "ID"] #Create vector of each ID. For 3*IQR outlier threshold
+# # 		vecIDs <- df2nfl[c(27,34,53), "ID"] #Create vector of each ID. For 1.5*IQR outlier threshold
+# # 		for (i in vecIDs) {
+# # 			test <- subset(df2nfl, ID!=i) #for some analysis, need to exclude the potential false negative too
+# # 			teststdmlr <- lm(logNFL ~ RTQUIC*DX_APD + scale(abeta), test) 
+# # 			print(summary(teststdmlr))
+# # 		}
 
-	bptest(stdmlr) #Ok variance of residulas. Breusch-Pagan test for heterodasticity.
-	durbinWatsonTest(stdmlr) #Ok autocorrelation of residuals	
+# # 	bptest(stdmlr) #Ok variance of residulas. Breusch-Pagan test for heterodasticity.
+# # 	durbinWatsonTest(stdmlr) #Ok autocorrelation of residuals	
 
-		# Examine Cook's distance: not as importnat given dataset characteristics (sample size limited in terms of number of subjects both AD+ and RT+: cannot exclude easily subjects)
-		df2nfl[(cooks.distance(stdmlr))>0.25, ]$ID #no subject >0.25
-		cooksD <- cooks.distance(stdmlr)
-		n <- nrow(df2nfl) #Anothr threshold for Cook's data = 4/n so lower. In this case, too many high Cook. 
-		plot(cooksD, main = "Cooks Distance for Influential Obs") #Plot Cook's Distance with a horizontal line at 4/n to see which observations exceed this thresdhold. There is a cluster of high Cook subjects. 
-			abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
+# # 		# Examine Cook's distance: not as importnat given dataset characteristics (sample size limited in terms of number of subjects both AD+ and RT+: cannot exclude easily subjects)
+# # 		df2nfl[(cooks.distance(stdmlr))>0.25, ]$ID #no subject >0.25
+# # 		cooksD <- cooks.distance(stdmlr)
+# # 		n <- nrow(df2nfl) #Anothr threshold for Cook's data = 4/n so lower. In this case, too many high Cook. 
+# # 		plot(cooksD, main = "Cooks Distance for Influential Obs") #Plot Cook's Distance with a horizontal line at 4/n to see which observations exceed this thresdhold. There is a cluster of high Cook subjects. 
+# # 			abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
 
-	# Multicollinearity checks
-	car::vif(stdmlr) #no multicollinearity at all
+# # 	# Multicollinearity checks
+# # 	car::vif(stdmlr) #no multicollinearity at all
 
-	# Main effects: 
-	emmeans(stdmlr, ~ RTQUIC:DX_APD) #adjusted means.  
-    pairs(emmeans(stdmlr, ~ RTQUIC:DX_APD)) #adjusted means.  
+# # 	# Main effects: 
+# # 	emmeans(stdmlr, ~ RTQUIC:DX_APD) #adjusted means.  
+# #     pairs(emmeans(stdmlr, ~ RTQUIC:DX_APD)) #adjusted means.  
 
-cat("\n\n######################################################################################################\n",
-	   "###########################              8.1.2. FIG 1.D.       	#######################################\n",
-	   "#######################################################################################################\n")
 
-# FIG1D: NFL: not different between DX, RTQUIC, but linearly related to Abeta42. Option 1: Plot Abeta42 by NFL relationship and add colors for DX and shapes for RTQUIC. 
-#Option 2: Plot boxplot between RTQUIC status (see below this figure)
+# # cat("\n\n######################################################################################################\n",
+# # 	   "###########################              8.1.2. FIG 1.D.       	#######################################\n",
+# # 	   "#######################################################################################################\n")
 
-	# Create dataframe usable for plotting (ie kick out the scale())
-	plotmlr <- lm(logNFL ~ RTQUIC + DX_APD + abeta, df2nfl) 
-	summary(plotmlr) 
+# # cat("-----------------------   GOES IN FIGURE 1D: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
 
-	label <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
+# # # FIG1D: NFL: not different between DX, RTQUIC, but linearly related to Abeta42. Option 1: Plot Abeta42 by NFL relationship and add colors for DX and shapes for RTQUIC. 
+# # #Option 2: Plot boxplot between RTQUIC status (see below this figure)
 
-	# General layout of the plot: x and y + stats_smooth for linear relationship
-	fig1d_ver1 <- ggplot(df2nfl, aes(x=abeta, y=logNFL)) + #No need for color or fill 
+# # 	# Create dataframe usable for plotting (ie kick out the scale())
+# # 	plotmlr <- lm(logNFL ~ RTQUIC + DX_APD + abeta, df2nfl) 
+# # 	summary(plotmlr) 
 
-				# Add actual datapoints
-				geom_point(aes(color=RTQUIC, shape=DX_APD), size=4) + 
+# # 	label <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
-				stat_smooth(aes(), method="lm", color="red", fill="red", linewidth=0.5, alpha=0.2, level = 0.95) + #No need to do separate lines for RTQUIC diagnosis. Lines are very similar and CIs encompass each other. Tried with geom_smooth too. 
+# # 	# General layout of the plot: x and y + stats_smooth for linear relationship
+# # 	fig1d_ver1 <- ggplot(df2nfl, aes(x=abeta, y=logNFL)) + #No need for color or fill 
 
-				# Fix legends and set up the appearance of the points
-				scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
-				scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
+# # 				# Add actual datapoints
+# # 				geom_point(aes(color=RTQUIC, shape=DX_APD), size=4) + 
 
-				# Fix labs
-				labs(title=expression(bold("Linear relationship between "*Alpha*beta*"42 and NfL")),
-					subtitle=(""),
-					x=expression(bold("CSF A"*beta*"42 levels (pg/mL)")),
-					y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+# # 				stat_smooth(aes(), method="lm", color="red", fill="red", linewidth=0.5, alpha=0.2, level = 0.95) + #No need to do separate lines for RTQUIC diagnosis. Lines are very similar and CIs encompass each other. Tried with geom_smooth too. 
 
-				# Annotate:
-				stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
+# # 				# Fix legends and set up the appearance of the points
+# # 				scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+# # 				scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
+
+# # 				# Fix labs
+# # 				labs(title=expression(bold("Linear relationship between "*Alpha*beta*"42 and NfL")),
+# # 					subtitle=(""),
+# # 					x=expression(bold("CSF A"*beta*"42 levels (pg/mL)")),
+# # 					y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+
+# # 				# Annotate:
+# # 				stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
 				
-				annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
+# # 				annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
 
-				# Aesthetic only
-				theme_classic() +
-				theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
-				theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
-				theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
+# # 				# Aesthetic only
+# # 				theme_classic() +
+# # 				theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
+# # 				theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
+# # 				theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
 	
-	fig1d_ver1
+# # 	fig1d_ver1
 
-	ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
+# # 	ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
 
 
-# FIG1Dversion2: NFL: not different between DX, RTQUIC, show boxplots only.
-#Option 2: Plot boxplot between RTQUIC status. 
+# # # FIG1Dversion2: NFL: not different between DX, RTQUIC, show boxplots only.
+# # #Option 2: Plot boxplot between RTQUIC status. 
 
-# General layout of the plot: boxplot by diagnosis where diagnosis is sig, within diagnosis rtquic groups are not sig
+# # # General layout of the plot: boxplot by diagnosis where diagnosis is sig, within diagnosis rtquic groups are not sig
 
-	fig1d_ver2 <- ggplot(df2, aes(x=DX_APD, y=logNFL, color=RTQUIC))+ #No need for color or fill 
+# # 	fig1d_ver2 <- ggplot(df2, aes(x=DX_APD, y=logNFL, color=RTQUIC))+ #No need for color or fill 
 
-				#Add actual datapoints
-				geom_boxplot() +
-				geom_jitter(aes(color=RTQUIC), position=position_jitterdodge()) +
+# # 				#Add actual datapoints
+# # 				geom_boxplot() +
+# # 				geom_jitter(aes(color=RTQUIC), position=position_jitterdodge()) +
  
-				# Fix legends and set up the appearance of the points
-				scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
-				scale_fill_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
-				scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
+# # 				# Fix legends and set up the appearance of the points
+# # 				scale_color_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+# # 				scale_fill_manual(values=cbPalette_RTQUIC, name="ASyn-SAA status", breaks=c("aSyn-SAA positive", "aSyn-SAA negative"), labels=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-"))) + #expression allows you to add greek letters
+# # 				scale_shape_manual(values=c(16,17), name="Diagnosis", breaks=c("CBS", "PSP"), labels=c("CBS", "PSP")) + #Color for the datapoints
 
-				# Fix labs
-				labs(title="ASyn-SAA does not affect NfL levels",
-					subtitle="",
-					# x=expression(bold("AD status")),
-					y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+# # 				# Fix labs
+# # 				labs(title="ASyn-SAA does not affect NfL levels",
+# # 					subtitle="",
+# # 					# x=expression(bold("AD status")),
+# # 					y=expression(bold("CSF NfL levels (pg/mL) (log)"))) + #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
 
-				# Annotate:
-				stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
+# # 				# Annotate:
+# # 				stat_regline_equation(label.x=120, label.y=8.7, color="red", size=6, show.legend=FALSE) + #shows the equation for each geom_line. Cannot use other options since it would not be based on the model
 				
-				# annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
+# # 				# annotate("text", size=6, x=175, y=8.5, color="red", label=label, parse=TRUE)+ #label as defined above. Parse allows for use of mathematical notation
 
-				#Aesthetic only
-				theme_classic() +
-				theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
-				theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
-				theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
+# # 				#Aesthetic only
+# # 				theme_classic() +
+# # 				theme(plot.title = element_text(size=16, hjust=0.5, face="bold")) +
+# # 				theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
+# # 				theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
 	
-	fig1d_ver2
+# # 	fig1d_ver2
 
-	ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
+# # 	ggsave(fig1d_ver1, filename = "Fig1d_ver1.png", bg= "transparent", width=9, height=10)
 
-boxplot1<- boxplot(logNFL ~ RTQUIC, data= CBSdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-		stripchart(logNFL ~ RTQUIC, data = CBSdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# # boxplot1<- boxplot(logNFL ~ RTQUIC, data= CBSdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+# # 		stripchart(logNFL ~ RTQUIC, data = CBSdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 		
-boxplot2<-boxplot(logNFL ~ RTQUIC, data= PSPdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
-		stripchart(logNFL ~ RTQUIC, data = PSPdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-
-boxplot1$out
-boxplot2$out
-
-
-
-cat("\n\n#######################################################################################################\n",
-	"                                    8.2. ASYN-SAA+ & SYMPTOMS \n",
-	   "#######################################################################################################\n")
-
-cat("\n\n######################################################################################################\n",
-	   "###########################              8.2.1. CBS-ONLY       #######################################\n",
-	   "#######################################################################################################\n")
-
-
-# DO CBS FIRST: COUNTS + ANALYSES
-#################################
-RTposCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA positive")
-RTnegCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA negative")
-
-CBSdf2 %>% group_by(RTQUIC) %>% count(Sex)
-CBSdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(APOEe4)
-
-CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
-CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
-
-# STATISTICAL COMPARISONS FOR AGES AND SEX
-table(CBSdf2$Sex, CBSdf2$RTQUIC)
-chisq.test(table(CBSdf2$Sex, CBSdf2$RTQUIC), correct=F)
-
-table(CBSdf2$AD_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$AD_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-
-table(CBSdf2$APOEe4, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$APOEe4, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-
-
-shapiro.test(RTposCBSdf2$Age) #al
-shapiro.test(RTnegCBSdf2$Age) #al
-var.test(Age ~ RTQUIC, data = CBSdf2) #homo
-t.test(CBSdf2$Age ~ CBSdf2$RTQUIC, var.equal=TRUE) 
-
-shapiro.test(RTposCBSdf2$Onset) #al
-shapiro.test(RTnegCBSdf2$Onset) #al
-var.test(Onset ~ RTQUIC, data = CBSdf2) #homo
-t.test(CBSdf2$Onset ~ CBSdf2$RTQUIC, var.equal=TRUE) 
-
-shapiro.test(RTposCBSdf2$Park_onset) #al
-shapiro.test(RTnegCBSdf2$Park_onset) #al
-var.test(Park_onset ~ RTQUIC, data = CBSdf2) #homo
-	# wilcox.test(df$Park_onset ~ df$DX_APD, paired=F) #Cannot be computed due to ties.
-t.test(CBSdf2$Park_onset ~ CBSdf2$RTQUIC, var.equal=TRUE) 
-
-CBSdf2 %>% group_by(RTQUIC) %>% count(Tremor_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(RestTremor)
-CBSdf2 %>% group_by(RTQUIC) %>% count(LimbRigidity)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Slowness_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Falls_PI)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Gait)
-CBSdf2 %>% group_by(RTQUIC) %>% count(RBD_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Lifetime_Dopa_responder_true)
-## CBSdf2 %>% group_by(RTQUIC) %>% count(Anosmia_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Lifetime_VisualHallucinations_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Constipation_binary)
-## CBSdf2 %>% group_by(RTQUIC) %>% count(Light_binary) #Need to include but maybe not worth it anyway
-CBSdf2 %>% group_by(RTQUIC) %>% count(Sexual_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Orthostatism_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Urinary_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Bowel_binary)
-CBSdf2 %>% group_by(RTQUIC) %>% count(Thermoregulatory_binary)
-
-table(CBSdf2$anyPPA, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$anyPPA, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Tremor_binary, CBSdf2$RTQUIC)
-chisq.test(table(CBSdf2$Tremor_binary, CBSdf2$RTQUIC), correct=F)
-table(CBSdf2$RestTremor, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$RestTremor, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$LimbRigidity, CBSdf2$RTQUIC)
-chisq.test(table(CBSdf2$LimbRigidity, CBSdf2$RTQUIC), correct=F)
-table(CBSdf2$Slowness_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Slowness_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Falls_PI, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Falls_PI, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Gait, CBSdf2$RTQUIC)
-chisq.test(table(CBSdf2$Gait, CBSdf2$RTQUIC), correct=F)
-table(CBSdf2$RBD_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$RBD_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Lifetime_Dopa_responder_true, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Lifetime_Dopa_responder_true, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Lifetime_VisualHallucinations_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Lifetime_VisualHallucinations_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Constipation_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Constipation_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Urinary_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Urinary_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-table(CBSdf2$Bowel_binary, CBSdf2$RTQUIC)
-fisher.test(table(CBSdf2$Bowel_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
-
-
-cat("\n\n######################################################################################################\n",
-	   "###########################              8.2.2. PSP-ONLY       #######################################\n",
-	   "#######################################################################################################\n")
-
-# DO PSP SECOND: COUNTS + ANALYSES
-################################
-RTposPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA positive")
-RTnegPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA negative")
-
-PSPdf2 %>% group_by(RTQUIC) %>% count(Sex)
-PSPdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(APOEe4)
-PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
-PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
-PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
-
-
-
-
-# STATISTICAL COMPARISONS FOR AGES AND SEX
-table(PSPdf2$Sex, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Sex, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-
-table(PSPdf2$AD_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$AD_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-
-table(PSPdf2$APOEe4, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$APOEe4, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-
-shapiro.test(RTposPSPdf2$Age) #al
-shapiro.test(RTnegPSPdf2$Age) #al
-var.test(Age ~ RTQUIC, data = PSPdf2) #homo
-t.test(PSPdf2$Age ~ PSPdf2$RTQUIC, var.equal=TRUE) 
-
-shapiro.test(RTposPSPdf2$Onset) #al
-shapiro.test(RTnegPSPdf2$Onset) #al
-var.test(Onset ~ RTQUIC, data = PSPdf2) #homo
-t.test(PSPdf2$Onset ~ PSPdf2$RTQUIC, var.equal=TRUE) 
-
-shapiro.test(RTposPSPdf2$Park_onset) #al
-shapiro.test(RTnegPSPdf2$Park_onset) #al
-var.test(Park_onset ~ RTQUIC, data = PSPdf2) #homo
-# # wilcox.test(df$Park_onset ~ df$DX_APD, paired=F) #Cannot be computed due to ties.
-t.test(PSPdf2$Park_onset ~ PSPdf2$RTQUIC, var.equal=TRUE) 
-
-
-PSPdf2 %>% group_by(RTQUIC) %>% count(anyPPA)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Tremor_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(RestTremor)
-PSPdf2 %>% group_by(RTQUIC) %>% count(LimbRigidity)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Slowness_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Falls_PI)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Gait)
-PSPdf2 %>% group_by(RTQUIC) %>% count(RBD_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Lifetime_Dopa_responder_true)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Anosmia_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Lifetime_VisualHallucinations_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Constipation_binary)
-## PSPdf2 %>% group_by(RTQUIC) %>% count(Light_binary) #Need to include but maybe not worth it anyway
-PSPdf2 %>% group_by(RTQUIC) %>% count(Sexual_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Orthostatism_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Urinary_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Bowel_binary)
-PSPdf2 %>% group_by(RTQUIC) %>% count(Thermoregulatory_binary)
-
-table(PSPdf2$Tremor_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Tremor_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$LimbRigidity, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$LimbRigidity, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Slowness_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Slowness_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Falls_PI, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Falls_PI, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Gait, PSPdf2$RTQUIC)
-chisq.test(table(PSPdf2$Gait, PSPdf2$RTQUIC), correct=F)
-table(PSPdf2$RBD_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$RBD_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Lifetime_Dopa_responder_true, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Lifetime_Dopa_responder_true, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Lifetime_VisualHallucinations_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Lifetime_VisualHallucinations_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Constipation_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Constipation_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Orthostatism_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Orthostatism_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Urinary_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Urinary_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-table(PSPdf2$Bowel_binary, PSPdf2$RTQUIC)
-fisher.test(table(PSPdf2$Bowel_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
-
-
-# COMPARISONS IGNORING DX
-t.test(df2$Age ~ df2$RTQUIC, var.equal=TRUE) 
-t.test(df2$Onset ~ df2$RTQUIC, var.equal=TRUE) 
-t.test(df2$Park_onset ~ df2$RTQUIC, var.equal=TRUE) 
-table(df2$anyPPA, df2$RTQUIC) #Fisher
-table(df2$Lifetime_Dopa_responder_true, df2$RTQUIC) #Fisher
-table(df2$AD_binary, df2$RTQUIC) #Fisher
-table(df2$APOEe4, df2$RTQUIC) #Fisher
-table(df2$Tremor_binary, df2$RTQUIC) #Chisquare
-table(df2$RestTremor, df2$RTQUIC) #Fisher
-table(df2$LimbRigidity, df2$RTQUIC) #Chisquare
-table(df2$Slowness_binary, df2$RTQUIC) #Fisher
-table(df2$Falls_PI, df2$RTQUIC) #Fisher
-table(df2$Gait, df2$RTQUIC) #Chisquare
-table(df2$RBD_binary, df2$RTQUIC) #Fisher
-table(df2$Slowness_binary, df2$RTQUIC) #Fisher
-table(df2$Lifetime_VisualHallucinations_binary, df2$RTQUIC) #Fisher
-table(df2$Constipation, df2$RTQUIC) #Fisher
-table(df2$Sexual, df2$RTQUIC) #Fisher
-table(df2$Orthostatism_binary, df2$RTQUIC) #Fisher
-table(df2$Urinary, df2$RTQUIC) #Chisquare
-table(df2$Bowel, df2$RTQUIC) #Fisher
-table(df2$Thermoregulatory_binary, df2$RTQUIC) #Fisher
-
-fisher.test(table(df2$anyPPA, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Lifetime_Dopa_responder_true, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$AD_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$APOEe4, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$RestTremor, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Slowness_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$RBD_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Constipation, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Sexual, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Orthostatism_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Bowel, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Thermoregulatory_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Lifetime_VisualHallucinations_binary, df2$RTQUIC)) # Expected count is <5 for one cell
-fisher.test(table(df2$Falls_PI, df2$RTQUIC)) # Expected count is <5 for one cell
-chisq.test(table(df2$Tremor_binary, df2$RTQUIC), correct=F)
-chisq.test(table(df2$LimbRigidity, df2$RTQUIC), correct=F)
-chisq.test(table(df2$Gait, df2$RTQUIC), correct=F)
-chisq.test(table(df2$Urinary, df2$RTQUIC), correct=F)
-
-cat("\n\n######################################################################################################\n",
-	   "###########################              8.2.3. RADAR PLOTS      ######################################\n",
-	   "#######################################################################################################\n")
-
-# START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
-
-List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
-
-rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
-for (rt in rt.value) { #for-loop that tests each value of the variable
-
-	CBSdf2.rt <- CBSdf2[CBSdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
-
-print(rt)
-
-#SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
-Tremor_perc <- CBSdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(CBSdf2.rt)*100))
-RestTremor_perc <- CBSdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(CBSdf2.rt)*100))
-LimbRigidity_perc <- CBSdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(CBSdf2.rt)*100))
-Slowness_perc <- CBSdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(CBSdf2.rt)*100))
-Apraxia_perc <- CBSdf2.rt %>% summarise(Apraxia_count= sum(Apraxia == "Yes")) %>% mutate(Apraxia_count= (as.numeric(Apraxia_count)/nrow(CBSdf2.rt)*100))
-Gait_perc <- CBSdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(CBSdf2.rt)*100))
-FallsPI_perc <- CBSdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(CBSdf2.rt)*100))
-
-#Assign these counts to a variable
-Tremor_perc <- Tremor_perc[, 1]
-RestTremor_perc <- RestTremor_perc[, 1]
-LimbRigidity_perc <- LimbRigidity_perc[, 1]
-Slowness_perc <- Slowness_perc[, 1]
-Apraxia_perc <- Apraxia_perc[, 1]
-Gait_perc <- Gait_perc[, 1]
-FallsPI_perc <- FallsPI_perc[, 1]
-
-#Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
-List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, Slowness_perc, Apraxia_perc, Gait_perc, FallsPI_perc)
-
-
-} #end of loop
-
-# To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
-print(List[[1]])
-print(List[[2]])
-
-radar.CBSdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
-     Tremor = c(List[[1]][[1]], List[[2]][[1]]),
-     Rest = c(List[[1]][[2]], List[[2]][[2]]),
-     Limb = c(List[[1]][[3]], List[[2]][[3]]),
-     Slowness = c(List[[1]][[4]], List[[2]][[4]]),
-     Apraxia = c(List[[1]][[5]], List[[2]][[5]]),
-     Gait = c(List[[1]][[6]], List[[2]][[6]]),
-     Falls = c(List[[1]][[7]], List[[2]][[7]]))
-
-max_mindf <- data.frame(Tremor = c(100, 0), Rest = c(100, 0), Limb = c(100, 0), Slowness = c(100, 0), Apraxia = c(100, 0), Gait = c(100, 0), Falls = c(100, 0))
-rownames(max_mindf) <- c("Max", "Min")
-
-# Bind the variable ranges to the data
-radar.CBSdf2 <- rbind(max_mindf, radar.CBSdf2)
-radar.CBSdf2
-
-#Rename some variables for presentation purposes
-colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Rest")] <- "Rest tremor"
-colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Limb")] <- "Limb rigidity"
-colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Falls")] <- "Falls & instability"
-colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Gait")] <- "Gait \n p<0.1"
-
-
-# Create the radar charts
-png(filename ="Fig1c_ver1.png")
-
-create_beautiful_radarchart(data= radar.CBSdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in CBS")
-		# Add an horizontal legend
-		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
-
-# dev.off()#Not needed?
-
-
-#NOW PSP. 
-
-#START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
-List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
-
-rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
-for (rt in rt.value) { #for-loop that tests each value of the variable
-
-	PSPdf2.rt <- PSPdf2[PSPdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
-
-print(rt)
-
-#SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
-Tremor_perc <- PSPdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(PSPdf2.rt)*100))
-RestTremor_perc <- PSPdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(PSPdf2.rt)*100))
-LimbRigidity_perc <- PSPdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(PSPdf2.rt)*100))
-AxialRigidity_perc <- PSPdf2.rt %>%  summarise(AxialRigidity_count= sum(AxialRigidity == "Yes")) %>% mutate(AxialRigidity_count= (as.numeric(AxialRigidity_count)/nrow(PSPdf2.rt)*100))
-Slowness_perc <- PSPdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(PSPdf2.rt)*100))
-OM_perc <- PSPdf2.rt %>% summarise(OM_count= sum(VerticalOM == "Yes")) %>% mutate(OM_count= (as.numeric(OM_count)/nrow(PSPdf2.rt)*100))
-Gait_perc <- PSPdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(PSPdf2.rt)*100))
-FallsPI_perc <- PSPdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(PSPdf2.rt)*100))
-
-#Assign these counts to a variable
-Tremor_perc <- Tremor_perc[, 1]
-RestTremor_perc <- RestTremor_perc[, 1]
-LimbRigidity_perc <- LimbRigidity_perc[, 1]
-AxialRigidity_perc <- AxialRigidity_perc[, 1]
-Slowness_perc <- Slowness_perc[, 1]
-OM_perc <- OM_perc[, 1]
-Gait_perc <- Gait_perc[, 1]
-FallsPI_perc <- FallsPI_perc[, 1]
-
-# #Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
-List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, AxialRigidity_perc, Slowness_perc, OM_perc, Gait_perc, FallsPI_perc)
-
-
-} #end of loop
-
-# To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
-print(List[[1]])
-print(List[[2]])
-
-radar.PSPdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
-     Tremor = c(List[[1]][[1]], List[[2]][[1]]),
-     Rest = c(List[[1]][[2]], List[[2]][[2]]),
-     Limb = c(List[[1]][[3]], List[[2]][[3]]),
-     Axial = c(List[[1]][[4]], List[[2]][[4]]),
-     Slowness = c(List[[1]][[5]], List[[2]][[5]]),
-     OM = c(List[[1]][[6]], List[[2]][[6]]),
-     Gait = c(List[[1]][[7]], List[[2]][[7]]),
-     Falls = c(List[[1]][[8]], List[[2]][[8]]))
-
-max_mindf <- data.frame(Tremor= c(100, 0), Rest= c(100, 0), Limb= c(100, 0), Axial=c(100, 0), Slowness = c(100, 0), OM= c(100, 0), Gait= c(100, 0), Falls= c(100, 0))
-rownames(max_mindf) <- c("Max", "Min")
-
-# Bind the variable ranges to the data
-radar.PSPdf2 <- rbind(max_mindf, radar.PSPdf2)
-radar.PSPdf2
-
-#Rename some variables for presentation purposes
-colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Rest")] <- "Rest tremor"
-colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Limb")] <- "Limb rigidity \n p<0.1"
-colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Axial")] <- "Axial rigidity"
-colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "OM")] <- "Oculomotor"
-colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Falls")] <- "Falls & instability"
-
-
-# Create the radar charts
-png(filename ="Fig1d_ver1.png")
-
-create_beautiful_radarchart(data= radar.PSPdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in PSP")
-		# Add an horizontal legend
-		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
-
-
-
-cat("\n\n\n\n###################################################################################################\n",
-		   "9. BINARY LOGISTIC REGRESSION\n",
-	 	   "####################################################################################################\n\n")
-
-# DEFENSE
-if (sum(df$RTQUIC_BLR ==1) != 22) {
-	cat("There is an issue with the binarization of RTQUIC variable for binary logistic regression \n")
-}
-
-
-# Model is selected based on previous analyses (logabeta*Onset) + the simple comparisons in Supp material (Gait/RBD_binary).
-# Model was run with and without AD/DX_APD status and all values remained very similar. 
-blr <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + Gait_2, data= df2, family = "binomial")
-summary(blr)
+# # boxplot2<-boxplot(logNFL ~ RTQUIC, data= PSPdf2, col = "white") #For NFL, chose a more tolerant threshold for outliers. Q3+IQR*3 threshold instead of IQR*1.5
+# # 		stripchart(logNFL ~ RTQUIC, data = PSPdf2, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+# # boxplot1$out
+# # boxplot2$out
+
+
+
+# # cat("\n\n#######################################################################################################\n",
+# # 	"                                    8.2. ASYN-SAA+ & SYMPTOMS \n",
+# # 	   "#######################################################################################################\n")
+
+# # cat("\n\n######################################################################################################\n",
+# # 	   "###########################              8.2.1. CBS-ONLY       #######################################\n",
+# # 	   "#######################################################################################################\n")
+
+# # cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+
+
+# # RTposCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA positive")
+# # RTnegCBSdf2 <- subset(CBSdf2, RTQUIC=="aSyn-SAA negative")
+
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Sex)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(APOEe4)
+
+# # CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+# # CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+# # CBSdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
+# # # STATISTICAL COMPARISONS FOR AGES AND SEX
+# # table(CBSdf2$Sex, CBSdf2$RTQUIC)
+# # chisq.test(table(CBSdf2$Sex, CBSdf2$RTQUIC), correct=F)
+
+# # table(CBSdf2$AD_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$AD_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+
+# # table(CBSdf2$APOEe4, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$APOEe4, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+
+
+# # shapiro.test(RTposCBSdf2$Age) #al
+# # shapiro.test(RTnegCBSdf2$Age) #al
+# # var.test(Age ~ RTQUIC, data = CBSdf2) #homo
+# # t.test(CBSdf2$Age ~ CBSdf2$RTQUIC, var.equal=TRUE) 
+
+# # shapiro.test(RTposCBSdf2$Onset) #al
+# # shapiro.test(RTnegCBSdf2$Onset) #al
+# # var.test(Onset ~ RTQUIC, data = CBSdf2) #homo
+# # t.test(CBSdf2$Onset ~ CBSdf2$RTQUIC, var.equal=TRUE) 
+
+# # shapiro.test(RTposCBSdf2$Park_onset) #al
+# # shapiro.test(RTnegCBSdf2$Park_onset) #al
+# # var.test(Park_onset ~ RTQUIC, data = CBSdf2) #homo
+# # 	# wilcox.test(df$Park_onset ~ df$DX_APD, paired=F) #Cannot be computed due to ties.
+# # t.test(CBSdf2$Park_onset ~ CBSdf2$RTQUIC, var.equal=TRUE) 
+
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Tremor_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(RestTremor)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(LimbRigidity)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Slowness_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Falls_PI)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Gait)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(RBD_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Lifetime_Dopa_responder_true)
+# # ## CBSdf2 %>% group_by(RTQUIC) %>% count(Anosmia_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Lifetime_VisualHallucinations_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Constipation_binary)
+# # ## CBSdf2 %>% group_by(RTQUIC) %>% count(Light_binary) #Need to include but maybe not worth it anyway
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Sexual_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Orthostatism_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Urinary_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Bowel_binary)
+# # CBSdf2 %>% group_by(RTQUIC) %>% count(Thermoregulatory_binary)
+
+# # table(CBSdf2$anyPPA, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$anyPPA, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Tremor_binary, CBSdf2$RTQUIC)
+# # chisq.test(table(CBSdf2$Tremor_binary, CBSdf2$RTQUIC), correct=F)
+# # table(CBSdf2$RestTremor, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$RestTremor, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$LimbRigidity, CBSdf2$RTQUIC)
+# # chisq.test(table(CBSdf2$LimbRigidity, CBSdf2$RTQUIC), correct=F)
+# # table(CBSdf2$Slowness_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Slowness_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Falls_PI, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Falls_PI, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Gait, CBSdf2$RTQUIC)
+# # chisq.test(table(CBSdf2$Gait, CBSdf2$RTQUIC), correct=F)
+# # table(CBSdf2$RBD_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$RBD_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Lifetime_Dopa_responder_true, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Lifetime_Dopa_responder_true, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Lifetime_VisualHallucinations_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Lifetime_VisualHallucinations_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Constipation_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Constipation_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Urinary_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Urinary_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(CBSdf2$Bowel_binary, CBSdf2$RTQUIC)
+# # fisher.test(table(CBSdf2$Bowel_binary, CBSdf2$RTQUIC)) # Expected count is <5 for one cell
+
+
+# # cat("\n\n######################################################################################################\n",
+# # 	   "###########################              8.2.2. PSP-ONLY       #######################################\n",
+# # 	   "#######################################################################################################\n")
+
+# # cat("-------------------------   GOES IN eTABLE 1: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+
+# # RTposPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA positive")
+# # RTnegPSPdf2 <- subset(PSPdf2, RTQUIC=="aSyn-SAA negative")
+
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Sex)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(AD_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(APOEe4)
+# # PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Age, na.rm=T),2),2), sd=sd(Age, na.rm=T))
+# # PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Onset, na.rm=T),2),2), sd=sd(Onset, na.rm=T))
+# # PSPdf2 %>% group_by(RTQUIC) %>% summarize(format(round(mean(Park_onset, na.rm=T),2),2), sd=sd(Park_onset, na.rm=T))
+
+
+
+# # # STATISTICAL COMPARISONS FOR AGES AND SEX
+# # table(PSPdf2$Sex, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Sex, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+
+# # table(PSPdf2$AD_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$AD_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+
+# # table(PSPdf2$APOEe4, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$APOEe4, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+
+# # shapiro.test(RTposPSPdf2$Age) #al
+# # shapiro.test(RTnegPSPdf2$Age) #al
+# # var.test(Age ~ RTQUIC, data = PSPdf2) #homo
+# # t.test(PSPdf2$Age ~ PSPdf2$RTQUIC, var.equal=TRUE) 
+
+# # shapiro.test(RTposPSPdf2$Onset) #al
+# # shapiro.test(RTnegPSPdf2$Onset) #al
+# # var.test(Onset ~ RTQUIC, data = PSPdf2) #homo
+# # t.test(PSPdf2$Onset ~ PSPdf2$RTQUIC, var.equal=TRUE) 
+
+# # shapiro.test(RTposPSPdf2$Park_onset) #al
+# # shapiro.test(RTnegPSPdf2$Park_onset) #al
+# # var.test(Park_onset ~ RTQUIC, data = PSPdf2) #homo
+# # # # wilcox.test(df$Park_onset ~ df$DX_APD, paired=F) #Cannot be computed due to ties.
+# # t.test(PSPdf2$Park_onset ~ PSPdf2$RTQUIC, var.equal=TRUE) 
+
+
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(anyPPA)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Tremor_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(RestTremor)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(LimbRigidity)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Slowness_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Falls_PI)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Gait)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(RBD_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Lifetime_Dopa_responder_true)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Anosmia_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Lifetime_VisualHallucinations_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Constipation_binary)
+# # ## PSPdf2 %>% group_by(RTQUIC) %>% count(Light_binary) #Need to include but maybe not worth it anyway
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Sexual_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Orthostatism_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Urinary_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Bowel_binary)
+# # PSPdf2 %>% group_by(RTQUIC) %>% count(Thermoregulatory_binary)
+
+# # table(PSPdf2$Tremor_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Tremor_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$LimbRigidity, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$LimbRigidity, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Slowness_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Slowness_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Falls_PI, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Falls_PI, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Gait, PSPdf2$RTQUIC)
+# # chisq.test(table(PSPdf2$Gait, PSPdf2$RTQUIC), correct=F)
+# # table(PSPdf2$RBD_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$RBD_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Lifetime_Dopa_responder_true, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Lifetime_Dopa_responder_true, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Lifetime_VisualHallucinations_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Lifetime_VisualHallucinations_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Constipation_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Constipation_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Orthostatism_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Orthostatism_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Urinary_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Urinary_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+# # table(PSPdf2$Bowel_binary, PSPdf2$RTQUIC)
+# # fisher.test(table(PSPdf2$Bowel_binary, PSPdf2$RTQUIC)) # Expected count is <5 for one cell
+
+
+# # # COMPARISONS IGNORING DX
+# # t.test(df2$Age ~ df2$RTQUIC, var.equal=TRUE) 
+# # t.test(df2$Onset ~ df2$RTQUIC, var.equal=TRUE) 
+# # t.test(df2$Park_onset ~ df2$RTQUIC, var.equal=TRUE) 
+# # table(df2$anyPPA, df2$RTQUIC) #Fisher
+# # table(df2$Lifetime_Dopa_responder_true, df2$RTQUIC) #Fisher
+# # table(df2$AD_binary, df2$RTQUIC) #Fisher
+# # table(df2$APOEe4, df2$RTQUIC) #Fisher
+# # table(df2$Tremor_binary, df2$RTQUIC) #Chisquare
+# # table(df2$RestTremor, df2$RTQUIC) #Fisher
+# # table(df2$LimbRigidity, df2$RTQUIC) #Chisquare
+# # table(df2$Slowness_binary, df2$RTQUIC) #Fisher
+# # table(df2$Falls_PI, df2$RTQUIC) #Fisher
+# # table(df2$Gait, df2$RTQUIC) #Chisquare
+# # table(df2$RBD_binary, df2$RTQUIC) #Fisher
+# # table(df2$Slowness_binary, df2$RTQUIC) #Fisher
+# # table(df2$Lifetime_VisualHallucinations_binary, df2$RTQUIC) #Fisher
+# # table(df2$Constipation, df2$RTQUIC) #Fisher
+# # table(df2$Sexual, df2$RTQUIC) #Fisher
+# # table(df2$Orthostatism_binary, df2$RTQUIC) #Fisher
+# # table(df2$Urinary, df2$RTQUIC) #Chisquare
+# # table(df2$Bowel, df2$RTQUIC) #Fisher
+# # table(df2$Thermoregulatory_binary, df2$RTQUIC) #Fisher
+
+# # fisher.test(table(df2$anyPPA, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Lifetime_Dopa_responder_true, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$AD_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$APOEe4, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$RestTremor, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Slowness_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$RBD_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Constipation, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Sexual, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Orthostatism_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Bowel, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Thermoregulatory_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Lifetime_VisualHallucinations_binary, df2$RTQUIC)) # Expected count is <5 for one cell
+# # fisher.test(table(df2$Falls_PI, df2$RTQUIC)) # Expected count is <5 for one cell
+# # chisq.test(table(df2$Tremor_binary, df2$RTQUIC), correct=F)
+# # chisq.test(table(df2$LimbRigidity, df2$RTQUIC), correct=F)
+# # chisq.test(table(df2$Gait, df2$RTQUIC), correct=F)
+# # chisq.test(table(df2$Urinary, df2$RTQUIC), correct=F)
+
+
+
+# # cat("\n\n######################################################################################################\n",
+# # 	   "###########################              8.2.3. RADAR PLOTS      ######################################\n",
+# # 	   "#######################################################################################################\n")
+
+# # cat("-----------------------   GOES IN FIGURE 1C: ASYN-SAA+ vs ASYN-SAA-   ------------------------------------\n")
+
+
+# # # START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
+
+# # List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
+
+# # rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
+# # for (rt in rt.value) { #for-loop that tests each value of the variable
+
+# # 	CBSdf2.rt <- CBSdf2[CBSdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
+
+# # print(rt)
+
+# # #SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
+# # Tremor_perc <- CBSdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(CBSdf2.rt)*100))
+# # RestTremor_perc <- CBSdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(CBSdf2.rt)*100))
+# # LimbRigidity_perc <- CBSdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(CBSdf2.rt)*100))
+# # Slowness_perc <- CBSdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(CBSdf2.rt)*100))
+# # Apraxia_perc <- CBSdf2.rt %>% summarise(Apraxia_count= sum(Apraxia == "Yes")) %>% mutate(Apraxia_count= (as.numeric(Apraxia_count)/nrow(CBSdf2.rt)*100))
+# # Gait_perc <- CBSdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(CBSdf2.rt)*100))
+# # FallsPI_perc <- CBSdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(CBSdf2.rt)*100))
+
+# # #Assign these counts to a variable
+# # Tremor_perc <- Tremor_perc[, 1]
+# # RestTremor_perc <- RestTremor_perc[, 1]
+# # LimbRigidity_perc <- LimbRigidity_perc[, 1]
+# # Slowness_perc <- Slowness_perc[, 1]
+# # Apraxia_perc <- Apraxia_perc[, 1]
+# # Gait_perc <- Gait_perc[, 1]
+# # FallsPI_perc <- FallsPI_perc[, 1]
+
+# # #Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
+# # List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, Slowness_perc, Apraxia_perc, Gait_perc, FallsPI_perc)
+
+
+# # } #end of loop
+
+# # # To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
+# # print(List[[1]])
+# # print(List[[2]])
+
+# # radar.CBSdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
+# #      Tremor = c(List[[1]][[1]], List[[2]][[1]]),
+# #      Rest = c(List[[1]][[2]], List[[2]][[2]]),
+# #      Limb = c(List[[1]][[3]], List[[2]][[3]]),
+# #      Slowness = c(List[[1]][[4]], List[[2]][[4]]),
+# #      Apraxia = c(List[[1]][[5]], List[[2]][[5]]),
+# #      Gait = c(List[[1]][[6]], List[[2]][[6]]),
+# #      Falls = c(List[[1]][[7]], List[[2]][[7]]))
+
+# # max_mindf <- data.frame(Tremor = c(100, 0), Rest = c(100, 0), Limb = c(100, 0), Slowness = c(100, 0), Apraxia = c(100, 0), Gait = c(100, 0), Falls = c(100, 0))
+# # rownames(max_mindf) <- c("Max", "Min")
+
+# # # Bind the variable ranges to the data
+# # radar.CBSdf2 <- rbind(max_mindf, radar.CBSdf2)
+# # radar.CBSdf2
+
+# # #Rename some variables for presentation purposes
+# # colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Rest")] <- "Rest tremor"
+# # colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Limb")] <- "Limb rigidity"
+# # colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Falls")] <- "Falls & instability"
+# # colnames(radar.CBSdf2)[which(names(radar.CBSdf2) == "Gait")] <- "Gait \n p<0.1"
+
+
+# # # Create the radar charts
+# # png(filename ="Fig1c_ver1.png")
+
+# # create_beautiful_radarchart(data= radar.CBSdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in CBS")
+# # 		# Add an horizontal legend
+# # 		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
+
+# # # dev.off()#Not needed?
+
+
+# # #NOW PSP. 
+
+# # #START WITH DIAGNOSIS. CBS first because I'd like to overlay two alpha syn on the same diagnosis plot. 
+# # List = list() #Create an empty list to which you will assign the values from the for-loop. By creating this list outside of the main for-loop, you allow for the data to be entered under different entries which means you can call all the values you need. 
+
+# # rt.value <- c("aSyn-SAA positive", "aSyn-SAA negative")
+# # for (rt in rt.value) { #for-loop that tests each value of the variable
+
+# # 	PSPdf2.rt <- PSPdf2[PSPdf2$RTQUIC== rt, ] #Within subset of CBS for eg, look for subset of RT+
+
+# # print(rt)
+
+# # #SUMMARIZE THE CATEGORICAL VARIABLES INTO ONE SINGLE COUNT OF "YES"
+# # Tremor_perc <- PSPdf2.rt %>% summarise(Tremor_count= sum(Tremor_binary == "Yes")) %>% mutate(Tremor_count= (as.numeric(Tremor_count)/nrow(PSPdf2.rt)*100))
+# # RestTremor_perc <- PSPdf2.rt %>% summarise(RestTremor_count= sum(RestTremor == "Yes")) %>% mutate(RestTremor_count= (as.numeric(RestTremor_count)/nrow(PSPdf2.rt)*100))
+# # LimbRigidity_perc <- PSPdf2.rt %>%  summarise(LimbRigidity_count= sum(LimbRigidity == "Yes")) %>% mutate(LimbRigidity_count= (as.numeric(LimbRigidity_count)/nrow(PSPdf2.rt)*100))
+# # AxialRigidity_perc <- PSPdf2.rt %>%  summarise(AxialRigidity_count= sum(AxialRigidity == "Yes")) %>% mutate(AxialRigidity_count= (as.numeric(AxialRigidity_count)/nrow(PSPdf2.rt)*100))
+# # Slowness_perc <- PSPdf2.rt %>% summarise(Slowness_count= sum(Slowness_binary == "Yes")) %>% mutate(Slowness_count= (as.numeric(Slowness_count)/nrow(PSPdf2.rt)*100))
+# # OM_perc <- PSPdf2.rt %>% summarise(OM_count= sum(VerticalOM == "Yes")) %>% mutate(OM_count= (as.numeric(OM_count)/nrow(PSPdf2.rt)*100))
+# # Gait_perc <- PSPdf2.rt %>%  summarise(Gait_count= sum(Gait == "Yes")) %>% mutate(Gait_count= (as.numeric(Gait_count)/nrow(PSPdf2.rt)*100))
+# # FallsPI_perc <- PSPdf2.rt %>%  summarise(FallsPI_count= sum(Falls_PI == "Yes")) %>% mutate(FallsPI_count= (as.numeric(FallsPI_count)/nrow(PSPdf2.rt)*100))
+
+# # #Assign these counts to a variable
+# # Tremor_perc <- Tremor_perc[, 1]
+# # RestTremor_perc <- RestTremor_perc[, 1]
+# # LimbRigidity_perc <- LimbRigidity_perc[, 1]
+# # AxialRigidity_perc <- AxialRigidity_perc[, 1]
+# # Slowness_perc <- Slowness_perc[, 1]
+# # OM_perc <- OM_perc[, 1]
+# # Gait_perc <- Gait_perc[, 1]
+# # FallsPI_perc <- FallsPI_perc[, 1]
+
+# # # #Save each value in a list which grows with each iteration of the for-loop (just need to be mindful of the values you are entering here)
+# # List[[length(List)+1]] = c(Tremor_perc, RestTremor_perc, LimbRigidity_perc, AxialRigidity_perc, Slowness_perc, OM_perc, Gait_perc, FallsPI_perc)
+
+
+# # } #end of loop
+
+# # # To understand the structure of List: ##[[1]] is CBS asyn - [[2]] is CBS asyn + [[3]] is PSP asyn -[[4]] is PSP asyn +					
+# # print(List[[1]])
+# # print(List[[2]])
+
+# # radar.PSPdf2 <- data.frame(row.names = c("aSyn-SAA negative", "aSyn-SAA positive"),
+# #      Tremor = c(List[[1]][[1]], List[[2]][[1]]),
+# #      Rest = c(List[[1]][[2]], List[[2]][[2]]),
+# #      Limb = c(List[[1]][[3]], List[[2]][[3]]),
+# #      Axial = c(List[[1]][[4]], List[[2]][[4]]),
+# #      Slowness = c(List[[1]][[5]], List[[2]][[5]]),
+# #      OM = c(List[[1]][[6]], List[[2]][[6]]),
+# #      Gait = c(List[[1]][[7]], List[[2]][[7]]),
+# #      Falls = c(List[[1]][[8]], List[[2]][[8]]))
+
+# # max_mindf <- data.frame(Tremor= c(100, 0), Rest= c(100, 0), Limb= c(100, 0), Axial=c(100, 0), Slowness = c(100, 0), OM= c(100, 0), Gait= c(100, 0), Falls= c(100, 0))
+# # rownames(max_mindf) <- c("Max", "Min")
+
+# # # Bind the variable ranges to the data
+# # radar.PSPdf2 <- rbind(max_mindf, radar.PSPdf2)
+# # radar.PSPdf2
+
+# # #Rename some variables for presentation purposes
+# # colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Rest")] <- "Rest tremor"
+# # colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Limb")] <- "Limb rigidity \n p<0.1"
+# # colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Axial")] <- "Axial rigidity"
+# # colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "OM")] <- "Oculomotor"
+# # colnames(radar.PSPdf2)[which(names(radar.PSPdf2) == "Falls")] <- "Falls & instability"
+
+
+# # # Create the radar charts
+# # png(filename ="Fig1d_ver1.png")
+
+# # create_beautiful_radarchart(data= radar.PSPdf2, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in PSP")
+# # 		# Add an horizontal legend
+# # 		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
+
+
+
+# # cat("\n\n\n\n###################################################################################################\n",
+# # 		   "9. BINARY LOGISTIC REGRESSION\n",
+# # 	 	   "####################################################################################################\n\n")
+
+# # cat("-------------------------   GOES IN TEXT - RESULTS - LOGISTIC REGRESSION  --------------------------------\n")
+
+# # # DEFENSE
+# # if (sum(df$RTQUIC_BLR ==1) != 22) {
+# # 	cat("There is an issue with the binarization of RTQUIC variable for binary logistic regression \n")
+# # }
+
+
+# # # Model is selected based on previous analyses (logabeta*Onset) + the simple comparisons in Supp material (Gait/RBD_binary).
+# # # Model was run with and without AD/DX_APD status and all values remained very similar. 
+# # blr <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + Gait_2, data= df2, family = "binomial")
+# # summary(blr)
 				
-## Model fit
-pscl::pR2(blr)["McFadden"]
+# # ## Model fit
+# # pscl::pR2(blr)["McFadden"]
 
 
-### Multicollinearity checks
-car::vif(blr)
-	blronset <- glm(RTQUIC_BLR ~ DX_APD + Onset_age + RBD_binary + Gait_2, data= df, family = "binomial") #Check individual relationship of Onset with RTQUIC
-	car::vif(blronset)
-blrabeta <- glm(RTQUIC_BLR ~ DX_APD + logabeta + RBD_binary + Gait, data= df, family = "binomial") #Check individual relationship of Abeta with RTQUIC
-	car::vif(blrabeta)
+# # ### Multicollinearity checks
+# # car::vif(blr)
+# # 	blronset <- glm(RTQUIC_BLR ~ DX_APD + Onset_age + RBD_binary + Gait_2, data= df, family = "binomial") #Check individual relationship of Onset with RTQUIC
+# # 	car::vif(blronset)
+# # blrabeta <- glm(RTQUIC_BLR ~ DX_APD + logabeta + RBD_binary + Gait, data= df, family = "binomial") #Check individual relationship of Abeta with RTQUIC
+# # 	car::vif(blrabeta)
 
-df <- df %>% mutate(centredbeta = logabeta- mean(logabeta)) %>%
-			mutate(centredonset = Onset_age- mean(Onset_age)) %>% data.frame()
+# # df <- df %>% mutate(centredbeta = logabeta- mean(logabeta)) %>%
+# # 			mutate(centredonset = Onset_age- mean(Onset_age)) %>% data.frame()
 
-centredblr <- glm(RTQUIC_BLR ~ DX_APD + centredbeta*centredonset + RBD_binary + Gait_2, data= df, family = "binomial")
-summary(centredblr)
-car::vif(centredblr) #Now all VIF are low, indicating no problem of multicolllinearity. 
+# # centredblr <- glm(RTQUIC_BLR ~ DX_APD + centredbeta*centredonset + RBD_binary + Gait_2, data= df, family = "binomial")
+# # summary(centredblr)
+# # car::vif(centredblr) #Now all VIF are low, indicating no problem of multicolllinearity. 
 
 
-df[(cooks.distance(blr))>0.06, ]$ID #identifies subjects with high Cook's distance data. 
-test <- subset(df, ID!="T258") 
-blrtest <- glm(RTQUIC_BLR ~  DX_APD + Onset_age*logabeta + RBD_binary + Gait, data= test, family = "binomial")
-summary(blrtest)
+# # df[(cooks.distance(blr))>0.06, ]$ID #identifies subjects with high Cook's distance data. 
+# # test <- subset(df, ID!="T258") 
+# # blrtest <- glm(RTQUIC_BLR ~  DX_APD + Onset_age*logabeta + RBD_binary + Gait, data= test, family = "binomial")
+# # summary(blrtest)
 
-#Examine Cook's distance: not as importnat given dataset characteristics (sample size limited in terms of number of subjects both AD+ and RT+: cannot exclude easily subjects)
-df[(cooks.distance(blr))>0.25, ]$ID #two subjects >0.25
-cooksD <- cooks.distance(blr)
-n <- nrow(df) #Another threshold for Cook,s data = 4/n so lower. In this case, too many high Cook. 
-plot(cooksD, main = "Cooks Distance for Influential Obs") #Two subjects are clearly different than others. However, 1 is one of few RBD+ subjects & 1 is one of few AD+/RT+: hard to exclude them as analysis pointless then.
-	abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
-	df %>% group_by(RTQUIC_BLR) %>% summarize(mean=format(round(mean(Onset_age, na.rm=T),3),3), sd=format(round(sd(Onset_age, na.rm=T),3),3))
-	df %>% group_by(RTQUIC_BLR) %>% summarize(mean=format(round(mean(logabeta, na.rm=T),3),3), sd=format(round(sd(logabeta, na.rm=T),3),3))
+# # #Examine Cook's distance: not as importnat given dataset characteristics (sample size limited in terms of number of subjects both AD+ and RT+: cannot exclude easily subjects)
+# # df[(cooks.distance(blr))>0.25, ]$ID #two subjects >0.25
+# # cooksD <- cooks.distance(blr)
+# # n <- nrow(df) #Another threshold for Cook,s data = 4/n so lower. In this case, too many high Cook. 
+# # plot(cooksD, main = "Cooks Distance for Influential Obs") #Two subjects are clearly different than others. However, 1 is one of few RBD+ subjects & 1 is one of few AD+/RT+: hard to exclude them as analysis pointless then.
+# # 	abline(h = 4/67, lty = 2, col = "steelblue") # add cutoff line
+# # 	df %>% group_by(RTQUIC_BLR) %>% summarize(mean=format(round(mean(Onset_age, na.rm=T),3),3), sd=format(round(sd(Onset_age, na.rm=T),3),3))
+# # 	df %>% group_by(RTQUIC_BLR) %>% summarize(mean=format(round(mean(logabeta, na.rm=T),3),3), sd=format(round(sd(logabeta, na.rm=T),3),3))
 
-#https://www.statology.org/dfbetas-in-r/
-dfbetas <- as.data.frame(dfbetas(blr))
-thresh <- 2/sqrt(nrow(df))
+# # #https://www.statology.org/dfbetas-in-r/
+# # dfbetas <- as.data.frame(dfbetas(blr))
+# # thresh <- 2/sqrt(nrow(df))
 	
-par(mfrow=c(2,1))
-plot(dfbetas$Gait, type='h')
-abline(h = thresh, lty = 2)
-abline(h = -thresh, lty = 2)
-plot(dfbetas$RBD_binary, type='h')
-abline(h = thresh, lty = 2)
-abline(h = -thresh, lty = 2)
+# # par(mfrow=c(2,1))
+# # plot(dfbetas$Gait, type='h')
+# # abline(h = thresh, lty = 2)
+# # abline(h = -thresh, lty = 2)
+# # plot(dfbetas$RBD_binary, type='h')
+# # abline(h = thresh, lty = 2)
+# # abline(h = -thresh, lty = 2)
 
 
-#Sample size: https://www.statology.org/assumptions-of-logistic-regression/
+# # #Sample size: https://www.statology.org/assumptions-of-logistic-regression/
 	
-# Check linear relationship between logit and explanatory variables: box-tidwell test
-logodds <- blr$linear.predictors #if (any(x1 <= 0)) stop("the variables to be transformed must have only positive values")
-boxTidwell(logodds ~ df$DX_APD)
-boxTidwell(logodds ~ df$RBD_binary)
-boxTidwell(logodds ~ df$Gait_2)
+# # # Check linear relationship between logit and explanatory variables: box-tidwell test
+# # logodds <- blr$linear.predictors #if (any(x1 <= 0)) stop("the variables to be transformed must have only positive values")
+# # boxTidwell(logodds ~ df$DX_APD)
+# # boxTidwell(logodds ~ df$RBD_binary)
+# # boxTidwell(logodds ~ df$Gait_2)
 
-# Coefficients
-caret::varImp(blr)	
+# # # Coefficients
+# # caret::varImp(blr)	
 
-# Odds ratio
-coef(blr)
-exp(coef(blr)) 
-cbind(coef(blr),odds_ratio=exp(coef(blr)),exp(confint(blr, level=0.95))) #it says 2.5% and 97.5% because these are the two borders to end up with the cnetral 95% of your distribution
+# # # Odds ratio
+# # coef(blr)
+# # exp(coef(blr)) 
+# # cbind(coef(blr),odds_ratio=exp(coef(blr)),exp(confint(blr, level=0.95))) #it says 2.5% and 97.5% because these are the two borders to end up with the cnetral 95% of your distribution
 
-#Example of interpretation:
-# exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
-# exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
-##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
-
-
-
-##############################################	 LAG HOURS	  		###########################################################
-##############################################################################################################################
-
-cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
-cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
-df %>% count(RTQUIC) 
+# # #Example of interpretation:
+# # # exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
+# # # exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
+# # ##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
 
 
 
-## 1. We want to have a column: Negative vs Positive
-## 2. We want to have a column: lag hours max or 40
 
-# LAG STATISTICS: DISTRIBUTION
-hist(df$RTQUIC_survival_hours)  
-hist(RTposdf$RTQUIC_survival_hours)  
-shapiro.test(df[RTposdf$DX_APD =="CBS", ]$RTQUIC_survival_hours) #nonnormal
-shapiro.test(df[RTposdf$DX_APD =="PSP", ]$RTQUIC_survival_hours) #nonnormal
-shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$RTQUIC_survival_hours) #nonnormal
-shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$RTQUIC_survival_hours) #nonnormal
-shapiro.test(df[RTposdf$AD =="AD Positive", ]$RTQUIC_survival_hours) #nonnormal
-shapiro.test(df[RTposdf$AD =="AD Negative", ]$RTQUIC_survival_hours) #nonnormal
-leveneTest(RTQUIC_survival_hours ~ DX_APD, data = RTposdf) #homoscedasticity  
-leveneTest(RTQUIC_survival_hours ~ Early_onset, data = RTposdf) #homoscedasticity  
-leveneTest(RTQUIC_survival_hours ~ AD, data = RTposdf) #homoscedasticity  
+# # cat("\n\n\n\n###################################################################################################\n",
+# # 		   "10. RTQUIC PARAMETERS SUPP ANALYSES\n",
+# # 	 	   "####################################################################################################\n\n")
+
+# # cat("-------------------------------------------------   GOES IN REVIEW  ---------------------------------------\n")
 
 
-# LAG STATISTICS: SUMMARY
-RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
-RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
-
-RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
-RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
-
-RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
-RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+# # cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
+# # cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
+# # df %>% count(RTQUIC) 
 
 
-# LAG STATISTICS: CORRELATIONS
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Onset_age, method="spearman") #correlated
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Age, method="spearman") 
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logabeta, method="spearman") 
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logNFL, method="spearman")
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logptau, method="spearman")
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logttau, method="spearman")  
-cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$ATI_2, method="spearman") 
+# # ## 1. We want to have a column: Negative vs Positive
+# # ## 2. We want to have a column: lag hours max or 40
 
-# LAG STATISTICS: CORRELATIONS
-ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD",
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with age at onset",
-		xlab="Age at onset (years)", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+# # # LAG STATISTICS: DISTRIBUTION
+# # hist(df$RTQUIC_survival_hours)  
+# # hist(RTposdf$RTQUIC_survival_hours)  
+# # shapiro.test(df[RTposdf$DX_APD =="CBS", ]$RTQUIC_survival_hours) #nonnormal
+# # shapiro.test(df[RTposdf$DX_APD =="PSP", ]$RTQUIC_survival_hours) #nonnormal
+# # shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$RTQUIC_survival_hours) #nonnormal
+# # shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$RTQUIC_survival_hours) #nonnormal
+# # shapiro.test(df[RTposdf$AD =="AD Positive", ]$RTQUIC_survival_hours) #nonnormal
+# # shapiro.test(df[RTposdf$AD =="AD Negative", ]$RTQUIC_survival_hours) #nonnormal
+# # leveneTest(RTQUIC_survival_hours ~ DX_APD, data = RTposdf) #homoscedasticity  
+# # leveneTest(RTQUIC_survival_hours ~ Early_onset, data = RTposdf) #homoscedasticity  
+# # leveneTest(RTQUIC_survival_hours ~ AD, data = RTposdf) #homoscedasticity  
 
 
-ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD",
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with logged amyloid beta 42",
-		xlab="Age at onset (years)", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+# # # LAG STATISTICS: SUMMARY
+# # RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+# # RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
 
-ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD",
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with logged ptau181",
-		xlab="Age at onset (years)", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+# # RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+# # RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+
+# # RTposdf %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+# # RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(median(RTQUIC_survival_hours, na.rm=T),2),2), IQR=IQR(RTQUIC_survival_hours, na.rm=T), min=min(RTQUIC_survival_hours, na.rm=T), max=max(RTQUIC_survival_hours, na.rm=T))
+
+
+# # # LAG STATISTICS: CORRELATIONS
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Onset_age, method="spearman") #correlated
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$Age, method="spearman") 
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logabeta, method="spearman") 
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logNFL, method="spearman")
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logptau, method="spearman")
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$logttau, method="spearman")  
+# # cor.test(RTposdf$RTQUIC_survival_hours, RTposdf$ATI_2, method="spearman") 
+
+# # # LAG STATISTICS: CORRELATIONS
+# # ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD",
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with age at onset",
+# # 		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="Onset_age", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+
+# # ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD",
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with logged amyloid beta 42",
+# # 		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="logabeta", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+
+# # ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD",
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with logged ptau181",
+# # 		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="logptau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
   
 
-ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD",
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with logged t-tau",
-		xlab="Age at onset (years)", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+# # ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD",
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with logged t-tau",
+# # 		xlab="Age at onset (years)", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="logttau", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
 
-ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD",https://www.facebook.com/photo?fbid=10159531068156876&set=pcb.3597966813754060
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with logged NFL",
-		xlab="NFL (pg/mL)", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
+# # ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD",https://www.facebook.com/photo?fbid=10159531068156876&set=pcb.3597966813754060
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with logged NFL",
+# # 		xlab="NFL (pg/mL)", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="logNFL", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
 
-ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD",
-		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
-		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
-		title="Correlation of lag with ATI",
-		xlab="ATI_2", ylab = "Lag (hours)") 
-ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
-	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
-	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
-
-
-# # LAG STATISTICS: LOG-RANK TEST
-# s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df) #uses the survival() package
-# s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ DX_APD, data = df) #uses the survival() package
-# s2 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ AD, data = df) #uses the survival() package
-# s3 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #uses the survival() package
-# ggsurvplot(s1, data = df, pval = TRUE)
-# ggsurvplot(s2, data = df, pval = TRUE)
-# ggsurvplot(s3, data = df, pval = TRUE)
+# # ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD",
+# # 		size=5, shape=21, palette = c(CBS= "#56B4E9", PSP = "#CC79A7"),
+# # 		add = "reg.line", cor.coef = TRUE, cor.method = "spearman", 
+# # 		title="Correlation of lag with ATI",
+# # 		xlab="ATI_2", ylab = "Lag (hours)") 
+# # ggscatter(RTposdf, x="ATI_2", y= "RTQUIC_survival_hours", fill="DX_APD", add = "reg.line", conf.int = TRUE) +
+# # 	stat_cor(aes(color = DX_APD, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), show.legend = FALSE) +
+# # 	scale_fill_manual(values=cbPalette_DX_APD, name="Diagnosis", labels=c("CBS", "PSP"))
 
 
-# survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #p=.05
-# summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df), times = 24)
+# # # # LAG STATISTICS: LOG-RANK TEST
+# # # s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ 1, data = df) #uses the survival() package
+# # # s1 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ DX_APD, data = df) #uses the survival() package
+# # # s2 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ AD, data = df) #uses the survival() package
+# # # s3 <- survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #uses the survival() package
+# # # ggsurvplot(s1, data = df, pval = TRUE)
+# # # ggsurvplot(s2, data = df, pval = TRUE)
+# # # ggsurvplot(s3, data = df, pval = TRUE)
 
 
-# # LAG STATISTICS: KAPLAN-MEIER CURVE FOR WHOLE DATASET
-# # Uses survfit2() in ggsurvfit() package:
-# survfit2(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df)  %>% 
-#     ggsurvfit() + add_confidence_interval() + labs(x="Lag (hours)", "Survival probability") #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
-
-# # LAG STATISTICS: ANALYSES ON ONLY THE RT-QUIC SUBJECTS
-# # Fit a Cox proportional hazards model
-# # Redundant with the fisher analyses already shown above
-# fit.coxph <- coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset + AD, data = df)
-# ggforest(fit.coxph, data = df)
+# # # survdiff(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df) #p=.05
+# # # summary(survfit(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df), times = 24)
 
 
+# # # # LAG STATISTICS: KAPLAN-MEIER CURVE FOR WHOLE DATASET
+# # # # Uses survfit2() in ggsurvfit() package:
+# # # survfit2(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset, data = df)  %>% 
+# # #     ggsurvfit() + add_confidence_interval() + labs(x="Lag (hours)", "Survival probability") #bold() is required otherwise the Y axis will not be bold in spite of element_text specification below
+
+# # # # LAG STATISTICS: ANALYSES ON ONLY THE RT-QUIC SUBJECTS
+# # # # Fit a Cox proportional hazards model
+# # # # Redundant with the fisher analyses already shown above
+# # # fit.coxph <- coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset + AD, data = df)
+# # # ggforest(fit.coxph, data = df)
 
 
-############################################		THT FLUO	  		#######################################################
-##############################################################################################################################
-
-# cat("THT max is the max fluorescent signal reached after 48 hours of monitoring of the assay. \n")
-# STATISTICS: SUMMARY
-
-# THT STATISTICS: DISTRIBUTION
-hist(RTposdf$ThTmax)  
-shapiro.test(df[RTposdf$DX_APD =="CBS", ]$ThTmax) #nonnormal
-shapiro.test(df[RTposdf$DX_APD =="PSP", ]$ThTmax) #nonnormal
-shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$ThTmax) #nonnormal
-shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$ThTmax) #nonnormal
-shapiro.test(df[RTposdf$AD =="AD Positive", ]$ThTmax) #nonnormal
-shapiro.test(df[RTposdf$AD =="AD Negative", ]$ThTmax) #nonnormal
-leveneTest(ThTmax ~ DX_APD, data = RTposdf) #homoscedasticity  
-leveneTest(ThTmax ~ Early_onset, data = RTposdf) #homoscedasticity  
-leveneTest(ThTmax ~ AD, data = RTposdf) #homoscedasticity  
 
 
-# THT STATISTICS: SUMMARY
-# ONSET STATISTICS: SUMMARY
-RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
-RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
-RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
-RTposdf %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# # ############################################		THT FLUO	  		#######################################################
+# # ##############################################################################################################################
 
-# ONSET STATISTICS: TTEST
-t.test(RTposdf$ThTmax ~ RTposdf$DX_APD, var.equal=TRUE) 
+# # # cat("THT max is the max fluorescent signal reached after 48 hours of monitoring of the assay. \n")
+# # # STATISTICS: SUMMARY
+
+# # # THT STATISTICS: DISTRIBUTION
+# # hist(RTposdf$ThTmax)  
+# # shapiro.test(df[RTposdf$DX_APD =="CBS", ]$ThTmax) #nonnormal
+# # shapiro.test(df[RTposdf$DX_APD =="PSP", ]$ThTmax) #nonnormal
+# # shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$ThTmax) #nonnormal
+# # shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$ThTmax) #nonnormal
+# # shapiro.test(df[RTposdf$AD =="AD Positive", ]$ThTmax) #nonnormal
+# # shapiro.test(df[RTposdf$AD =="AD Negative", ]$ThTmax) #nonnormal
+# # leveneTest(ThTmax ~ DX_APD, data = RTposdf) #homoscedasticity  
+# # leveneTest(ThTmax ~ Early_onset, data = RTposdf) #homoscedasticity  
+# # leveneTest(ThTmax ~ AD, data = RTposdf) #homoscedasticity  
 
 
-# THT STATISTICS: ANCOVA
-aov <- aov(ThTmax ~  DX_APD + Onset_age + AD, RTposdf) 
-Anova(aov, type="II") #Compare with type III
-check_normality(aov)
+# # # THT STATISTICS: SUMMARY
+# # # ONSET STATISTICS: SUMMARY
+# # RTposdf %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# # RTposdf %>% group_by(AD) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# # RTposdf %>% group_by(Early_onset) %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+# # RTposdf %>% summarize(count=n(), format(round(mean(ThTmax, na.rm=T),2),2), sd=sd(ThTmax, na.rm=T))
+
+# # # ONSET STATISTICS: TTEST
+# # t.test(RTposdf$ThTmax ~ RTposdf$DX_APD, var.equal=TRUE) 
+
+
+# # # THT STATISTICS: ANCOVA
+# # aov <- aov(ThTmax ~  DX_APD + Onset_age + AD, RTposdf) 
+# # Anova(aov, type="II") #Compare with type III
+# # check_normality(aov)
 
 
 
