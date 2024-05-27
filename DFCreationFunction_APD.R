@@ -338,7 +338,6 @@ df <- df %>%
     mutate(RTQUIC_BLR = case_when(RTQUIC_BLR == "aSyn-SAA positive" ~ 1,
                                   RTQUIC_BLR == "aSyn-SAA negative" ~ 0)) %>%
 
-
   	##Lifetime_VisualHallucinations_binary: Instead of TRUE and False have Positive and Negative
     mutate(Lifetime_VisualHallucinations_binary= Lifetime_VisualHallucinations_binary) %>%
     mutate(Lifetime_VisualHallucinations_binary = case_when(Lifetime_VisualHallucinations_binary == TRUE ~ "Yes",

@@ -43,5 +43,38 @@ string.var <- function(df, working.col, string, new.var.name) {
   return(df)
 }
 
-                
+## CHOOSEX2.FUNC() ##
+chooseX2.func <- function(table) {
+  total <- table[1] + table[2] + table[3] + table[4]
+  cell1 <- (table[1] + table[2]) * (table[1] + table[3])
+  cell2 <- (table[1] + table[2]) * (table[2] + table[4])
+  cell3 <- (table[1] + table[3]) * (table[3] + table[4])
+  cell4 <- (table[3] + table[4]) * (table[2] + table[4])
+  if ((cell1/total) <5 | (cell2/total) <5 | (cell3/total) <5 | (cell4/total) <5 ) {
+  return("fisher") }
+  	else {
+  	return("chisquare")
+  	}
+  }           
+
+
+## CREATE_BEAUTIFUL_RADARCHART() ##
+create_beautiful_radarchart <- function(data, color= "red", plty=1, vlabels = colnames(data), vlcex= 0.7, caxislabels= NULL, title= NULL, ...){
+  radarchart(data,
+  axistype = 1,
+  pcol= color, #Color of the lines of the radar plot
+  pfcol = scales::alpha(color, 0.3), #Fill color, based on color
+  plwd= 1, #line weight
+  plty= plty, #line type for the radar
+  cglcol = "#000000", #line color for the grid
+  cglty = 1,#line type for the grid
+  cglwd = 0.8,#line width for the grid
+  axislabcol = "grey",  #color of axis label and numbers. Default is “blue”.
+  vlcex = vlcex, #Label size: add in function call.
+  vlabels = vlabels, #Column names for variable names. No need to change
+  caxislabels= caxislabels, #Character vector to be used as labels on the center axis
+  title= title, #title of the plot
+  ...
+  )
+}
 
