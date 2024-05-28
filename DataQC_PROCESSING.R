@@ -1,6 +1,6 @@
-# FILENAME: DFCreationFunction_APD.R
+# FILENAME: DataQC_PROCESSING.R
 
-#Last updated 16 May 2024
+#Last updated May 2024
 ##var.func.1 creates the APD dataset that is used in the manuscript. It performs basic QC and formatting of the data. 
 ## The function is shared for informative purposes regarding format of the data/later analyses.
 ## The dataframe resulting of the var.func.1() call was saved as a cvs, which is the document that would be shared upon request. 
@@ -333,7 +333,6 @@ df <- df %>%
                               RTQUIC == "Negative" ~ "aSyn-SAA negative")) %>%
     mutate(RTQUIC= as.factor(RTQUIC)) %>%
 
-    ##RTQUIC_BLR: Instead of Positive and Negative have 1 and 0 for logistic regression
     mutate(RTQUIC_BLR= RTQUIC) %>%
     mutate(RTQUIC_BLR = case_when(RTQUIC_BLR == "aSyn-SAA positive" ~ 1,
                                   RTQUIC_BLR == "aSyn-SAA negative" ~ 0)) %>%

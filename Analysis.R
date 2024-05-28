@@ -1,9 +1,9 @@
 # FILENAME: Analysis_APD.R
 
-#Last updated 16 May 2024
+#Last updated May 2024
 
 #Usage: sources other files: 
-#RScript Test_APD.R /Users/nikhilbhagwat/Desktop/7_PUBLICATIONS_ONGOING/7.1_APD_MS_2024-01/7.1.0_Data/APD_Neurology_MS_data.csv
+#RScript Analysis_APD.R /Users/nikhilbhagwat/Desktop/7_PUBLICATIONS_ONGOING/7.1_APD_MS_2024-01/7.1.0_Data/APD_Neurology_MS_data.csv
 
 
 
@@ -16,8 +16,8 @@ arg.vec <- commandArgs(trailingOnly = T) #Defines a vector of arguments. In this
 source('Functions.R') #Source the functions from file in same repository (for now)
 	#tidyverse() loaded in Functions.R
 
-source('DFCreationFunction_APD.R') #Source the function taht creates the new dataframe on which analysis is performed
-	#lubridate() loaded in DFCreationFunction_APD.R
+source('DataQC_PROCESSING.R') #Source the function taht creates the new dataframe on which analysis is performed
+	#lubridate() loaded in DataQC_PROCESSING.R
 
 
 ## LOAD LIBRARIES
@@ -1294,7 +1294,7 @@ label1 <- "paste(F*'(5, 59)'==4.29*', ' ~~ italic(p), \"< .01\"*', ' ~~ italic(R
 label2 <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
  # Change name of variable RTQUIC
-fig1b_ver1 <- ggplot(data=figdf, aes(x=Onset_age,y=yvar, color=RTQUIC)) + #yvar is Abeta42 logged 	#Ggplot figure basic layout
+fig1b <- ggplot(data=figdf, aes(x=Onset_age,y=yvar, color=RTQUIC)) + #yvar is Abeta42 logged 	#Ggplot figure basic layout
 
 	# Add the actual trend/slopes + CI around it
 	geom_line() + #DO NOT use show.legend as it will create a duplicate legend if combined with scale_color changes
@@ -1328,9 +1328,9 @@ fig1b_ver1 <- ggplot(data=figdf, aes(x=Onset_age,y=yvar, color=RTQUIC)) + #yvar 
 	theme(axis.text=element_text(size=16), axis.title=element_text(size=16,face="bold")) +
 	theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))
 
-fig1b_ver1
+fig1b
 
-ggsave(fig1b_ver1, filename = "Fig1b_ver1.png", bg= "transparent", width=9, height=10)
+ggsave(fig1b, filename = "Fig1b.png", bg= "transparent", width=9, height=10)
 
 
 
@@ -2001,12 +2001,13 @@ colnames(radar.rtPSPdf)[which(names(radar.rtPSPdf) == "Falls")] <- "Falls & inst
 
 
 # Create the radar charts
-png(filename ="Fig1d_PSP.png")
+png(filename ="Fig1c_PSP.png")
 
 create_beautiful_radarchart(data= radar.rtPSPdf, color= cbPalette_RTQUIC, vlcex=1, plty=1, title="Motor symptoms in PSP")
 		# Add an horizontal legend
 		# legend(-0.65, -1.2, legend=c(expression(alpha*"Syn-SAA+"),expression(alpha*"Syn-SAA-")), horiz=TRUE, bty= "o", pch= 15 , col= cbPalette_RTQUIC, text.col= "black", cex= 1, pt.cex= 1.5)
 
+dev.off()#Not needed?
 
 
 cat("\n\n\n\n###################################################################################################\n",
