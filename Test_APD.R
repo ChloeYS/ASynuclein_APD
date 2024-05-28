@@ -441,21 +441,21 @@ if (sum(c(nrow(CBSdf), nrow(PSPdf), nrow(RTposdf), nrow(RTnegdf), nrow(ADposdf),
 # NfL values are typically right skewed especially in FTLD-related diagnoses. Therefore, different approach for outlier identification was chosen.  
 # Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
 # For reference, outliers are added to the notes of Tables. 
-boxplot(NFL_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
-	stripchart(NFL_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
-boxplot(NFL_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
-	stripchart(NFL_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# boxplot(NFL_2 ~ DX_APD, data= CBSdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+# 	stripchart(NFL_2 ~ DX_APD, data = CBSdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+# boxplot(NFL_2 ~ DX_APD, data= PSPdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+# 	stripchart(NFL_2 ~ DX_APD, data = PSPdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
 
-thresholdCBS <- min(max(CBSdf$NFL_2,na.rm=T), as.numeric(quantile(CBSdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-thresholdPSP <- min(max(PSPdf$NFL_2,na.rm=T), as.numeric(quantile(PSPdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
-cat("Outliers are values above ", thresholdCBS, " in CBS subset. \n")
-cat("Outliers are values above ", thresholdPSP, " in PSP subset. \n")
+# thresholdCBS <- min(max(CBSdf$NFL_2,na.rm=T), as.numeric(quantile(CBSdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (CBSdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+# thresholdPSP <- min(max(PSPdf$NFL_2,na.rm=T), as.numeric(quantile(PSPdf$NFL_2, 0.75, na.rm=T)) + (IQR(na.rm=T, (PSPdf$NFL_2)*3))) #reports the value Q3+ IQR*3 (3 is very tolerant threshold)
+# cat("Outliers are values above ", thresholdCBS, " in CBS subset. \n")
+# cat("Outliers are values above ", thresholdPSP, " in PSP subset. \n")
 
-dfnfl<- df[df$DX_APD=="PSP" | df$NFL_2 <= thresholdCBS, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
-dfnfl<- dfnfl[dfnfl$DX_APD=="CBS" | dfnfl$NFL_2 <= thresholdPSP, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are PSP and either have no NFL value or one over the threshold
+# dfnfl<- df[df$DX_APD=="PSP" | df$NFL_2 <= thresholdCBS, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are CBS and either have no NFL value or one over the threshold
+# dfnfl<- dfnfl[dfnfl$DX_APD=="CBS" | dfnfl$NFL_2 <= thresholdPSP, ] %>% remove_empty("rows") %>% data.frame() #Removes all subjects who are PSP and either have no NFL value or one over the threshold
 
-removed <- setdiff(df, dfnfl) 
-cat("Following values were removed for the descriptive stats on NfL: ", removed$NFL_2, "\n")
+# removed <- setdiff(df, dfnfl) 
+# cat("Following values were removed for the descriptive stats on NfL: ", removed$NFL_2, "\n")
 
 # # NFL STATISTICS: DISTRIBUTION
 # shapiro.test(dfnfl[dfnfl$DX_APD=="CBS",  ]$logNFL) #normal
@@ -1988,154 +1988,230 @@ cat("Following values were removed for the descriptive stats on NfL: ", removed$
 
 
 
-cat("\n\n\n\n###################################################################################################\n",
-		   "9. BINARY LOGISTIC REGRESSION\n",
-	 	   "####################################################################################################\n\n")
+# cat("\n\n\n\n###################################################################################################\n",
+# 		   "9. BINARY LOGISTIC REGRESSION\n",
+# 	 	   "####################################################################################################\n\n")
 
-cat("-------------------------   GOES IN TEXT - RESULTS - LOGISTIC REGRESSION  --------------------------------\n")
+# cat("-------------------------   GOES IN TEXT - RESULTS - LOGISTIC REGRESSION  --------------------------------\n")
 
-# DEFENSE
-if (sum(df$RTQUIC_BLR ==1) != 22) {
-	cat("There is an issue with the binarization of RTQUIC variable for binary logistic regression \n")
-}
-
-
-# BLR STATS: LOGISTIC REGRESSION MODEL SELECTION
-# Model is selected based on previous analyses (logabeta*Onset) + the simple comparisons in Supp material (Gait/RBD_binary).
-# Model was run with and without AD/DX_APD status and all values remained very similar. 
-
-dfblr<- df[-which(is.na(df$logNFL)), ] #Remove NAs in df for the predictor NfL (anyway would have been automatically excluded)
-
-blr <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
-summary(blr)
-AIC(blr) #lowest AIC
-
-blr2 <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age) + scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
-AIC(blr2) #Slightly better to keep interaction term
-
-blr3 <- glm(RTQUIC_BLR ~  scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
-AIC(blr3) #Slightly better with DX 
-
-blr4 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait, data= dfblr, family = "binomial"(logit))
-AIC(blr4) #Slightly better with DX 
-
-blr5 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait, data= dfblr, family = "binomial"(logit))
-AIC(blr5) #Slightly better with NfL
-
-blr6 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + scale(logNFL), data= dfblr, family = "binomial"(logit))
-AIC(blr6) #Better with gait
-
-blr7 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
-AIC(blr7) #Better with RBD
+# # DEFENSE
+# if (sum(df$RTQUIC_BLR ==1) != 22) {
+# 	cat("There is an issue with the binarization of RTQUIC variable for binary logistic regression \n")
+# }
 
 
-# BLR STATS: LOGISTIC REGRESSION MODEL DIAGNOSTICS
-pscl::pR2(blr)["McFadden"]
+# # BLR STATS: LOGISTIC REGRESSION MODEL SELECTION
+# # Model is selected based on previous analyses (logabeta*Onset) + the simple comparisons in Supp material (Gait/RBD_binary).
+# # Model was run with and without AD/DX_APD status and all values remained very similar. 
 
-# COLLINEARITY CHECK WITH VARIABLE INFLATION FACTOR
-# First look at Onset_age and logged Abeta42 separately due to interaction
-blronset <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Onset with RTQUIC
-	car::vif(blronset)
-blrabeta <- glm(RTQUIC_BLR ~ DX_APD + scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Abeta with RTQUIC
-	car::vif(blrabeta)
-blr_nointerac <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)+ scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Abeta with RTQUIC
-	car::vif(blr_nointerac)
+# dfblr<- df[-which(is.na(df$logNFL)), ] #Remove NAs in df for the predictor NfL (anyway would have been automatically excluded)
 
-# With interaction and scale
-car::vif(blr)
+# blr <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
+# summary(blr)
+# AIC(blr) #lowest AIC but Dx and NFL are not significant. So should consider excluding them. 
 
-# AUTOCORRELATION RESIDUALS
-durbinWatsonTest(blr)
+# blr2 <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age) + scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
+# AIC(blr2) #Slightly better to keep interaction term
 
-# Coefficients
-caret::varImp(blr)	
+# blr3 <- glm(RTQUIC_BLR ~  scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
+# AIC(blr3) #Slightly better with DX 
 
-# LINEARITY BETWEEN LOGIT AND IVS
-# In logistic regression, we assume the relationship is linear on the logit scale. This is assessed with component-plus-residual plots. The “component” is the values of a variable multiplied by its estimated coefficient (meaning that each predictor has its own component vector), and the “residual” is the working residuals, a type of residuals in generalized linear models.
-# https://sscc.wisc.edu/sscc/pubs/RegDiag-R/logistic-regression.html#log_lin
-crPlots(blr2) #without the interaction
+# blr4 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait, data= dfblr, family = "binomial"(logit))
+# AIC(blr4) #Slightly better with DX 
 
-dfblr |> 
-  mutate(residuals = coef(blr)[3]*Onset_age + residuals(blr, type="working")) |> 
-  ggplot(aes(x = Onset_age, y = residuals)) +
-  geom_point() +
-  geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
-  geom_smooth(se = F)
+# blr5 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait, data= dfblr, family = "binomial"(logit))
+# AIC(blr5) #Slightly better with NfL
 
-dfblr |> 
-  mutate(residuals = coef(blr)[4]*logabeta + residuals(blr, type="working")) |> 
-  ggplot(aes(x = logabeta, y = residuals)) +
-  geom_point() +
-  geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
-  geom_smooth(se = F)
+# blr6 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + scale(logNFL), data= dfblr, family = "binomial"(logit))
+# AIC(blr6) #Better with gait
 
-dfblr |> 
-  mutate(residuals = coef(blr)[7]*logNFL + residuals(blr, type="working")) |> 
-  ggplot(aes(x = scale(logNFL), y = residuals)) +
-  geom_point() +
-  geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
-  geom_smooth(se = F)
+# blr7 <- glm(RTQUIC_BLR ~  DX_APD + scale(Onset_age)*scale(logabeta) + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
+# AIC(blr7) #Better with RBD
 
-# These plots indicate that there are important outliers. Since this analysis is just exploratory and underpowered to begin with, the results below are presented for 
-## informative purposes to evaluate the robustness of findings.
-# As noted in the manuscript, the binary logistic regression modeling is underpowered due to the heterogeneity of hte sample. 
 
-	# NfL values are typically right skewed especially in FTLD-related diagnoses. Therefore, different approach for outlier identification was chosen.  
-	# Remove outliers over full dataset, but at a tolerant threshold (Q3+3*IQR instead of 1.5 IQR. Reference for this is: https://www.nature.com/articles/s41598-020-66090-x 
-	# For reference, outliers are added to the notes of Tables. 
-	dfnflblr<- dfnfl[-which(is.na(dfnfl$logNFL)), ] #Remove NAs in df for the predictor NfL (anyway would have been automatically excluded)
+# #IMPORTANT NOTE: As mentioned in Results, we knwo that the generalizability of this model is likely to be limited due to the relatively low
+# ## sample size consideirng hte number of predictors. Therefore, the model is mostly meant to give additional information. For ex, RBD is a rare
+# ## symptom so it would be very unlikely that the OR would remain stable across multiple iterations of the model. Similarly, we preferred to keep
+# ## outliers for the run, but below the model without these outliers is also shown. 
 
-	blrtest <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfnflblr, family = "binomial"(logit))
-	summary(blrtest)
-	AIC(blrtest)
+# # BLR STATS: LOGISTIC REGRESSION MODEL DIAGNOSTICS
+# pscl::pR2(blr)["McFadden"]
 
-	# dfnflblr |> 
-  	# mutate(residuals = coef(blrtest)[7]*logNFL + residuals(blrtest, type="working")) |> 
-  	# ggplot(aes(x = scale(logNFL), y = residuals)) +
-  	# geom_point() +
-  	# geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
-  	# geom_smooth(se = F)
+# # COLLINEARITY CHECK WITH VARIABLE INFLATION FACTOR
+# # First look at Onset_age and logged Abeta42 separately due to interaction
+# blronset <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Onset with RTQUIC
+# 	car::vif(blronset)
+# blrabeta <- glm(RTQUIC_BLR ~ DX_APD + scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Abeta with RTQUIC
+# 	car::vif(blrabeta)
+# blr_nointerac <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)+ scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial") #Check individual relationship of Abeta with RTQUIC
+# 	car::vif(blr_nointerac)
 
-# Odds ratio
+# # With interaction and scale
+# car::vif(blr)
+
+# # AUTOCORRELATION RESIDUALS
+# durbinWatsonTest(blr)
+
+# # Variable importance
+# caret::varImp(blr) #Similar, so all variables are of comparable importance in this model. 
+
+# # LINEARITY BETWEEN LOGIT AND IVS
+# # In logistic regression, we assume the relationship is linear on the logit scale. This is assessed with component-plus-residual plots. The “component” is the values of a variable multiplied by its estimated coefficient (meaning that each predictor has its own component vector), and the “residual” is the working residuals, a type of residuals in generalized linear models.
+# # https://sscc.wisc.edu/sscc/pubs/RegDiag-R/logistic-regression.html#log_lin
+# crPlots(blr2) #without the interaction
+
+# dfblr |> #Good 
+#   mutate(residuals = coef(blr)[3]*Onset_age + residuals(blr, type="working")) |> 
+#   ggplot(aes(x = Onset_age, y = residuals)) +
+#   geom_point() +
+#   geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+#   geom_smooth(se = F)
+
+# dfblr |> #Not linear
+#   mutate(residuals = coef(blr)[4]*logabeta + residuals(blr, type="working")) |> 
+#   ggplot(aes(x = logabeta, y = residuals)) +
+#   geom_point() +
+#   geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+#   geom_smooth(se = F)
+
+# dfblr |> #Not linear
+#   mutate(residuals = coef(blr)[7]*logNFL + residuals(blr, type="working")) |> 
+#   ggplot(aes(x = scale(logNFL), y = residuals)) +
+#   geom_point() +
+#   geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+#   geom_smooth(se = F)
+
+# # These plots indicate that there are important outliers. Since this analysis is just exploratory and underpowered to begin with, the results below are presented for 
+# ## informative purposes to evaluate the robustness of findings.
+
+
+# # TESTING THE MODEL WITHOUT OUTLIERS OR DIFFERENT ITERATIONS - MODEL SELECTION CONTINUED
+# # As noted in the manuscript, the binary logistic regression modeling is underpowered due to the heterogeneity of hte sample. 
+
+# # REMOVING ABETA OUTLIERS (EVEN NOT IDENTIFIED BY TUKEY)
+# dfabetablr <- dfabeta[!(dfabeta$logabeta <5), ] #Remove the low Abeta outlier
+# dfabetablr<- dfabetablr[-which(is.na(dfabetablr$logNFL)), ] #Remove NAs in df for the predictor NfL (anyway would have been automatically excluded)
+
+# blrtest <- glm(RTQUIC_BLR ~ DX_APD + scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait + scale(logNFL), data= dfabetablr, family = "binomial"(logit))
+# summary(blrtest)
+# AIC(blrtest) #lowest AIC but Dx and NFL are not significant. So should consider excluding them. 
+
+# dfabetablr |> 
+#  	mutate(residuals = coef(blrtest)[3]*Onset_age + residuals(blrtest, type="working")) |> 
+#  	ggplot(aes(x = Onset_age, y = residuals)) +
+#   	geom_point() +
+#   	geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+#   	geom_smooth(se = F)
+
+# dfabetablr |> 
+# 	mutate(residuals = coef(blrtest)[4]*logabeta + residuals(blrtest, type="working")) |> 
+# 	ggplot(aes(x = logabeta, y = residuals)) +
+# 	geom_point() +
+# 	geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+# 	geom_smooth(se = F)
+
+# dfabetablr |> 
+# 	mutate(residuals = coef(blrtest)[7]*logNFL + residuals(blrtest, type="working")) |> 
+# 	ggplot(aes(x = scale(logNFL), y = residuals)) +
+# 	geom_point() +
+# 	geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+# 	geom_smooth(se = F)
+
+# removed <- setdiff(dfblr, dfabetablr) 
+# removed[, c("RTQUIC", "AD", "Early_onset", "logabeta")]
+
+# cat("The following IDs are removed based on Abeta42 values for the corrected logistic regression model with better diagnostics: ", removed$logabeta, "\n")
+# cat("The issue is, both are aSyn-SAA+ (bringing down total number of aSyn-SAA+ to 20 instead of 22 (aSyn-SAA+ is the outcome measure for this model),
+# 	but 1 especially is one of the 8 aSyn-SAA+/young-onset, 7 aSyn-SAA+/AD+, and 5 aSyn-SAA+/AD+. We already know from Fig 1A that these combinations are rare 
+# 	but they are of interest in our cohort due to 1. hypothesis 2. results of frequency analyses (categorical tests on AD+ vs Young-onset, so removing
+# 	a subject that meets all these criteria would in itself be an issue. \n")
+# cat("Removing extreme Abeta42 values (even not identified by Tukey method) improves assumption testing output. It removes important information from the model though as it reduces significantly groups that were already underrepresetned but of interest.
+# In this iteration, Onset age, Gait, RBD, and NfL are significantly predictors of aSyn-SAA+, but not Abeta 42. ")
+
+# # REMOVING VARIABLES:
+# # NFL and DX can be removed as they are not significant in blr model. However: DX is clinically really importnat hence its inclusion. 
+# # NFL is significant in some iterations of the model, such as the one above - it could be a significant covariate/confounding factor
+# # that "competes" with Abeta. 
+# blrtest2 <- glm(RTQUIC_BLR ~ scale(Onset_age)*scale(logabeta) + RBD_binary + LP2_gait, data= dfblr, family = "binomial"(logit))
+# summary(blrtest2)
+# AIC(blrtest2) #lowest AIC but Dx and NFL are not significant. So should consider excluding them. 
+
+# dfblr |> 
+# 	mutate(residuals = coef(blrtest2)[3]*Onset_age + residuals(blrtest2, type="working")) |> 
+# 	ggplot(aes(x = Onset_age, y = residuals)) +
+# 	geom_point() +
+# 	geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+# 	geom_smooth(se = F)
+
+# dfblr |> 
+# 	mutate(residuals = coef(blrtest2)[4]*logabeta + residuals(blrtest2, type="working")) |> 
+# 	ggplot(aes(x = logabeta, y = residuals)) +
+# 	geom_point() +
+# 	geom_smooth(color = "red", method = "lm", linetype = 2, se = F) +
+# 	geom_smooth(se = F)
+
+# cat("Removing variables overall improves assumption testing output, except at very high age at onset(>80). 
+# In this iteration, Onset age, Gait, and RBD are significantly predictors of aSyn-SAA+. Onset age by Abeta42 is significant at a 90% confidence level.
+# It is the best compromise between reducing violation of assumptions and representativity of the sample. It also reduces the issue of overfitting.")
+
+# # Conclusion: The logit linearity assumption was violated so we examined multiple possibilities. 
+# # Transforming data was not appropriate due to the complexity of the model.
+# # Removing outliers was promising based on graph: Removing NfL outliers (not shown) fixed the assumption for NfL but not Abeta42. 
+# # Removing outliers of Abeta42 based on Tukey method (eg using dfabeta dataset) did not fix the assumption for either variable (not shown).
+# # Removing the lowest value of Abeta42 (<5 logged Abeta42 value) in addition to the positive outliers of Abeta42 (not of NfL) reduced violation
+# # of the linearity assumption. However, the low Abeta42 subject is not an outlier based on Tukey method (ie not unreasonably low Abeta42 compared to other AD+/diagnostic group/RT-QUIC group. 
+# ## On the other hand, this low Abeta42 subject is one of few subjects who are RTQUIC+ (rarer outcome, moreover outcome to be predicted), AD+ (<20% of whole dataset), and young-onset RTQUIC+ (8 people total, of which 5 are AD+). 
+# # The last approach tested was removing variables that were not significant or of interest from the final model. In that model, the whole dataset could be including without violating the linearity assumption (except at very high age at onset, which is easier to interpret). 
+
+# cat("\n")
+
+# cat("For the reasons above, no further efforts towards prediction are performed. OR will be given for scale. Visualization of the model is kept here for interpreation
+# 	but not included in the manuscript. Influence of outliers should be highlighted, but to remove them entirely would also be inappropriate. \n")
+# cat("Consistently significant effect of: Age at onset; Gait; and RBD.\n")
+
+# # MODEL COEFFICIENTS (FOR SCALE ONLY)
 # coef(blr)
 # exp(coef(blr)) 
 # cbind(coef(blr),odds_ratio=exp(coef(blr)),exp(confint(blr, level=0.95))) #it says 2.5% and 97.5% because these are the two borders to end up with the cnetral 95% of your distribution
 
-# # #Example of interpretation:
-# # # exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
-# # # exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
-# # ##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
+# coef(blrtest2)
+# exp(coef(blrtest2)) 
+# cbind(coef(blrtest2),odds_ratio=exp(coef(blrtest2)),exp(confint(blrtest2, level=0.95))) #it says 2.5% and 97.5% because these are the two borders to end up with the cnetral 95% of your distribution
+
+# #Example of interpretation:
+# # exp(4.88278) #RBD. 81.60169. Odds of someone with RBD being RTquic+ increases by 8000%. IE x80. 
+# # exp(-2.85663) #Gait. 0.09253855. Odds of someone with gait issues being RTQUIC+ decreases by 10% compared to someone without. 
+# ##### exp(0.15122) #Age: 1.16. #The value indicates that as age increase by one more unit, then the odds of being SAA+ increases by 16%
 
 
 
+cat("\n\n\n\n###################################################################################################\n",
+		   "10. RTQUIC PARAMETERS SUPP ANALYSES\n",
+	 	   "####################################################################################################\n\n")
 
-# # cat("\n\n\n\n###################################################################################################\n",
-# # 		   "10. RTQUIC PARAMETERS SUPP ANALYSES\n",
-# # 	 	   "####################################################################################################\n\n")
-
-# # cat("-------------------------------------------------   GOES IN REVIEW  ---------------------------------------\n")
-
-
-# # cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
-# # cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
-# # df %>% count(RTQUIC) 
+cat("-------------------------------------------------   GOES IN REVIEW  ---------------------------------------\n")
 
 
-# # ## 1. We want to have a column: Negative vs Positive
-# # ## 2. We want to have a column: lag hours max or 40
+cat("Lag hours is the #hours required to reach threshold for positivity. It makes the most sense to think about it as data suited for survival analysis. \n")
+cat("For that purpose, we are censoring the subjects who never reached positivity (RTQUIC negative) \n")
+df %>% count(RTQUIC) 
 
-# # # LAG STATISTICS: DISTRIBUTION
-# # hist(df$RTQUIC_survival_hours)  
-# # hist(RTposdf$RTQUIC_survival_hours)  
-# # shapiro.test(df[RTposdf$DX_APD =="CBS", ]$RTQUIC_survival_hours) #nonnormal
-# # shapiro.test(df[RTposdf$DX_APD =="PSP", ]$RTQUIC_survival_hours) #nonnormal
-# # shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$RTQUIC_survival_hours) #nonnormal
-# # shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$RTQUIC_survival_hours) #nonnormal
-# # shapiro.test(df[RTposdf$AD =="AD Positive", ]$RTQUIC_survival_hours) #nonnormal
-# # shapiro.test(df[RTposdf$AD =="AD Negative", ]$RTQUIC_survival_hours) #nonnormal
-# # leveneTest(RTQUIC_survival_hours ~ DX_APD, data = RTposdf) #homoscedasticity  
-# # leveneTest(RTQUIC_survival_hours ~ Early_onset, data = RTposdf) #homoscedasticity  
-# # leveneTest(RTQUIC_survival_hours ~ AD, data = RTposdf) #homoscedasticity  
+
+## 1. We want to have a column: Negative vs Positive
+## 2. We want to have a column: lag hours max or 40
+
+# LAG STATISTICS: DISTRIBUTION
+hist(df$RTQUIC_survival_hours)  
+hist(RTposdf$RTQUIC_survival_hours)  
+shapiro.test(df[RTposdf$DX_APD =="CBS", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$DX_APD =="PSP", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$Early_onset =="Young-onset", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$Early_onset =="Late-onset", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$AD =="AD Positive", ]$RTQUIC_survival_hours) #nonnormal
+shapiro.test(df[RTposdf$AD =="AD Negative", ]$RTQUIC_survival_hours) #nonnormal
+leveneTest(RTQUIC_survival_hours ~ DX_APD, data = RTposdf) #homoscedasticity  
+leveneTest(RTQUIC_survival_hours ~ Early_onset, data = RTposdf) #homoscedasticity  
+leveneTest(RTQUIC_survival_hours ~ AD, data = RTposdf) #homoscedasticity  
 
 
 # # # LAG STATISTICS: SUMMARY
@@ -2240,7 +2316,6 @@ dfblr |>
 # # # # Redundant with the fisher analyses already shown above
 # # # fit.coxph <- coxph(Surv(RTQUIC_survival_hours, RTQUIC_survived) ~ Early_onset + AD, data = df)
 # # # ggforest(fit.coxph, data = df)
-
 
 
 
