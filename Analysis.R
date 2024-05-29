@@ -680,6 +680,83 @@ etaSquared(aov)
 
 # p >.017 so no need to bonferroni correct as it is ns
 
+cat("\n\n######################################################################################################\n",
+	   "################################          5.2.5. ASYN-SAA*MOCA Z-SCORE         ########################\n",
+	   "#######################################################################################################\n")
+
+cat("----------------------------   GOES IN eTABLE 1: ASYN-SAA- vs ASYN-SAA+ ----------------------------------\n")
+cat("-------------------------   GOES IN TEXT - RESULTS - ASYN-SAA+ & DEMOGRAPHICS  ----------------------------\n")
+
+# MoCA Z-SCORE STATISTICS: DISTRIBUTION
+boxplot(LP2_MOCA_Z.score ~ RTQUIC, data= RTposdf, col = "white")$out #identify outliers in each diagnosis. First, look at CBS: there is one so attribute its value to vector.   
+	stripchart(LP2_MOCA_Z.score ~ RTQUIC, data = RTposdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+boxplot(LP2_MOCA_Z.score ~ RTQUIC, data= RTnegdf, col = "white")$out #Now identify outliers in PSP: since there is none, no need to attribute to a vector. 
+	stripchart(LP2_MOCA_Z.score ~ RTQUIC, data = RTnegdf, method = "jitter", pch = 19, col = 2:4, vertical = TRUE, add = TRUE)
+
+shapiro.test(RTposdf$LP2_MOCA_Z.score) #borderline
+shapiro.test(RTnegdf$LP2_MOCA_Z.score) #non-normal
+hist(df$LP2_MOCA_Z.score)
+hist(RTposdf$LP2_MOCA_Z.score)
+hist(RTnegdf$LP2_MOCA_Z.score)
+leveneTest(LP2_MOCA_Z.score ~ RTQUIC, data = df) #homoscedasticity
+
+# MoCA Z-SCORE STATISTICS: SUMMARY
+df %>% group_by(RTQUIC) %>% summarize(count=n(), format(round(median(LP2_MOCA_Z.score, na.rm=T),2),2), IQR=IQR(LP2_MOCA_Z.score, na.rm=T), min=min(LP2_MOCA_Z.score, na.rm=T), max=max(LP2_MOCA_Z.score, na.rm=T))
+
+# MoCA Z-SCORE STATISTICS: WILCOXON
+wilcox.test(df$LP2_MOCA_Z.score ~ df$RTQUIC, paired=F) #Since looking at z-score, no need to correct by age for this comparison (if just for descriptive purposes)
+
+	# ALL COGNITIVE SCORES DISTRIBUTION/SUMMARY/STATISTICS: NO NEED IN TABLE 1 (REDUNDANT)
+	shapiro.test(CBSdf$LP2_Cognitive_Z.score) #not normal
+	shapiro.test(PSPdf$LP2_Cognitive_Z.score) #not normal
+	leveneTest(LP2_Cognitive_Z.score ~ RTQUIC, data = df) #heterodasticity
+	wilcox.test(df$LP2_Cognitive_Z.score ~ df$RTQUIC, paired=F)
+	df %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+	df %>% group_by(RTQUIC) %>% summarize(count=n(), format(round(median(LP2_Cognitive_Z.score, na.rm=T),2),2), IQR=IQR(LP2_Cognitive_Z.score, na.rm=T), min=min(LP2_Cognitive_Z.score, na.rm=T), max=max(LP2_Cognitive_Z.score, na.rm=T))
+
+# NOW LOOK AT DECLINE RELATIVE TO AGE GROUP 
+# MoCA Z-SCORE RELATIVE: LINEAR REGRESSION MODEL SELECTION
+test1 <- lm(LP2_MOCA_Z.score ~ RTQUIC, df)
+test2 <- lm(LP2_MOCA_Z.score ~ RTQUIC  + DX_APD, df)
+test3 <- lm(LP2_MOCA_Z.score ~ RTQUIC + Sex, df) #not adding any value to the model
+test4 <- lm(LP2_MOCA_Z.score ~ RTQUIC + AD, df) #not adding any value to the model
+anova(test1, test2) 
+anova(test1, test3) 
+anova(test1, test4) 
+
+# Inclusion of Onset as a covariate. Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+ggscatter(df, x = "Age", y = "LP2_MOCA_Z.score", add = "reg.line")+ 
+	stat_regline_equation(aes()) 
+ggscatter(df, x = "Age", y = "LP2_MOCA_Z.score", color = "DX_APD", add = "reg.line")+ 
+stat_regline_equation(aes(color = DX_APD)) 
+ggscatter(df, x = "Age", y = "LP2_MOCA_Z.score", color = "RTQUIC", add = "reg.line")+ #Possible interaction
+	stat_regline_equation(aes(color = RTQUIC))
+cor.test(df$LP2_MOCA_Z.score, df$Age) #corr
+cor.test(df$LP2_MOCA_Z.score, df$Age, method="spearman") #corr
+summary(lm(df$LP2_MOCA_Z.score ~ df$Age)) #linear relationship 
+
+## Inclusion of NFL as a covariate. Check independence of DV and covariate (not expected in observational data) + homogeneity of regression slopes. 
+ggscatter(df, x = "NFL_2", y = "LP2_MOCA_Z.score", add = "reg.line")+ 
+	stat_regline_equation(aes()) 
+ggscatter(df, x = "NFL_2", y = "LP2_MOCA_Z.score", color = "DX_APD", add = "reg.line")+ 
+	stat_regline_equation(aes(color = DX_APD)) 
+ggscatter(df, x = "NFL_2", y = "LP2_MOCA_Z.score", color = "RTQUIC", add = "reg.line")+
+	stat_regline_equation(aes(color = RTQUIC))
+cor.test(df$LP2_MOCA_Z.score, df$NFL_2)
+cor.test(df$LP2_MOCA_Z.score, df$NFL_2, method="spearman")
+summary(lm(df$LP2_MOCA_Z.score ~ df$NFL_2))
+
+## Inclusion of other variables as covariate:
+summary(lm(df$LP2_MOCA_Z.score ~ df$LP2_Disease_Duration)) #no linear relationship
+summary(lm(df$LP2_MOCA_Z.score ~ df$ttau_2)) #linear relationship but not included if I add AD
+summary(lm(df$LP2_MOCA_Z.score ~ df$ptau_2)) #linear relationship but not included if I add AD
+
+## Comparison of complex models
+# For biomarkers, only kept logged value on one side of the model equation
+stdmlr <- lm(LP2_MOCA_Z.score ~ scale(Age) + RTQUIC + DX_APD + AD, df) 
+summary(stdmlr)
+AIC(stdmlr) 
+
 cat("\n\n\n\n###################################################################################################\n",
 		   "6. AD+ & COHORT CHARACTERISTICS\n",
 	 	   "####################################################################################################\n\n")
