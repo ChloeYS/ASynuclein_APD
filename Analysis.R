@@ -40,6 +40,7 @@ library(lmtest) #bptest()
 library(fmsb) #create_beautiful_radarchart()
 library(pscl) #McFadden index
 library(lsr) #eta-squared aov()
+library(ggsignif) #annotations figures with stats
 
 # Consider removing if not used: 
 # library(multcomp) #multiple comparisons
@@ -1494,9 +1495,6 @@ cat("-----------------------   GOES IN FIGURE 1D: ASYN-SAA+ vs ASYN-SAA-   -----
 
 #Option 2: Plot boxplot of NfL between RTQUIC/DX. 
 # General layout of the plot: boxplot by diagnosis where diagnosis is sig, within diagnosis rtquic groups are not sig
-library(ggsignif)
-
-# label <- "paste(''*italic(p), \" < .05\")" #Second annotation is p-value for the interaction
 
 fig1d_ver2 <- ggplot(dfnfl, aes(x=DX_APD, y=logNFL, color=RTQUIC))+ #No need for color or fill 
 
