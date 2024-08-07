@@ -3,7 +3,7 @@
 #Last updated May 2024
 
 #Usage: sources other files: 
-#RScript Analysis_APD.R /Users/nikhilbhagwat/Desktop/7_PUBLICATIONS_ONGOING/7.1_APD_MS_2024-01/7.1.0_Data/APD_Neurology_MS_data.csv
+#RScript Analysis.R /Users/nikhilbhagwat/Desktop/7_PUBLICATIONS_ONGOING/7.1_APD_MS_2024-01/7.1.0_Data/APD_Neurology_MS_data.csv
 
 
 
@@ -173,6 +173,10 @@ leveneTest(Onset_age ~ DX_APD, data = df) #homoscedasticity
 # ONSET STATISTICS: SUMMARY
 df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
 df %>% summarize(count=n(), format(round(mean(Onset_age, na.rm=T),2),2), sd=sd(Onset_age, na.rm=T))
+
+df %>% group_by(DX_APD) %>% summarize(count=n(), format(round(median(Onset_age, na.rm=T),2),2), IQR=IQR(Onset_age, na.rm=T), min=min(Onset_age, na.rm=T), max=max(Onset_age, na.rm=T))
+df %>% summarize(count=n(), format(round(median(Onset_age, na.rm=T),2),2), IQR=IQR(Onset_age, na.rm=T), min=min(Onset_age, na.rm=T), max=max(Onset_age, na.rm=T))
+
 
 # ONSET STATISTICS: STUDENTS TTEST
 t.test(df$Onset_age ~ df$DX_APD, var.equal=TRUE) 
@@ -1317,6 +1321,9 @@ cat("The model with the lowest AIC is the one including an interaction term of O
 # ABETA STATS: MULTIVARIABLE LINEAR REGRESSION MODEL
 stdmlr <- lm(logabeta ~ scale(Onset_age)*RTQUIC + DX_APD + scale(NFL_2), df) 
 summary(stdmlr)
+
+mlr <- lm(logabeta ~ Onset_age*RTQUIC + DX_APD + NFL_2, df) 
+summary(mlr)
 
 # ABETA STATS: MULTIVARIABLE LINEAR REGRESSION MODEL DIAGNOSTICS
 check_normality(stdmlr) #Ok normality of residuals
@@ -2550,3 +2557,10 @@ ggplot(RTposdf, aes(x=Early_onset, y=ThTmax, color=Early_onset))+ #No need for c
 	theme(legend.title = element_text(face="bold", size=16), legend.text= element_text(size=14))  
 
 
+
+
+dfblr<- dfblr[-which(is.na(df$logNFL)), ] #Remove NAs in df for the predictor NfL (anyway would have been automatically excluded)
+
+blrtest <- glm(RTQUIC_BLR ~ scale(Onset_age)*AD + RBD_binary + LP2_gait + scale(logNFL), data= dfblr, family = "binomial"(logit))
+summary(blrtest)
+AIC(blrtest) #lowest AIC but Dx and NFL are not significant. So should consider excluding them. 
